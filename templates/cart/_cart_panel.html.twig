@@ -1,0 +1,71 @@
+<div class="wrap-header-cart js-panel-cart">
+    <div class="s-full js-hide-cart"></div>
+
+    <div class="header-cart flex-col-l p-l-65 p-r-25">
+        <div class="header-cart-title flex-w flex-sb-m p-b-8">
+            <span class="mtext-103 cl2">Votre Panier</span>
+            <div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
+                <i class="zmdi zmdi-close"></i>
+            </div>
+        </div>
+
+        <!-- Message d'information -->
+        <p id="cart-item-count" class="stext-110 cl2 p-b-10">
+            {% if cartItems is not empty %}
+                {% set totalQty = cartItems|reduce((carry, i) => carry + i.qty, 0) %}
+                {{ totalQty }} article{{ totalQty > 1 ? 's' : '' }} dans votre panier
+            {% else %}
+                Votre panier est vide.
+            {% endif %}
+        </p>
+
+        <div class="header-cart-content flex-w js-pscroll">
+            <ul class="header-cart-wrapitem w-full" id="header-cart-items">
+                {% for item in cartItems %}
+                    <li class="header-cart-item flex-w flex-t m-b-12">
+                    {{dump (item.imageName)}}
+                        <div class="header-cart-item-img">
+                            {% if item.imageName %}
+                                <img src="{{ asset('uploads/productVariant/' ~ item.imageName) }}" alt="{{ item.name }}"  onerror="this.onerror=null; this.src='{{ asset('images/placeholder_150x150.png') }}';"
+>
+                            {% else %}
+                                <img src="{{ asset('images/placeholder_150x150.png') }}" alt="Image indisponible">
+                            {% endif %}
+                        </div>
+
+                        <div class="header-cart-item-txt p-t-8">
+                            <a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
+                                {{ item.name }}
+                            </a>
+                            <span class="header-cart-item-info">
+                                {{ (item.unit_price_eur )|number_format(2, '.', ' ') }} {{ item.currency|default('EUR') }}
+
+                            </span>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><p class="stext-110 cl2">Votre panier est vide.</p></li>
+                {% endfor %}
+            </ul>
+
+            <div class="w-full">
+                <div class="header-cart-total w-full p-tb-40">
+                    Total:
+                    <span id="header-cart-total">
+                        {% set total = cartItems|reduce((sum, i) => sum + (i.qty * i.unit_price_eur), 0) %}
+                        {{ (total / 100)|number_format(2, ',', ' ') }} €
+                    </span>
+                </div>
+
+                <div class="header-cart-buttons flex-w w-full">
+                    <a href="/mon-panier" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10 js-view-cart">
+                        Voir le panier
+                    </a>
+                    <a href="/checkout" class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+                        Commander
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

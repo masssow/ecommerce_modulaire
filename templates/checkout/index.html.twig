@@ -1,0 +1,264 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+  <h3 class="mb-3">Finaliser la commande</h3>
+
+  {# Flash messages #}
+  {% for label, messages in app.flashes %}
+    {% for msg in messages %}
+      <div class="alert alert-{{ label }} small mb-2">{{ msg }}</div>
+    {% endfor %}
+  {% endfor %}
+
+  <div class="row g-4">
+    {# ============== Colonne gauche : adresses ============== #}
+    <div class="col-lg-6">
+      <div class="border rounded p-3 mb-3">
+        <h5 class="mb-3">Adresse de livraison</h5>
+
+        {% if app.user and app.user.fullName is defined %}
+          <p class="text-muted small mb-2">Client : <strong>{{ app.user.fullName }}</strong></p>
+        {% endif %}
+
+        {% set hasAddresses = (addresses is defined and addresses|length > 0) %}
+
+        {# Liste des adresses existantes #}
+        {% if hasAddresses %}
+          <div class="vstack gap-2 mb-2">
+            {% for a in addresses %}
+              <label class="border rounded p-2 small d-block">
+                <input type="radio" name="shipping_address_id" value="{{ a.id }}" form="place-order-form" {% if loop.first %}checked{% endif %}>
+                <span class="ms-1">
+                  {{ a.line1 ?? '' }}{% if a.line2 %}, {{ a.line2 }}{% endif %}<br>
+                  {{ a.postalCode ?? '' }} {{ a.city ?? '' }}{% if a.country %}, {{ a.country }}{% endif %}
+                  {% if a.phone %}<br><span class="text-muted">Tél : {{ a.phone }}</span>{% endif %}
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+
+          <button type="button" class="btn btn-link p-0 small" id="show-ship-form">
+            Utiliser une autre adresse
+          </button>
+        {% else %}
+          <div class="alert alert-light small mb-2">
+            Vous n’avez pas encore d’adresse. Ajoutez-en une ci-dessous.
+          </div>
+        {% endif %}
+
+        {# Formulaire RÉEL d’ajout de LIVRAISON → POST vers AdresseController #}
+        <div id="add-shipping-form" class="{{ hasAddresses ? 'd-none' : '' }} mt-2">
+          {% if app.user and app.user.fullName is defined %}
+            <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
+          {% endif %}
+
+          <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
+            <input type="hidden" name="_token" value="{{ csrf_token('add_address') }}">
+            <input type="hidden" name="context" value="shipping">
+
+            <input type="text" name="line1" class="form-control form-control-sm" placeholder="Adresse (ligne 1)" required>
+            <input type="text" name="line2" class="form-control form-control-sm" placeholder="Adresse (ligne 2)">
+            <div class="d-flex gap-2">
+              <input type="text" name="postalCode" class="form-control form-control-sm" placeholder="Code postal">
+              <input type="text" name="city" class="form-control form-control-sm" placeholder="Ville" required>
+            </div>
+            <input type="text" name="country" class="form-control form-control-sm" placeholder="Pays">
+            <input type="text" name="phone" class="form-control form-control-sm" placeholder="Téléphone">
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Ajouter l’adresse de livraison</button>
+              {% if hasAddresses %}
+                <button type="button" class="btn btn-light btn-sm" id="hide-ship-form">Annuler</button>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="border rounded p-3">
+        <h5 class="mb-3">Adresse de facturation</h5>
+
+        {# Par défaut : même adresse que la livraison #}
+        <input type="hidden" name="billing_same_as_shipping" value="1" form="place-order-form" id="billing-same">
+        <p class="small text-muted mb-2" id="billing-using-same">
+          Nous utiliserons la même adresse que la livraison.
+        </p>
+        <button type="button" class="btn btn-link p-0 small" id="toggle-billing-choice">
+          Utiliser une autre adresse de facturation
+        </button>
+
+        {# Choix d’adresse de FACTURATION + formulaire réel d’ajout #}
+        <div id="billing-choice" class="mt-2 d-none">
+          {% if hasAddresses %}
+            <div class="vstack gap-2 mb-2">
+              {% for a in addresses %}
+                <label class="border rounded p-2 small d-block">
+                  <input type="radio" name="billing_address_id" value="{{ a.id }}" form="place-order-form" {% if loop.first %}checked{% endif %}>
+                  <span class="ms-1">
+                    {{ a.line1 ?? '' }}{% if a.line2 %}, {{ a.line2 }}{% endif %}<br>
+                    {{ a.postalCode ?? '' }} {{ a.city ?? '' }}{% if a.country %}, {{ a.country }}{% endif %}
+                    {% if a.phone %}<br><span class="text-muted">Tél : {{ a.phone }}</span>{% endif %}
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-light small">
+              Aucune adresse trouvée. Ajoutez une adresse de facturation ci-dessous.
+            </div>
+          {% endif %}
+
+          <div id="add-billing-form" class="mt-2">
+            {% if app.user and app.user.fullName is defined %}
+              <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
+              <input type="hidden" name="_token" value="{{ csrf_token('add_address') }}">
+              <input type="hidden" name="context" value="billing">
+
+              <input type="text" name="line1" class="form-control form-control-sm" placeholder="Adresse (ligne 1)" required>
+              <input type="text" name="line2" class="form-control form-control-sm" placeholder="Adresse (ligne 2)">
+              <div class="d-flex gap-2">
+                <input type="text" name="postalCode" class="form-control form-control-sm" placeholder="Code postal">
+                <input type="text" name="city" class="form-control form-control-sm" placeholder="Ville" required>
+              </div>
+              <input type="text" name="country" class="form-control form-control-sm" placeholder="Pays">
+              <input type="text" name="phone" class="form-control form-control-sm" placeholder="Téléphone">
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Ajouter l’adresse de facturation</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ============== Colonne droite : panier + total ============== #}
+    <div class="col-lg-6">
+      <div class="border rounded p-3">
+        <h5 class="mb-3">Votre panier</h5>
+
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead class="table-light small">
+              <tr>
+                <th style="width:60px;"></th>
+                <th>Produit</th>
+                <th class="text-end">Qté</th>
+                <th class="text-end">Prix</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              {% for item in cart.cartItems %}
+                <tr>
+                  <td>
+                    <img
+                      src="{% if item.productVariant.imageName %}
+                              {{ asset('uploads/productVariant/' ~ item.productVariant.imageName) }}
+                            {% else %}
+                              {{ asset('images/placeholder_150x150.png') }}
+                            {% endif %}"
+                      alt="{{ item.productVariant.product.name }}"
+                      class="img-fluid rounded" style="max-width:40px"
+                      onerror="this.onerror=null; this.src='{{ asset('images/placeholder_150x150.png') }}';">
+                  </td>
+                  <td>{{ item.productVariant.product.name }}</td>
+                  <td class="text-end">{{ item.quantity }}</td>
+                  <td class="text-end">{{ (item.unitPrice / 100)|number_format(2, ',', ' ') }} €</td>
+                  <td class="text-end">{{ ((item.unitPrice * item.quantity) / 100)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">Votre panier est vide.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {# Totaux en CENTIMES #}
+        {% set subTotalCts = cart.total %}
+        <div class="border-top pt-3 mt-2 small">
+          <div class="d-flex justify-content-between">
+            <span>Sous-total :</span>
+            <strong>{{ (subTotalCts / 100)|number_format(2, ',', ' ') }} €</strong>
+          </div>
+
+       {% if shippingMethods is not empty %}
+          <div class="mb-3">
+            <label class="form-label">Mode d’expédition</label>
+              {% for sm in shippingMethods %}
+                <div class="form-check">
+                  <input class="form-check-input"
+                        type="radio"
+                        name="shipping_method_id"
+                        id="sm{{ sm.id }}"
+                        value="{{ sm.id }}"
+                        {% if sm.id == selectedMethodId %}checked{% endif %}>
+                  <label class="form-check-label" for="sm{{ sm.id }}">
+                    {{ sm.name ?? sm.carrierName ?? 'Transporteur' }}
+                    — {{ ( (sm.basePrice ?? sm.baseCost ?? 0) / 100 )|number_format(2, '.', ' ') }} €
+                    {% if sm.freeShippingThreshold is not null %}
+                      <small class="text-muted">(Expédition gratuite au déla de {{ (sm.freeShippingThreshold/100)|number_format(2, '.', ' ') }} €)</small>
+                    {% endif %}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+        {% endif %}
+
+
+          <div class="d-flex justify-content-between mt-2">
+            <span>Total :</span>
+            <strong>{{ (totalWithShipCts / 100)|number_format(2, ',', ' ') }} €</strong>
+          </div>
+        </div>
+
+        <form id="place-order-form" method="post" action="{{ path('app_checkout_place') }}" class="mt-3">
+          <button type="submit" class="btn btn-dark w-100">Confirmer la commande</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ===== JS : toggles ===== #}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const showShipBtn = document.getElementById('show-ship-form');
+    const hideShipBtn = document.getElementById('hide-ship-form');
+    const shipForm    = document.getElementById('add-shipping-form');
+
+    showShipBtn?.addEventListener('click', () => {
+      shipForm?.classList.remove('d-none');
+    });
+    hideShipBtn?.addEventListener('click', () => {
+      shipForm?.classList.add('d-none');
+    });
+
+    const toggleBilling = document.getElementById('toggle-billing-choice');
+    const billingChoice = document.getElementById('billing-choice');
+    const billingSameIn = document.getElementById('billing-same');
+    const billingUsing  = document.getElementById('billing-using-same');
+
+    if (toggleBilling && billingChoice && billingSameIn && billingUsing) {
+      toggleBilling.addEventListener('click', () => {
+        const nowHidden = billingChoice.classList.toggle('d-none');
+        if (nowHidden) {
+          billingSameIn.value = '1';
+          billingUsing.classList.remove('d-none');
+        } else {
+          billingSameIn.value = '0';
+          billingUsing.classList.add('d-none');
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

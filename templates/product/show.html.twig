@@ -1,0 +1,127 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ product.product.name }}{% endblock %}
+
+{% block body %}
+<!-- Breadcrumb -->
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+            Accueil
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+        <span class="stext-109 cl4">
+            {{ product.product.name }}
+        </span>
+    </div>
+</div>
+
+<!-- Product Detail -->
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+    <div class="container">
+        <div class="row">
+            <!-- Galerie principale -->
+            <div class="col-md-6 col-lg-7 p-b-30">
+                <div class="p-l-25 p-r-30 p-lr-0-lg">
+                    <div class="wrap-slick3 flex-sb flex-w">
+                        <div class="wrap-slick3-dots"></div>
+                        <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+                        <div class="slick3 gallery-lb">
+                            <div class="item-slick3">
+                                <div class="wrap-pic-w pos-relative">
+                                    <img src="{{ product.imageName ? asset('uploads/productVariant/' ~ product.imageName) : asset('images/placeholder-image.png') }}" alt="{{ product.product.name }}">
+                                    {% if product.imageName %}
+                                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ asset('uploads/productVariant/' ~ product.imageName) }}">
+                                            <i class="fa fa-expand"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails -->
+            <div class="col-md-6 col-lg-5 p-b-30">
+                <div class="p-r-50 p-t-5 p-lr-0-lg">
+                    <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+                        {{ product.product.name }}
+                    </h4>
+
+                    <span class="mtext-106 cl2">
+                        {{ (variant.priceAmount / 100)|number_format(2, '.', ' ') }} {{ variant.priceCurrency }}
+                    </span>
+
+                    <p class="stext-102 cl3 p-t-23">
+                        {{ product.product.description }}
+                    </p>
+
+                 <div class="p-t-33">
+                    <div class="flex-w flex-r-m p-b-10">
+                        <div class="size-204 flex-w flex-m respon6-next">
+                          <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" data-variant-id="{{ variant.id }}" data-qty="1">
+                                Ajouter au panier
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                    <div class="flex-w flex-m p-l-100 p-t-40 respon7">
+                        <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 tooltip100" data-tooltip="Favori">
+                            <i class="zmdi zmdi-favorite"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description seule -->
+        <section class="sec-product-detail bg0 p-t-65 p-b-60">
+            <div class="container">
+                <div class="row">
+                    <!-- ... colonne image + colonne détails ... -->
+                </div>
+
+                <!-- Description seule -->
+                <div class="bor10 m-t-50 p-t-43 p-b-40">
+                    <h3 class="ltext-106 cl5 txt-center m-b-30">Description</h3>
+                    <div class="how-pos2 p-lr-15-md">
+                        <p class="stext-102 cl6">
+                            {{ product.product.description }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Informations additionnelles détachées -->
+                <div class="bor10 m-t-40 p-t-43 p-b-40">
+                    <h3 class="ltext-106 cl5 txt-center m-b-30">Informations additionnelles</h3>
+                    <div class="row">
+                        <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
+                            {% if product.attributes is defined and product.attributes|length > 0 %}
+                                <ul class="p-lr-28 p-lr-15-sm">
+                                    {% for name, value in product.attributes %}
+                                        <li class="flex-w flex-t p-b-7">
+                                            {# <span class="stext-102 cl3 size-205">{{ name|title }}</span> #}
+                                            <span class="stext-102 cl6 size-206">{{ value }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="stext-102 cl6 text-center">Aucune information additionnelle disponible.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (Facultatif : section Reviews à venir) -->
+            </div>
+        </section>
+        <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
+            <span class="stext-107 cl6 p-lr-25">
+                Catégorie : {{ product.product.subCategory.name ?? 'Non défini' }}
+            </span>
+        </div>
+    </div>
+</section>
+{% endblock %}

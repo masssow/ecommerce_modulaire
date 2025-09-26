@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon panier{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="bread-crumb mb-3">
+        <a href="{{ path('app_home') }}" class="text-decoration-none text-muted small">
+            Accueil <i class="fa fa-angle-right mx-2"></i>
+        </a>
+        <span class="text-muted small">Mon panier</span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="table-responsive">
+                <table class="table table-sm text-nowrap align-middle w-100 fs-6">
+                    <thead class="table-light small">
+                        <tr>
+                            <th>Produit</th>
+                            <th></th>
+                            <th>Prix</th>
+                            <th class="text-center">Qté</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        {% for item in cart.cartItems %}
+                            <tr class="table_row" data-unit-price="{{ item.unitPrice }}">
+                                <td style="width: 60px;">
+                                    <img src="{{ item.productVariant.imageName
+                                        ? asset('uploads/productVariant/' ~ item.productVariant.imageName)
+                                        : asset('images/placeholder_150x150.png') }}"
+                                         alt="{{ item.productVariant.product.name }}"
+                                         class="img-fluid rounded" style="max-width: 40px;"
+                                         onerror="this.onerror=null; this.src='{{ asset('images/placeholder_150x150.png') }}';">
+                                </td>
+                                <td>{{ item.productVariant.product.name }}</td>
+                                <td>{{ (item.unitPrice / 100)|number_format(2, ',', ' ') }} €</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-2 js-controls">
+                                        {% if item.quantity > 1 %}
+                                            <button type="button"  class="btn btn-sm btn-outline-secondary js-decrease-qty" data-item-id="{{ item.id }}">-</button>
+                                        {% else %}
+                                            <button type="button"  class="btn btn-sm btn-outline-danger js-remove-item" data-item-id="{{ item.id }}">
+                                                <i class="zmdi zmdi-delete"></i>
+                                            </button>
+                                        {% endif %}
+                                        <span class="quantity-value">{{ item.quantity }}</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary js-increase-qty" data-item-id="{{ item.id }}">+</button>
+                                    </div>
+                                </td>
+                                <td class="item-total">
+                                    {{ ((item.unitPrice * item.quantity) / 100)|number_format(2, ',', ' ') }} €
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">Votre panier est vide.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="border p-4 rounded fs-6">
+                <h6 class="mb-3">Total du panier</h6>
+
+                <div class="d-flex justify-content-between small">
+                    <span>Sous-total :</span>
+                    <strong>{{ subTotal|number_format(2, ',', ' ') }} €</strong>
+                </div>
+
+                <div class="d-flex justify-content-between small mt-2">
+                    <span>TVA ({{ taxRate }}%) :</span>
+                    <strong>{{ tvaAmount|number_format(2, ',', ' ') }} €</strong>
+                </div>
+
+                {# <div class="d-flex justify-content-between small mt-2"> #}
+                    {# <span>Frais de livraison :</span> #}
+                    {# <strong>{{ shippingFee|number_format(2, ',', ' ') }} €</strong> #}
+                {# </div> #}
+
+                <div class="d-flex justify-content-between small mt-2 fw-bold">
+                    <span>Total TTC :</span>
+                    <strong>{{ grandTotal|number_format(2, ',', ' ') }} €</strong>
+                </div>
+
+                <a href="/checkout" class="btn btn-dark w-100 mt-4">
+                    Commander
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // +
+    document.querySelectorAll('.js-increase-qty').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const itemId = btn.dataset.itemId;
+        await updateQty(itemId, 1);
+      });
+    });
+
+    // -
+    document.querySelectorAll('.js-decrease-qty').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const itemId = btn.dataset.itemId;
+        await updateQty(itemId, -1);
+      });
+    });
+
+    // Corbeille
+    document.querySelectorAll('.js-remove-item').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const itemId = btn.dataset.itemId;
+        if (!confirm("Supprimer cet article du panier ?")) return;
+        await updateQty(itemId, 0); // 0 = suppression
+      });
+    });
+
+    async function updateQty(itemId, delta) {
+      const incBtn = document.querySelector(`.js-increase-qty[data-item-id="${itemId}"]`);
+      const qtySpan = incBtn ? incBtn.previousElementSibling : null;
+      const currentQty = qtySpan ? parseInt(qtySpan.textContent) : 1;
+
+      const newQty = delta === 0 ? 0 : currentQty + delta;
+
+      const res = await fetch(`/panier/item/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qty: newQty })
+      });
+
+      if (res.ok) {
+        location.reload(); // ✅ recharge la page
+      } else {
+        alert('Erreur lors de la mise à jour du panier');
+      }
+    }
+  });
+</script>
+
+{% endblock %}
+

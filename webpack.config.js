@@ -35,9 +35,21 @@ Encore
      * Enable & configure other features below. For a full
      * list of features, see:
      * https://symfony.com/doc/current/frontend.html#adding-more-features
+     *
      */
     .cleanupOutputBeforeBuild()
 
+    .copyFiles({
+        from: './assets/images',
+        to: 'images/[path][name].[hash:8].[ext]'
+    })
+
+
+    .copyFiles({
+        from: './assets/fonts',
+        to: 'fonts/[path][name].[ext]'
+    })
+    
     // Displays build status system notifications to the user
     // .enableBuildNotifications()
 
@@ -70,7 +82,7 @@ Encore
     //.enableIntegrityHashes(Encore.isProduction())
 
     // uncomment if you're having problems with a jQuery plugin
-    //.autoProvidejQuery()
+    .autoProvidejQuery()
 ;
 
 module.exports = Encore.getWebpackConfig();

@@ -1,0 +1,13 @@
+# config/packages/api_platform.yaml
+api_platform:
+    title: 'eCommerce Modulaire API'
+    mapping:
+        paths: ['%kernel.project_dir%/src/Entity']
+    # activez/désactivez les formats selon besoins
+    formats:
+        jsonld:    ['application/ld+json']
+        json:      ['application/json']
+        html:      ['text/html']
+    patch_formats:
+        json: ['application/merge-patch+json']
+    # pagination, documentation OpenAPI, etc. par défaut

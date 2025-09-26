@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block title %}Confirmation du paiement{% endblock %}
+
+{% block body %}
+<section class="container my-5">
+  <h1 class="mb-3">Confirmation du paiement</h1>
+
+  {% if paid %}
+    <div class="alert alert-success">{{ message }}</div>
+    <p>Commande <strong>#{{ orderNumber }}</strong> — Total payé : <strong>{{ expectedTotal }}</strong></p>
+    <a href="{{ path('account_orders') }}" class="btn btn-primary mt-3">Voir mes commandes</a>
+    <a href="{{ path('app_home') }}" class="btn btn-link mt-3">Retour à l'accueil</a>
+  {% else %}
+    <div class="alert alert-warning">{{ message }}</div>
+    {% if orderNumber %}
+      <p>Référence : <strong>#{{ orderNumber }}</strong> — Montant attendu : <strong>{{ expectedTotal }}</strong></p>
+    {% endif %}
+    <a href="{{ path('cart_page') }}" class="btn btn-primary mt-3">Revenir au panier</a>
+  {% endif %}
+</section>
+{% endblock %}

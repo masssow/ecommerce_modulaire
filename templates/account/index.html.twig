@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Compte{% endblock %}
+
+{% block body %}
+<!-- breadcrumb -->
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+            Accueil
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+        <span class="stext-109 cl4">Mon compte</span>
+    </div>
+</div>
+
+<!-- Content page -->
+<section class="bg0 p-t-52 p-b-20">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-4 col-lg-3 p-b-80">
+                <div class="side-menu bor10 p-t-30 p-b-30 p-lr-20">
+                    <h4 class="mtext-112 cl2 p-b-20">Navigation</h4>
+                    <ul>
+                        <li class="bor18 p-tb-8">
+                            <a href="#orders" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes commandes</a>
+                        </li>
+                        <li class="bor18 p-tb-8">
+                            <a href="#addresses" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes adresses</a>
+                        </li>
+                        <li class="bor18 p-tb-8">
+                            <a href="#payments" class="dis-block stext-115 cl6 hov-cl1 trans-04">Moyens de paiement</a>
+                        </li>
+                        <li class="bor18 p-tb-8">
+                            <a href="#profile" class="dis-block stext-115 cl6 hov-cl1 trans-04">Informations personnelles</a>
+                        </li>
+                        <li class="bor18 p-tb-8">
+                            <a href="{{ path('app_logout') }}" class="dis-block stext-115 cl6 hov-cl1 trans-04">Déconnexion</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <div class="col-md-8 col-lg-9 p-b-80">
+                <div class="p-l-25 p-l-0-lg">
+                    
+                    <!-- Orders -->
+                    <div id="orders" class="p-b-60">
+                        <h4 class="mtext-112 cl2 p-b-20">Mes commandes</h4>
+                        <table class="table-shopping-cart">
+                            <thead>
+                                <tr class="table_head">
+                                    <th class="column-1">Commande</th>
+                                    <th class="column-2">Date</th>
+                                    <th class="column-3">Total</th>
+                                    <th class="column-4">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table_row">
+                                    <td class="column-1">#1001</td>
+                                    <td class="column-2">22/09/2025</td>
+                                    <td class="column-3">75,00 €</td>
+                                    <td class="column-4">Expédiée</td>
+                                </tr>
+                                <tr class="table_row">
+                                    <td class="column-1">#1000</td>
+                                    <td class="column-2">15/09/2025</td>
+                                    <td class="column-3">120,00 €</td>
+                                    <td class="column-4">Livrée</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Addresses -->
+                    <div id="addresses" class="p-b-60">
+                        <h4 class="mtext-112 cl2 p-b-20">Mes adresses</h4>
+                        <div class="bor10 p-20 m-b-20">
+                            <p class="stext-111 cl6">Adresse de livraison :</p>
+                            <p class="stext-113 cl2">12 rue de Paris, 75000 Paris, France</p>
+                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
+                        </div>
+                        <div class="bor10 p-20">
+                            <p class="stext-111 cl6">Adresse de facturation :</p>
+                            <p class="stext-113 cl2">12 rue de Paris, 75000 Paris, France</p>
+                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
+                        </div>
+                    </div>
+
+                    <!-- Payments -->
+                    <div id="payments" class="p-b-60">
+                        <h4 class="mtext-112 cl2 p-b-20">Moyens de paiement</h4>
+                        <div class="bor10 p-20 m-b-20">
+                            <p class="stext-111 cl6">Carte enregistrée :</p>
+                            <p class="stext-113 cl2">Visa se terminant par •••• 4242</p>
+                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
+                        </div>
+                        <a href="#" class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+                            Ajouter un moyen de paiement
+                        </a>
+                    </div>
+
+                    <!-- Profile -->
+                    <div id="profile" class="p-b-60">
+                        <h4 class="mtext-112 cl2 p-b-20">Informations personnelles</h4>
+                        <form>
+                            <div class="bor19 size-218 m-b-20">
+                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" value="Jean Dupont">
+                            </div>
+                            <div class="bor19 size-218 m-b-20">
+                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="email" value="jean.dupont@email.com">
+                            </div>
+                            <div class="bor19 size-218 m-b-20">
+                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="tel" value="+33 6 12 34 56 78">
+                            </div>
+                            <button class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04">
+                                Mettre à jour
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% for item in cart.cartItems %}
+<tr class="table_row">
+    <td class="column-1">
+        <div class="how-itemcart1">
+            <img src="/uploads/product/{{ item.productVariant.imageName }}" alt="IMG">
+        </div>
+    </td>
+    <td class="column-2">{{ item.productVariant.product.name }}</td>
+    <td class="column-3">{{ item.unitPrice|number_format(2, '.', ' ') }} €</td>
+    <td class="column-4">{{ item.quantity }}</td>
+    <td class="column-5">{{ (item.unitPrice * item.quantity)|number_format(2, '.', ' ') }} €</td>
+</tr>
+{% endfor %}

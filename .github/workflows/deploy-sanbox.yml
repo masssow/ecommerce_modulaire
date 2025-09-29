@@ -1,0 +1,62 @@
+name: Deploy to Sandbox
+
+on:
+  push:
+    branches: ["developpement"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Récupérer le code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2) Node 20 (équiv. nvm use 20) + cache npm
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3) Installer et builder les assets
+      - name: Install & Build Frontend
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npm run build
+
+      # 4) Déploiement vers Hostinger via rsync 
+      - name: Rsync to Hostinger (sandbox)
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -avz --delete \
+            --exclude=".git" --exclude=".github" \
+            --exclude="node_modules" --exclude="tests" \
+            --exclude="var/cache/*" --exclude=".env*"  
+          path: ./
+          remote_path: ${{ secrets.SANDBOX_PATH }}     
+          remote_host: ${{ secrets.SSH_HOST }}         
+          remote_user: ${{ secrets.SSH_USER }}         
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote_port: ${{ secrets.SSH_PORT }}         
+
+      # 5) Post-deploy : Composer (PHP 8.2), migrations, cache
+      - name: Post-deploy on Hostinger
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            APP="${{ secrets.SANDBOX_PATH }}"
+            PHP="/opt/alt/php82/usr/bin/php"
+            COMPOSER="$PHP /usr/bin/composer"
+
+            cd "$APP"
+            $COMPOSER install --no-interaction --prefer-dist
+            $PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
+            $PHP bin/console cache:clear --env=dev
+            $PHP bin/console cache:warmup --env=dev

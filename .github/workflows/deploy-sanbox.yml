@@ -3,46 +3,46 @@ name: Deploy to Sandbox
 on:
   push:
     branches: ["developpement"]
+  workflow_dispatch: {}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Récupérer le code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Node 20 (équiv. nvm use 20) + cache npm
+      # Node 20 (pour build npm)
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      # 3) Installer et builder les assets
       - name: Install & Build Frontend
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
           npm run build
 
-      # 4) Déploiement vers Hostinger via rsync 
-      - name: Rsync to Hostinger (sandbox)
-        uses: burnett01/rsync-deployments@6.0.0
+      # Charger la clé dans un agent SSH (évite l'erreur libcrypto)
+      - name: Start ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          switches: -avz --delete \
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Déploiement par rsync (on n’écrase pas .env.local)
+      - name: Rsync to Hostinger
+        run: |
+          rsync -avz --delete \
             --exclude=".git" --exclude=".github" \
             --exclude="node_modules" --exclude="tests" \
-            --exclude="var/cache/*" --exclude=".env*"  
-          path: ./
-          remote_path: ${{ secrets.SANDBOX_PATH }}     
-          remote_host: ${{ secrets.SSH_HOST }}         
-          remote_user: ${{ secrets.SSH_USER }}         
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          remote_port: ${{ secrets.SSH_PORT }}         
+            --exclude="var/cache/*" --exclude=".env*" \
+            -e "ssh -p ${{ secrets.SSH_PORT }}" \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SANDBOX_PATH }}
 
-      # 5) Post-deploy : Composer (PHP 8.2), migrations, cache
-      - name: Post-deploy on Hostinger
+      # Post-deploy : Composer (PHP 8.2), migrations, cache
+      - name: Post-deploy commands
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}

@@ -20,12 +20,12 @@ class UserFixtures extends Fixture
     {
         // Admin 1
         $admin1 = new User();
-        $admin1->setEmail('samba@mail.com');
+        $admin1->setEmail('doudou@mail.com');
         $admin1->setRoles(['ROLE_ADMIN']);
         $admin1->setFirstname('Admin');
         $admin1->setLastname('One');
         $admin1->setPassword(
-            $this->passwordHasher->hashPassword($admin1, 'Password25') // ⚠️ change en prod
+            $this->passwordHasher->hashPassword($admin1, 'password') // ⚠️ change en prod
         );
         $manager->persist($admin1);
         $this->addReference(self::ADMIN_1_REF, $admin1);

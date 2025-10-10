@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Node 20 (pour build npm)
+      # 2) Node 20 (build npm côté GitHub)
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
@@ -25,38 +26,48 @@ jobs:
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
           npm run build
 
-      # Charger la clé dans un agent SSH (évite l'erreur libcrypto)
-      - name: Start ssh-agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # 3) Écrire la clé privée depuis le secret (pas d'agent)
+      - name: Write SSH key
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          # supprime d'éventuels CRLF (Windows) avant d'écrire la clé
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ci
+          chmod 600 ~/.ssh/id_ci
 
-      # Déploiement par rsync (on n’écrase pas .env.local)
-      - name: Rsync to Hostinger
+      # 4) Test SSH rapide (facultatif)
+      - name: SSH sanity
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
+
+      # 5) Rsync vers Hostinger (on n’écrase pas .env.local, ni vendor)
+      - name: Rsync to Hostinger (sandbox)
+        shell: bash
         run: |
           rsync -avz --delete \
             --exclude=".git" --exclude=".github" \
             --exclude="node_modules" --exclude="tests" \
-            --exclude="var/cache/*" --exclude=".env*" \
-            -e "ssh -p ${{ secrets.SSH_PORT }}" \
-            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SANDBOX_PATH }}
+            --exclude="vendor" --exclude="var/cache/*" \
+            --exclude=".env*" \
+            -e "ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SANDBOX_PATH }}
 
-      # Post-deploy : Composer (PHP 8.2), migrations, cache
+      # 6) Post-deploy : Composer (PHP 8.2), migrations, cache (via ssh -i)
       - name: Post-deploy commands
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            APP="${{ secrets.SANDBOX_PATH }}"
-            PHP="/opt/alt/php82/usr/bin/php"
-            COMPOSER="$PHP /usr/bin/composer"
-
-            cd "$APP"
-            $COMPOSER install --no-interaction --prefer-dist
-            $PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
-            $PHP bin/console cache:clear --env=dev
-            $PHP bin/console cache:warmup --env=dev
+        shell: bash
+        env:
+          APP: ${{ secrets.SANDBOX_PATH }}
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+              set -e
+              PHP='/opt/alt/php82/usr/bin/php'
+              COMPOSER=\"\$PHP /usr/bin/composer\"
+              cd \"$APP\"
+              \$COMPOSER install --no-interaction --prefer-dist
+              \$PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
+              \$PHP bin/console cache:clear --env=dev
+              \$PHP bin/console cache:warmup --env=dev
+            "

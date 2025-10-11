@@ -90,8 +90,12 @@
           </h4>
 
           <span class="mtext-106 cl2">
-            {{ (((currentVariant.priceAmount ?? 0) / 100) | format_currency(currency)) }}
+            {{ ((currentVariant.priceAmount ?? 0) / 100) }} €
           </span>
+          {# TODO voir ce format_currency #}
+           {# <span class="mtext-106 cl2">
+            {{ (((currentVariant.priceAmount ?? 0) / 100) | format_currency(currency)) }} €
+          </span> #}
 
           {# Prix barré si prix de comparaison dispo #}
           {% if currentVariant.compareAtAmount is defined and currentVariant.compareAtAmount and currentVariant.compareAtAmount > currentVariant.priceAmount %}

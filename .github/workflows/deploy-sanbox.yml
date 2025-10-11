@@ -8,27 +8,38 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # si tes secrets sont dans un Environment, dé-commente:
+    # environment: sandbox
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Write SSH key (from Base64)
+      # Clé SSH depuis secret: préfère SSH_PRIVATE_KEY_B64, sinon SSH_PRIVATE_KEY (plain OpenSSH)
+      - name: Write SSH key (B64 or plain)
         shell: bash
         run: |
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY_B64 }}" ]; then
-            echo "::error::Secret SSH_PRIVATE_KEY_B64 is empty or not accessible (check repo vs environment secrets, name, permissions)."
+          mkdir -p ~/.ssh
+          if [ -n "${{ secrets.SSH_PRIVATE_KEY_B64 }}" ]; then
+            echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
+            echo "Loaded key from SSH_PRIVATE_KEY_B64"
+          elif [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" | sed 's/\r$//' > ~/.ssh/id_ci
+            echo "Loaded key from SSH_PRIVATE_KEY"
+          else
+            echo "::error::Neither SSH_PRIVATE_KEY_B64 nor SSH_PRIVATE_KEY is set."
             exit 1
           fi
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
           chmod 600 ~/.ssh/id_ci
-          # Sanity: taille du fichier (doit être > 0)
-          echo "Private key bytes: $(wc -c < ~/.ssh/id_ci)"
-          # Affiche une empreinte; si ça échoue, la clé est mal formée
+          # Vérifie le format (doit afficher une empreinte)
           ssh-keygen -yf ~/.ssh/id_ci | ssh-keygen -lf -
 
+      - name: SSH sanity
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
 
-      # Génère le script de déploiement à exécuter côté serveur
       - name: Create remote deploy script
         shell: bash
         env:
@@ -76,7 +87,6 @@ jobs:
           sed -i "s|__APP__|$APP|g" deploy-sandbox.sh
           chmod +x deploy-sandbox.sh
 
-      # Copie le script sur le serveur
       - name: Upload deploy script
         shell: bash
         run: |
@@ -84,7 +94,6 @@ jobs:
             ./deploy-sandbox.sh \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/deploy-sandbox.sh
 
-      # Exécute le script
       - name: Run remote deploy script
         shell: bash
         run: |

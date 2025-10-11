@@ -263,8 +263,13 @@
                 </a>
 
                 <span class="stext-105 cl3">
-                  {{ ((variant.priceAmount ?? 0) / 100) | format_currency(variant.priceCurrency|default('EUR')) }}
+                  {{ ((variant.priceAmount ?? 0) / 100) € }}
                 </span>
+                
+                {# TODO format_currency à voir #}
+                {# <span class="stext-105 cl3">
+                  {{ ((variant.priceAmount ?? 0) / 100) | format_currency(variant.priceCurrency|default('EUR')) }}
+                </span> #}
               </div>
 
               <div class="block2-txt-child2 flex-r p-t-3">

@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Node 20 (build npm côté GitHub)
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
@@ -26,23 +24,20 @@ jobs:
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
           npm run build
 
-      # 3) Écrire la clé privée depuis le secret (pas d'agent)
-      - name: Write SSH key
+      # Écrire la clé privée depuis le secret Base64
+      - name: Write SSH key from Base64
         shell: bash
         run: |
           mkdir -p ~/.ssh
-          # supprime d'éventuels CRLF (Windows) avant d'écrire la clé
-          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ci
+          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
           chmod 600 ~/.ssh/id_ci
 
-      # 4) Test SSH rapide (facultatif)
-      - name: SSH sanity
+      # Vérifier que la clé est lisible (doit afficher une empreinte)
+      - name: Verify private key format
         shell: bash
-        run: |
-          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
+        run: ssh-keygen -yf ~/.ssh/id_ci | ssh-keygen -lf -
 
-      # 5) Rsync vers Hostinger (on n’écrase pas .env.local, ni vendor)
+      # Rsync vers Hostinger (on n’écrase pas .env.local, ni vendor)
       - name: Rsync to Hostinger (sandbox)
         shell: bash
         run: |
@@ -54,7 +49,7 @@ jobs:
             -e "ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
             ./  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SANDBOX_PATH }}
 
-      # 6) Post-deploy : Composer (PHP 8.2), migrations, cache (via ssh -i)
+      # Post-deploy : Composer (PHP 8.2), migrations, cache
       - name: Post-deploy commands
         shell: bash
         env:

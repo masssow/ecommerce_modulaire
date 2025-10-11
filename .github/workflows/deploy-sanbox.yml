@@ -65,7 +65,6 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
 
-      # Génère le script de déploiement à exécuter côté serveur
       - name: Create remote deploy script
         shell: bash
         env:
@@ -76,7 +75,22 @@ jobs:
 
           APP="__APP__"
           PHP="/opt/alt/php82/usr/bin/php"
-          COMPOSER="$PHP /usr/bin/composer"
+
+          echo "[0/6] Composer: detection/installation"
+          export PATH="$HOME/bin:$PATH"
+          COMPOSER=""
+          if [ -x "$HOME/bin/composer" ]; then
+            COMPOSER="$HOME/bin/composer"
+          elif command -v composer >/dev/null 2>&1; then
+            COMPOSER="$(command -v composer)"
+          else
+            mkdir -p "$HOME/bin"
+            curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+            "$PHP" /tmp/composer-setup.php --install-dir="$HOME/bin" --filename=composer
+            rm -f /tmp/composer-setup.php
+            COMPOSER="$HOME/bin/composer"
+          fi
+          echo "Composer found at: $COMPOSER"
 
           echo "[1/6] Code → ${APP}"
           cd "$APP"
@@ -87,8 +101,8 @@ jobs:
             echo "⚠️  Pas de dépôt Git dans $APP (skip fetch/reset)"
           fi
 
-          echo "[2/6] Composer install"
-          $COMPOSER install --no-interaction --prefer-dist
+          echo "[2/6] Composer install (PHP 8.2)"
+          "$PHP" "$COMPOSER" install --no-interaction --prefer-dist
 
           echo "[3/6] Node 20 via nvm + npm install/build"
           export NVM_DIR="$HOME/.nvm"
@@ -102,16 +116,17 @@ jobs:
           if [ -f package.json ]; then npm run build; fi
 
           echo "[4/6] Doctrine migrations (dev)"
-          $PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
+          "$PHP" bin/console doctrine:migrations:migrate --no-interaction --env=dev
 
           echo "[5/6] Cache clear + warmup (dev)"
-          $PHP bin/console cache:clear --env=dev
-          $PHP bin/console cache:warmup --env=dev
+          "$PHP" bin/console cache:clear --env=dev
+          "$PHP" bin/console cache:warmup --env=dev
 
           echo "[6/6] Done."
           SH
           sed -i "s|__APP__|$APP|g" deploy-sandbox.sh
           chmod +x deploy-sandbox.sh
+
 
       - name: Upload deploy script
         shell: bash

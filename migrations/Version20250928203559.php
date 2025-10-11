@@ -6,6 +6,8 @@ namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
@@ -17,13 +19,19 @@ final class Version20250928203559 extends AbstractMigration
         return '';
     }
 
+    private function assertMysqlOrMariaDB(): void
+    {
+        $platform = $this->connection->getDatabasePlatform();
+        $this->abortIf(
+            !($platform instanceof MySQLPlatform || $platform instanceof MariaDBPlatform),
+            "Migration can only be executed safely on MySQL or MariaDB."
+        );
+    }
+
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
+        // Autoriser MySQL et MariaDB
+        $this->assertMysqlOrMariaDB();
 
         $this->addSql('CREATE TABLE adresse (
           id INT AUTO_INCREMENT NOT NULL,
@@ -42,11 +50,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_C35F0816A76ED395 (user_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE cart (
           id INT AUTO_INCREMENT NOT NULL,
           customer_id INT DEFAULT NULL,
@@ -58,11 +61,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_BA388B79395C3F3 (customer_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE cart_item (
           id INT AUTO_INCREMENT NOT NULL,
           cart_id INT DEFAULT NULL,
@@ -73,11 +71,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_F0FE2527A80EF684 (product_variant_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE category (
           id INT AUTO_INCREMENT NOT NULL,
           name VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -87,11 +80,6 @@ final class Version20250928203559 extends AbstractMigration
           description LONGTEXT CHARACTER SET utf8mb4 DEFAULT NULL COLLATE `utf8mb4_unicode_ci`,
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE coupon (
           id INT AUTO_INCREMENT NOT NULL,
           promotion_id INT DEFAULT NULL,
@@ -101,22 +89,12 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_64BF3F02139DF194 (promotion_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE customer (
           id INT AUTO_INCREMENT NOT NULL,
           user_id INT DEFAULT NULL,
           UNIQUE INDEX UNIQ_81398E09A76ED395 (user_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE dispute (
           id INT AUTO_INCREMENT NOT NULL,
           orders_id INT DEFAULT NULL,
@@ -127,11 +105,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_3C925007CFFE9AD6 (orders_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE inventory_stock (
           id INT AUTO_INCREMENT NOT NULL,
           product_variant_id INT NOT NULL,
@@ -140,11 +113,6 @@ final class Version20250928203559 extends AbstractMigration
           UNIQUE INDEX UNIQ_97AAFD60A80EF684 (product_variant_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE messenger_messages (
           id BIGINT AUTO_INCREMENT NOT NULL,
           body LONGTEXT CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -158,11 +126,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_75EA56E016BA31DB (delivered_at),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE `order` (
           id INT AUTO_INCREMENT NOT NULL,
           customer_id INT DEFAULT NULL,
@@ -194,11 +157,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_F52993985AA1164F (payment_method_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE order_item (
           id INT AUTO_INCREMENT NOT NULL,
           product_variant_id INT DEFAULT NULL,
@@ -211,11 +169,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_52EA1F09CFFE9AD6 (orders_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE payment (
           id INT AUTO_INCREMENT NOT NULL,
           orders_id INT DEFAULT NULL,
@@ -228,11 +181,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_6D28840DC033C648 (paymen_method_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE payment_method (
           id INT AUTO_INCREMENT NOT NULL,
           name VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -240,11 +188,6 @@ final class Version20250928203559 extends AbstractMigration
           enable TINYINT(1) DEFAULT NULL,
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE price (
           id INT AUTO_INCREMENT NOT NULL,
           variant_id INT DEFAULT NULL,
@@ -255,11 +198,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_CAC822D93B69A9AF (variant_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE product (
           id INT AUTO_INCREMENT NOT NULL,
           sub_category_id INT DEFAULT NULL,
@@ -271,11 +209,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_D34A04ADF7BFE87C (sub_category_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE product_variant (
           id INT AUTO_INCREMENT NOT NULL,
           product_id INT DEFAULT NULL,
@@ -288,11 +221,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_209AA41D4584665A (product_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE promotion (
           id INT AUTO_INCREMENT NOT NULL,
           name VARCHAR(255) CHARACTER SET utf8mb4 DEFAULT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -302,24 +230,14 @@ final class Version20250928203559 extends AbstractMigration
           enable TINYINT(1) DEFAULT NULL,
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE promotion_rule (
-          id INT AUTO_INCREMENT NOT NULL,
+          id INT AUTO_increment NOT NULL,
           promotion_id INT DEFAULT NULL,
           type VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
           configuration JSON NOT NULL,
           INDEX IDX_F0222453139DF194 (promotion_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE return_item (
           id INT AUTO_INCREMENT NOT NULL,
           return_request_id INT DEFAULT NULL,
@@ -331,11 +249,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_7EED95F7E415FB15 (order_item_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE return_request (
           id INT AUTO_INCREMENT NOT NULL,
           orders_id INT DEFAULT NULL,
@@ -345,11 +258,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_2DBF9D40CFFE9AD6 (orders_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE review (
           id INT AUTO_INCREMENT NOT NULL,
           product_id INT DEFAULT NULL,
@@ -362,11 +270,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_794381C69395C3F3 (customer_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE shipment (
           id INT AUTO_INCREMENT NOT NULL,
           orders_id INT DEFAULT NULL,
@@ -379,11 +282,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_2CB20DC5F7D6850 (shipping_method_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE shipping_method (
           id INT AUTO_INCREMENT NOT NULL,
           name VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -392,11 +290,6 @@ final class Version20250928203559 extends AbstractMigration
           free_shipping_threshold INT DEFAULT NULL,
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE sub_category (
           id INT AUTO_INCREMENT NOT NULL,
           categorie_id INT DEFAULT NULL,
@@ -408,11 +301,6 @@ final class Version20250928203559 extends AbstractMigration
           INDEX IDX_BCE3F798BCF5E72D (categorie_id),
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE tax_setting (
           id INT AUTO_INCREMENT NOT NULL,
           rate DOUBLE PRECISION NOT NULL,
@@ -421,11 +309,6 @@ final class Version20250928203559 extends AbstractMigration
           free_shipping_threshold DOUBLE PRECISION DEFAULT NULL,
           PRIMARY KEY(id)
         ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB COMMENT = \'\'');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('CREATE TABLE user (
           id INT AUTO_INCREMENT NOT NULL,
           email VARCHAR(180) CHARACTER SET utf8mb4 NOT NULL COLLATE `utf8mb4_unicode_ci`,
@@ -442,162 +325,34 @@ final class Version20250928203559 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
+        // Même garde-fou en rollback
+        $this->assertMysqlOrMariaDB();
 
         $this->addSql('DROP TABLE adresse');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE cart');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE cart_item');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE category');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE coupon');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE customer');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE dispute');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE inventory_stock');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE messenger_messages');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE `order`');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE order_item');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE payment');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE payment_method');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE price');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE product');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE product_variant');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE promotion');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE promotion_rule');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE return_item');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE return_request');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE review');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE shipment');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE shipping_method');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE sub_category');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE tax_setting');
-        $this->abortIf(
-            !$this->connection->getDatabasePlatform() instanceof \Doctrine\DBAL\Platforms\MySQL84Platform,
-            "Migration can only be executed safely on '\Doctrine\DBAL\Platforms\MySQL84Platform'."
-        );
-
         $this->addSql('DROP TABLE user');
     }
 }

@@ -8,27 +8,25 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Écrit la clé depuis le secret Base64
       - name: Write SSH key (from Base64)
         shell: bash
         run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY_B64 }}" ]; then
+            echo "::error::Secret SSH_PRIVATE_KEY_B64 is empty or not accessible (check repo vs environment secrets, name, permissions)."
+            exit 1
+          fi
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
           chmod 600 ~/.ssh/id_ci
-          # Vérifie le format (doit afficher une empreinte)
+          # Sanity: taille du fichier (doit être > 0)
+          echo "Private key bytes: $(wc -c < ~/.ssh/id_ci)"
+          # Affiche une empreinte; si ça échoue, la clé est mal formée
           ssh-keygen -yf ~/.ssh/id_ci | ssh-keygen -lf -
 
-      # Sanity check SSH
-      - name: SSH sanity
-        shell: bash
-        run: |
-          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
 
       # Génère le script de déploiement à exécuter côté serveur
       - name: Create remote deploy script

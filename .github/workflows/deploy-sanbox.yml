@@ -10,59 +10,86 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Checkout
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install & Build Frontend
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-          npm run build
-
-      # Écrire la clé privée depuis le secret Base64
-      - name: Write SSH key from Base64
+      # 2) Ecrire la clé privée dans un fichier (pas d'agent)
+      - name: Write SSH key
         shell: bash
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
+          # Normalise CRLF au cas où
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ci
           chmod 600 ~/.ssh/id_ci
 
-      # Vérifier que la clé est lisible (doit afficher une empreinte)
-      - name: Verify private key format
-        shell: bash
-        run: ssh-keygen -yf ~/.ssh/id_ci | ssh-keygen -lf -
-
-      # Rsync vers Hostinger (on n’écrase pas .env.local, ni vendor)
-      - name: Rsync to Hostinger (sandbox)
+      # 3) Sanity check SSH
+      - name: SSH sanity
         shell: bash
         run: |
-          rsync -avz --delete \
-            --exclude=".git" --exclude=".github" \
-            --exclude="node_modules" --exclude="tests" \
-            --exclude="vendor" --exclude="var/cache/*" \
-            --exclude=".env*" \
-            -e "ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
-            ./  ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SANDBOX_PATH }}
+          ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
 
-      # Post-deploy : Composer (PHP 8.2), migrations, cache
-      - name: Post-deploy commands
+      # 4) Générer le script de déploiement (local), avec le chemin sandbox injecté
+      - name: Create remote deploy script
         shell: bash
         env:
           APP: ${{ secrets.SANDBOX_PATH }}
         run: |
+          cat > deploy-sandbox.sh <<'SH'
+          set -euo pipefail
+
+          APP="__APP__"
+          PHP="/opt/alt/php82/usr/bin/php"
+          COMPOSER="$PHP /usr/bin/composer"
+
+          echo "[1/6] Code → ${APP}"
+          cd "$APP"
+          if [ -d .git ]; then
+            git fetch origin --prune
+            git reset --hard origin/developpement
+          else
+            echo "⚠️  Pas de dépôt Git dans \$APP (skip fetch/reset)"
+          fi
+
+          echo "[2/6] Composer install"
+          $COMPOSER install --no-interaction --prefer-dist
+
+          echo "[3/6] Node 20 via nvm + npm install/build"
+          export NVM_DIR="\$HOME/.nvm"
+          if [ ! -s "\$NVM_DIR/nvm.sh" ]; then
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          fi
+          . "\$NVM_DIR/nvm.sh"
+          nvm install 20
+          nvm use 20
+          if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi
+          if [ -f package.json ]; then npm run build; fi
+
+          echo "[4/6] Doctrine migrations (dev)"
+          $PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
+
+          echo "[5/6] Cache clear + warmup (dev)"
+          $PHP bin/console cache:clear --env=dev
+          $PHP bin/console cache:warmup --env=dev
+
+          echo "[6/6] Done."
+          SH
+          # injecte le vrai chemin dans le script
+          sed -i "s|__APP__|$APP|g" deploy-sandbox.sh
+          chmod +x deploy-sandbox.sh
+
+      # 5) Copier le script sur le serveur
+      - name: Upload deploy script
+        shell: bash
+        run: |
+          scp -i ~/.ssh/id_ci -P ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ./deploy-sandbox.sh \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/deploy-sandbox.sh
+
+      # 6) Exécuter le script sur le serveur
+      - name: Run remote deploy script
+        shell: bash
+        run: |
           ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
-              set -e
-              PHP='/opt/alt/php82/usr/bin/php'
-              COMPOSER=\"\$PHP /usr/bin/composer\"
-              cd \"$APP\"
-              \$COMPOSER install --no-interaction --prefer-dist
-              \$PHP bin/console doctrine:migrations:migrate --no-interaction --env=dev
-              \$PHP bin/console cache:clear --env=dev
-              \$PHP bin/console cache:warmup --env=dev
-            "
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "bash /tmp/deploy-sandbox.sh && rm -f /tmp/deploy-sandbox.sh"

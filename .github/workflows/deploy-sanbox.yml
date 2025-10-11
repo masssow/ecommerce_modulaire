@@ -78,7 +78,6 @@ jobs:
 
           echo "[0/6] Composer: detection/installation"
           export PATH="$HOME/bin:$PATH"
-          COMPOSER=""
           if [ -x "$HOME/bin/composer" ]; then
             COMPOSER="$HOME/bin/composer"
           elif command -v composer >/dev/null 2>&1; then
@@ -98,22 +97,37 @@ jobs:
             git fetch origin --prune
             git reset --hard origin/developpement
           else
-            echo "⚠️  Pas de dépôt Git dans $APP (skip fetch/reset)"
+            echo "⚠️  Pas de dépôt Git dans \$APP (skip fetch/reset)"
           fi
 
           echo "[2/6] Composer install (PHP 8.2)"
           "$PHP" "$COMPOSER" install --no-interaction --prefer-dist
 
-          echo "[3/6] Node 20 via nvm + npm install/build"
-          export NVM_DIR="$HOME/.nvm"
-          if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          echo "[3/6] Node 20 via nvm + npm install/build (si nécessaire)"
+          # On ne fait npm que si un projet JS existe
+          if [ -f package.json ] || [ -f package-lock.json ] || [ -f yarn.lock ] || [ -f pnpm-lock.yaml ]; then
+            export NVM_DIR="$HOME/.nvm"
+            if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+              curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+            fi
+            # source nvm et installe Node 20
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              . "$NVM_DIR/nvm.sh"
+              nvm install 20
+              nvm use 20
+              node -v && npm -v
+              if [ -f package-lock.json ]; then
+                npm ci
+              else
+                npm install
+              fi
+              npm run build
+            else
+              echo "⚠️  nvm.sh introuvable → skip build JS"
+            fi
+          else
+            echo "ℹ️  Aucun package.json/lock détecté → build JS non requis (AssetMapper/Importmap)."
           fi
-          . "$NVM_DIR/nvm.sh"
-          nvm install 20
-          nvm use 20
-          if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi
-          if [ -f package.json ]; then npm run build; fi
 
           echo "[4/6] Doctrine migrations (dev)"
           "$PHP" bin/console doctrine:migrations:migrate --no-interaction --env=dev

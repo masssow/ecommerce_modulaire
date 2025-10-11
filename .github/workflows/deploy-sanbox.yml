@@ -8,31 +8,56 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # si tes secrets sont dans un Environment, dé-commente:
+    # Si tes secrets sont dans un Environment, dé-commente la ligne suivante
     # environment: sandbox
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Clé SSH depuis secret: préfère SSH_PRIVATE_KEY_B64, sinon SSH_PRIVATE_KEY (plain OpenSSH)
-      - name: Write SSH key (B64 or plain)
+      # Écrit la clé privée depuis SSH_PRIVATE_KEY_B64 (recommandé) ou SSH_PRIVATE_KEY (plain OpenSSH)
+      - name: Write SSH key (B64 or plain) + verify
         shell: bash
+        env:
+          PK_B64: ${{ secrets.SSH_PRIVATE_KEY_B64 }}
+          PK_PLAIN: ${{ secrets.SSH_PRIVATE_KEY }}
+          PK_PASS: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
-          if [ -n "${{ secrets.SSH_PRIVATE_KEY_B64 }}" ]; then
-            echo "${{ secrets.SSH_PRIVATE_KEY_B64 }}" | base64 -d > ~/.ssh/id_ci
-            echo "Loaded key from SSH_PRIVATE_KEY_B64"
-          elif [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" | sed 's/\r$//' > ~/.ssh/id_ci
-            echo "Loaded key from SSH_PRIVATE_KEY"
+
+          if [ -n "${PK_B64:-}" ]; then
+            echo "$PK_B64" | base64 -d > ~/.ssh/id_ci
+            SRC="SSH_PRIVATE_KEY_B64"
+          elif [ -n "${PK_PLAIN:-}" ]; then
+            # Normalise CRLF et force un \n final
+            printf "%s\n" "$PK_PLAIN" | sed 's/\r$//' > ~/.ssh/id_ci
+            SRC="SSH_PRIVATE_KEY"
           else
-            echo "::error::Neither SSH_PRIVATE_KEY_B64 nor SSH_PRIVATE_KEY is set."
+            echo "::error::Neither SSH_PRIVATE_KEY_B64 nor SSH_PRIVATE_KEY is set (check repo/environ secrets)."
             exit 1
           fi
+
           chmod 600 ~/.ssh/id_ci
-          # Vérifie le format (doit afficher une empreinte)
-          ssh-keygen -yf ~/.ssh/id_ci | ssh-keygen -lf -
+          echo "Private key bytes: $(wc -c < ~/.ssh/id_ci) (source: $SRC)"
+
+          # Vérifie l'entête (doit être OpenSSH ou RSA PEM)
+          FIRST_LINE="$(head -n1 ~/.ssh/id_ci || true)"
+          case "$FIRST_LINE" in
+            "-----BEGIN OPENSSH PRIVATE KEY-----"|"-----BEGIN RSA PRIVATE KEY-----") ;;
+            *)
+              echo "::error::Unexpected key header: '$FIRST_LINE'. Provide an OpenSSH private key (not .ppk)."
+              exit 1
+              ;;
+          esac
+
+          # Vérifie qu'on peut dériver la clé publique (si passphrase, la lire via PK_PASS)
+          if [ -n "${PK_PASS:-}" ]; then
+            PUB="$(ssh-keygen -y -P "$PK_PASS" -f ~/.ssh/id_ci)"
+          else
+            PUB="$(ssh-keygen -y -f ~/.ssh/id_ci)"
+          fi
+          printf "%s\n" "$PUB" | ssh-keygen -lf -  # affiche l'empreinte (fingerprint)
 
       - name: SSH sanity
         shell: bash
@@ -40,6 +65,7 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo OK-from-CI"
 
+      # Génère le script de déploiement à exécuter côté serveur
       - name: Create remote deploy script
         shell: bash
         env:

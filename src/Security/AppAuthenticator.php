@@ -43,15 +43,34 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
+        {
+            // 1) Paramètre "redirect" (prioritaire si présent)
+            //    - depuis le POST (hidden input), puis la query, puis la session (optionnel)
+            $redirect = $request->getPayload()->getString('redirect', '')
+                ?: $request->query->get('redirect')
+                ?: $request->getSession()->get('redirect_after_login');
 
-        // For example:
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+            if ($redirect) {
+                // Sécurité : n’autoriser que les URLs internes (relative /… ou absolue sur le même host)
+                if (\str_starts_with($redirect, '/')) {
+                    return new RedirectResponse($redirect);
+                }
+                $host = $request->getSchemeAndHttpHost();
+                if (\str_starts_with($redirect, $host)) {
+                    return new RedirectResponse($redirect);
+                }
+                // sinon on ignore pour éviter les open-redirects
+            }
+
+            // 2) Si l’utilisateur venait d’une page protégée, on le renvoie là (TargetPathTrait)
+            if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+                return new RedirectResponse($targetPath);
+            }
+
+            // 3) Fallback
+            return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
+
 
     protected function getLoginUrl(Request $request): string
     {

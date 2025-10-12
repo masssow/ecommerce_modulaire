@@ -17,7 +17,7 @@ class InventoryStock
     private ?int $quantity = 0;
 
     #[ORM\Column]
-    private ?int $reserved = null;
+    private ?int $reserved = 0;
 
     #[ORM\OneToOne(inversedBy: 'inventoryStock', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false, unique: true)]

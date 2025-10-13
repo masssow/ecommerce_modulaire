@@ -1,71 +1,61 @@
 <?php
 
-
 namespace App\Controller;
 
 use App\Repository\ProductVariantRepository;
-use Symfony\Component\HttpFoundation\Request;
+use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class ProductController extends AbstractController
+final class ProductController extends AbstractController
 {
-    #[Route('/product/{id}', name: 'product_show')]
-    public function show(ProductVariantRepository $productVariantRepository, int $id): Response
-    {
+    #[Route('/product/{id}', name: 'product_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(
+        ProductVariantRepository $variantRepo,
+        ProductRepository $productRepo,
+        int $id
+    ): Response {
+        // 1) Tenter comme "variant id"
+        $variant = $variantRepo->createQueryBuilder('v')
+            ->leftJoin('v.product', 'p')->addSelect('p')
+            ->where('v.id = :id')->setParameter('id', $id)
+            ->getQuery()->getOneOrNullResult();
 
-        $productVariant = $productVariantRepository->createQueryBuilder('v')
-            ->leftJoin('v.product', 'p')
-            ->addSelect('p')
-            ->where('v.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
-        
-        // $productVariant = $productVariantRepository->find($id);
+        $product = $variant?->getProduct();
 
-        // dd($productVariant);
+        // 2) Si pas de variant => essayer comme "product id"
+        if (!$variant) {
+            $product = $productRepo->createQueryBuilder('p')
+                ->leftJoin('p.productVariants', 'v')->addSelect('v')
+                ->where('p.id = :pid')->setParameter('pid', $id)
+                ->getQuery()->getOneOrNullResult();
 
-        // if (!$productVariant) {
-        //     throw $this->createNotFoundException('Variante introuvable.');
-        // }
+            if (!$product) {
+                throw $this->createNotFoundException('Variante introuvable.');
+            }
 
-        // $product = $productVariant->getProduct();
-        // if (!$product instanceof \App\Entity\Product) {
-        //     dump($productVariant, $product);
-        //     throw $this->createNotFoundException('Produit lié manquant ou non chargé.');
-        // }
+            // Prendre la 1ʳᵉ variante disponible du produit
+            $variant = $product->getProductVariants()->first() ?: null;
+            if (!$variant) {
+                throw $this->createNotFoundException('Aucune variante disponible pour ce produit.');
+            }
+        }
 
-
-
-        // $product = $productVariant->getProduct();
-
-
+        if (!$product) {
+            $product = $variant->getProduct();
+            if (!$product) {
+                throw $this->createNotFoundException('Produit lié introuvable.');
+            }
+        }
 
         return $this->render('product/show.html.twig', [
-            'variant' => $productVariant,
-            'product' => $productVariant,
+            'variant'        => $variant,
+            'product'        => $product,
+            'currentVariant' => $variant,
+            'variants'       => $product->getProductVariants(),
+            'availableSizes' => ['XS', 'S', 'M', 'L', 'XL'],   // optionnel / mock
+            'availableColors' => ['A', 'B', 'C'],             // optionnel / mock
         ]);
-        
     }
-
-    // #[Route('/product/{slug}/reviews', name: 'product_reviews')]
-    // public function reviews(Product $product, Request $request, ReviewRepository $reviewRepository): Response
-    // {
-    //     $page = $request->query->getInt('page', 2);
-    //     $limit = 5;
-    //     $offset = ($page - 1) * $limit;
-
-    //     $reviews = $reviewRepository->findBy(
-    //         ['product' => $product],
-    //         ['createdAt' => 'DESC'],
-    //         $limit,
-    //         $offset
-    //     );
-
-    //     return $this->render('product/_reviews.html.twig', [
-    //         'reviews' => $reviews,
-    //     ]);
-    // }
 }

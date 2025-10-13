@@ -171,8 +171,8 @@
 
                 <button
                   class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail"
-                  data-variant-id="{{ currentVariant.id }}"
-                  data-qty-el="#qty"  data-login-url="{{ path('app_login') }}" data-is-auth="{{ app.user ? '1' : '0' }}">
+                  data-variant-id="{{ currentVariant.id ? currentVariant.id : '' }}"
+                  data-qty-el="#qty" >
                   Ajouter au panier
                 </button>
               </div>

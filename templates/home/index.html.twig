@@ -249,10 +249,13 @@
                 alt="{{ variant.product.name }}"
                 loading="lazy"
                 class="img-fluid">
-              <a href="{{ path('product_show', { id: variant.product.id }) }}"
+                {% set firstVariant = product.productVariants|first %}
+                  {% if firstVariant %}
+                  <a href="{{ path('product_show', { id:firstVariants.id }) }}"
                  class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                 Voir le produit
-              </a>
+                  </a>
+                {% endif %}
             </div>
 
             <div class="block2-txt flex-w flex-t p-t-14">

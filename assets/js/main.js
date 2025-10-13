@@ -74,16 +74,10 @@ async function reloadCartDrawer() {
 }
 
 /* -------------------- Ajouter un produit au panier -------------------- */
-const LOGIN_URL = document.body.dataset.loginUrl;
-const IS_AUTH   = document.body.dataset.isAuth === '1';
-
 async function addToCart(variantId, qty = 1) {
-  if (!IS_AUTH) {
-    const url = new URL(LOGIN_URL, window.location.origin);
-    url.searchParams.set('redirect', window.location.href);
-    window.location.assign(url.toString());
+  if (!userId) {
+    alert('Veuillez vous connecter pour commander.');
     return;
-   
   }
 
   const body = {

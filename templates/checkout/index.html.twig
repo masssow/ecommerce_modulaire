@@ -34,7 +34,7 @@
                 <span class="ms-1">
                   {{ a.line1 ?? '' }}{% if a.line2 %}, {{ a.line2 }}{% endif %}<br>
                   {{ a.postalCode ?? '' }} {{ a.city ?? '' }}{% if a.country %}, {{ a.country }}{% endif %}
-                  {% if a.phone %}<br><span class="text-muted">Tél : {{ a.phone }}</span>{% endif %}
+                  {% if a.phone %}<br><span class="text-muted">Tél {{ a.phone }}</span>{% endif %}
                 </span>
               </label>
             {% endfor %}
@@ -52,7 +52,7 @@
         {# Formulaire RÉEL d’ajout de LIVRAISON → POST vers AdresseController #}
         <div id="add-shipping-form" class="{{ hasAddresses ? 'd-none' : '' }} mt-2">
           {% if app.user and app.user.fullName is defined %}
-            <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
+            <div class="small text-muted mb-2">Pour <strong>{{ app.user.fullName }}</strong></div>
           {% endif %}
 
           <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
@@ -100,7 +100,7 @@
                   <span class="ms-1">
                     {{ a.line1 ?? '' }}{% if a.line2 %}, {{ a.line2 }}{% endif %}<br>
                     {{ a.postalCode ?? '' }} {{ a.city ?? '' }}{% if a.country %}, {{ a.country }}{% endif %}
-                    {% if a.phone %}<br><span class="text-muted">Tél : {{ a.phone }}</span>{% endif %}
+                    {% if a.phone %}<br><span class="text-muted">Tél {{ a.phone }}</span>{% endif %}
                   </span>
                 </label>
               {% endfor %}
@@ -113,7 +113,7 @@
 
             <div id="add-billing-form" class="mt-2">
               {% if app.user and app.user.fullName is defined %}
-                <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
+                <div class="small text-muted mb-2">Pour <strong>{{ app.user.fullName }}</strong></div>
               {% endif %}
 
               <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
@@ -212,12 +212,12 @@
              data-subtotal-cents="{{ subTotalCts }}"
              data-tax-rate="{{ taxRateVal }}">
           <div class="d-flex justify-content-between">
-            <span>Sous-total :</span>
+            <span>Sous-total </span>
             <strong><span id="js-subtotal">{{ (subTotalCts / 100)|number_format(2, ',', ' ') }}</span> €</strong>
           </div>
           <div class="d-flex justify-content-between">
-            <span>TVA ({{ taxRateVal }}%) :</span>
-            <span><span id="js-tva">{{ (tvaCts / 100)|number_format(2, ',', ' ') }}</span> €</span>
+            <span>TVA (<span id="os-tva-rate">{{ tvaPercent|number_format(2, '.', ' ') }}</span>%) </span>
+            <strong id="os-tva">{{ (tvaAmountCts/100)|number_format(2, '.', ' ') }} €</strong>
           </div>
           <div class="d-flex justify-content-between">
             <span>Frais de port <small id="js-ship-note" class="text-success">
@@ -252,8 +252,8 @@
           {% endif %}
 
           <div class="d-flex justify-content-between mt-2">
-            <span>Total :</span>
-            <strong><span id="js-grandtotal">{{ (grandCts / 100)|number_format(2, ',', ' ') }}</span> €</strong>
+            <span>Total TTC</span>
+            <strong id="os-total">{{ (grandTotalCts/100)|number_format(2, '.', ' ') }} €</strong>
           </div>
         </div>
 

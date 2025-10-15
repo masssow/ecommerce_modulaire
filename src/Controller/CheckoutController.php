@@ -62,12 +62,18 @@ final class CheckoutController extends AbstractController
         $rate    = 1 + ($taxRate / 100);
 
         $subTotalCts = (int) $cart->getTotal();
+        
 
         // 💡 Calcul du port depuis le mode sélectionné (fallback: SettingService)
         [$shippingCts, $appliedMethod] = $this->computeShippingFor(
             subtotalCts: $subTotalCts,
             method: $selected
         );
+
+        // === Calculs "bruts" utiles au JS ===
+        $taxableBaseCts = $subTotalCts + $shippingCts;                 // livraison taxable
+        $tvaAmountCts   = (int) round($taxableBaseCts * ($taxRate / 100));
+        $grandTotalCts  = $subTotalCts + $shippingCts + $tvaAmountCts;
 
         // Affichage en euros
         $subTotalTtc = round($subTotalCts / 100, 2);
@@ -91,7 +97,10 @@ final class CheckoutController extends AbstractController
             'shippingMethods'   => $methods,
             'selectedMethodId'  => $appliedMethod?->getId(),
             'subTotalCts'       => $subTotalCts,          
-            'totalWithShipCts'      =>  $totalWithShipCts,
+            'totalWithShipCts'  =>  $totalWithShipCts,
+            'tvaPercent'        => $taxRate,
+            'tvaAmountCts'      => $tvaAmountCts,
+            'grandTotalCts'     => $grandTotalCts,
             'totals'            => [
                 'sub_ht'    => $subTotalHt,
                 'sub_tva'   => $subTva,
@@ -470,13 +479,11 @@ final class CheckoutController extends AbstractController
     /** Base en cts : supporte basePrice ou baseCost. */
     private function getBaseAmountCts(ShippingMethod $m): int
     {
-        if (method_exists($m, 'getBasePrice')) {
+       
+        
             return (int) $m->getBaseCost();
-        }
-        if (method_exists($m, 'getBaseCost')) {
-            return (int) $m->getBaseCost();
-        }
-        return 0;
+        
+       
     }
 
     /** Seuil franco en cts (nullable). */

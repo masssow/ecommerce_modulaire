@@ -37,6 +37,8 @@ $.fn.isotope = function(options) {
 // ✅ Import de tes scripts custom
 // ==============================
 import './js/main.js';
+import './js/cart.js';
+import './js/checkout.js';
 import './js/slick-custom.js';
 // import './js/map-custom.js'; // décommenter si nécessaire
 

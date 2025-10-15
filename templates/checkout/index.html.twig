@@ -20,7 +20,7 @@
         <h5 class="mb-3">Adresse de livraison</h5>
 
         {% if app.user and app.user.fullName is defined %}
-          <p class="text-muted small mb-2">Client : <strong>{{ app.user.fullName }}</strong></p>
+          <p class="text-muted small mb-2">Bonjour, <strong>{{ app.user.fullName }}</strong></p>
         {% endif %}
 
         {% set hasAddresses = (addresses is defined and addresses|length > 0) %}
@@ -111,29 +111,29 @@
             </div>
           {% endif %}
 
-          <div id="add-billing-form" class="mt-2">
-            {% if app.user and app.user.fullName is defined %}
-              <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
-            {% endif %}
+            <div id="add-billing-form" class="mt-2">
+              {% if app.user and app.user.fullName is defined %}
+                <div class="small text-muted mb-2">Pour : <strong>{{ app.user.fullName }}</strong></div>
+              {% endif %}
 
-            <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
-              <input type="hidden" name="_token" value="{{ csrf_token('add_address') }}">
-              <input type="hidden" name="context" value="billing">
+              <form method="post" action="{{ path('app_adresse_add') }}" class="vstack gap-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('add_address') }}">
+                <input type="hidden" name="context" value="billing">
 
-              <input type="text" name="line1" class="form-control form-control-sm" placeholder="Adresse (ligne 1)" required>
-              <input type="text" name="line2" class="form-control form-control-sm" placeholder="Adresse (ligne 2)">
-              <div class="d-flex gap-2">
-                <input type="text" name="postalCode" class="form-control form-control-sm" placeholder="Code postal">
-                <input type="text" name="city" class="form-control form-control-sm" placeholder="Ville" required>
-              </div>
-              <input type="text" name="country" class="form-control form-control-sm" placeholder="Pays">
-              <input type="text" name="phone" class="form-control form-control-sm" placeholder="Téléphone">
+                <input type="text" name="line1" class="form-control form-control-sm" placeholder="Adresse (ligne 1)" required>
+                <input type="text" name="line2" class="form-control form-control-sm" placeholder="Adresse (ligne 2)">
+                <div class="d-flex gap-2">
+                  <input type="text" name="postalCode" class="form-control form-control-sm" placeholder="Code postal">
+                  <input type="text" name="city" class="form-control form-control-sm" placeholder="Ville" required>
+                </div>
+                <input type="text" name="country" class="form-control form-control-sm" placeholder="Pays">
+                <input type="text" name="phone" class="form-control form-control-sm" placeholder="Téléphone">
 
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-outline-secondary btn-sm">Ajouter l’adresse de facturation</button>
-              </div>
-            </form>
-          </div>
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-outline-secondary btn-sm">Ajouter l’adresse de facturation</button>
+                </div>
+              </form>
+            </div>
         </div>
       </div>
     </div>
@@ -182,41 +182,78 @@
           </table>
         </div>
 
-        {# Totaux en CENTIMES #}
-        {% set subTotalCts = cart.total %}
-        <div class="border-top pt-3 mt-2 small">
+        {# ===== Totaux en CENTIMES ===== #}
+        {% set subTotalCts = cart.total ?? 0 %}
+
+        {# Trouver la méthode sélectionnée et calculer le port initial (CENTIMES) #}
+        {% set initialShippingCts = 0 %}
+        {% set selected = null %}
+        {% if shippingMethods is defined and shippingMethods is not empty %}
+          {% for sm in shippingMethods %}
+            {% if sm.id == selectedMethodId %}
+              {% set selected = sm %}
+            {% endif %}
+          {% endfor %}
+          {% if selected is null %}
+            {% set selected = shippingMethods|first %}
+          {% endif %}
+
+          {% set selPrice   = (selected.basePrice ?? selected.baseCost ?? 0) %}
+          {% set selThresh  = (selected.freeShippingThreshold ?? 0) %}
+          {% set initialShippingCts = (selThresh and subTotalCts >= selThresh) ? 0 : selPrice %}
+        {% endif %}
+
+        {% set taxRateVal = taxRate|default(0) %}
+        {% set tvaCts   = (subTotalCts * taxRateVal / 100)|round(0, 'common') %}
+        {% set grandCts = subTotalCts + tvaCts + initialShippingCts %}
+
+        <div class="border-top pt-3 mt-2 small"
+             id="order-summary"
+             data-subtotal-cents="{{ subTotalCts }}"
+             data-tax-rate="{{ taxRateVal }}">
           <div class="d-flex justify-content-between">
             <span>Sous-total :</span>
-            <strong>{{ (subTotalCts / 100)|number_format(2, ',', ' ') }} €</strong>
+            <strong><span id="js-subtotal">{{ (subTotalCts / 100)|number_format(2, ',', ' ') }}</span> €</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>TVA ({{ taxRateVal }}%) :</span>
+            <span><span id="js-tva">{{ (tvaCts / 100)|number_format(2, ',', ' ') }}</span> €</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Frais de port <small id="js-ship-note" class="text-success">
+              {% if initialShippingCts == 0 and (selThresh|default(0) > 0) %}— Livraison offerte{% endif %}
+            </small></span>
+            <span><span id="js-shipping">{{ (initialShippingCts / 100)|number_format(2, ',', ' ') }}</span> €</span>
           </div>
 
-       {% if shippingMethods is not empty %}
-          <div class="mb-3">
-            <label class="form-label">Mode d’expédition</label>
+          {% if shippingMethods is not empty %}
+            <div class="mb-3 mt-2">
+              <label class="form-label">Mode d’expédition</label>
               {% for sm in shippingMethods %}
                 <div class="form-check">
-                  <input class="form-check-input"
+                  <input class="form-check-input js-shipping"
                         type="radio"
                         name="shipping_method_id"
                         id="sm{{ sm.id }}"
                         value="{{ sm.id }}"
+                        data-price-cents="{{ sm.basePrice ?? sm.baseCost ?? 0 }}"
+                        data-free-threshold-cents="{{ sm.freeShippingThreshold ?? 0 }}"
                         {% if sm.id == selectedMethodId %}checked{% endif %}>
                   <label class="form-check-label" for="sm{{ sm.id }}">
                     {{ sm.name ?? sm.carrierName ?? 'Transporteur' }}
-                    — {{ ( (sm.basePrice ?? sm.baseCost ?? 0) / 100 )|number_format(2, '.', ' ') }} €
+                    — {{ ((sm.basePrice ?? sm.baseCost ?? 0) / 100)|number_format(2, ',', ' ') }} €
                     {% if sm.freeShippingThreshold is not null %}
-                      <small class="text-muted">(Expédition gratuite au déla de {{ (sm.freeShippingThreshold/100)|number_format(2, '.', ' ') }} €)</small>
+                      <small class="text-muted">(Expédition gratuite dès {{ (sm.freeShippingThreshold/100)|number_format(2, ',', ' ') }} €)</small>
                     {% endif %}
                   </label>
                 </div>
               {% endfor %}
             </div>
-        {% endif %}
-
+          {% endif %}
 
           <div class="d-flex justify-content-between mt-2">
             <span>Total :</span>
-            <strong>{{ (totalWithShipCts / 100)|number_format(2, ',', ' ') }} €</strong>
+            <strong><span id="js-grandtotal">{{ (grandCts / 100)|number_format(2, ',', ' ') }}</span> €</strong>
           </div>
         </div>
 
@@ -228,37 +265,4 @@
   </div>
 </div>
 
-{# ===== JS : toggles ===== #}
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const showShipBtn = document.getElementById('show-ship-form');
-    const hideShipBtn = document.getElementById('hide-ship-form');
-    const shipForm    = document.getElementById('add-shipping-form');
-
-    showShipBtn?.addEventListener('click', () => {
-      shipForm?.classList.remove('d-none');
-    });
-    hideShipBtn?.addEventListener('click', () => {
-      shipForm?.classList.add('d-none');
-    });
-
-    const toggleBilling = document.getElementById('toggle-billing-choice');
-    const billingChoice = document.getElementById('billing-choice');
-    const billingSameIn = document.getElementById('billing-same');
-    const billingUsing  = document.getElementById('billing-using-same');
-
-    if (toggleBilling && billingChoice && billingSameIn && billingUsing) {
-      toggleBilling.addEventListener('click', () => {
-        const nowHidden = billingChoice.classList.toggle('d-none');
-        if (nowHidden) {
-          billingSameIn.value = '1';
-          billingUsing.classList.remove('d-none');
-        } else {
-          billingSameIn.value = '0';
-          billingUsing.classList.add('d-none');
-        }
-      });
-    }
-  });
-</script>
 {% endblock %}

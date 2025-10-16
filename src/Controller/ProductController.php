@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
-use App\Repository\ProductVariantRepository;
 use App\Repository\ProductRepository;
+use App\Repository\FavoriteRepository;
+use App\Repository\ProductVariantRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +16,8 @@ final class ProductController extends AbstractController
     public function show(
         ProductVariantRepository $variantRepo,
         ProductRepository $productRepo,
-        int $id
+        int $id,
+        FavoriteRepository $favorites, UserRepository $userR
     ): Response {
         // 1) Tenter comme "variant id"
         $variant = $variantRepo->createQueryBuilder('v')
@@ -48,12 +51,18 @@ final class ProductController extends AbstractController
                 throw $this->createNotFoundException('Produit lié introuvable.');
             }
         }
+        $userRepo = $this->getUser();
+
+        $favList = $favorites->findForUserWithJoins($userRepo);
+        $favIds  = array_map(fn($f) => $f->getProductVariant()->getId(), $favList);
 
         return $this->render('product/show.html.twig', [
             'variant'        => $variant,
             'product'        => $product,
             'currentVariant' => $variant,
             'variants'       => $product->getProductVariants(),
+            'favorites'    => $favList,  // pour la section "Mes favoris"
+            'favoritesIds' => $favIds,
             'availableSizes' => ['XS', 'S', 'M', 'L', 'XL'],   // optionnel / mock
             'availableColors' => ['A', 'B', 'C'],             // optionnel / mock
         ]);

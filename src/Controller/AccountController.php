@@ -11,12 +11,13 @@ use App\Form\AdresseTypeForm;
 use App\Entity\UserPaymentMethod;
 use App\Repository\OrderRepository;
 use App\Repository\AdresseRepository;
+use App\Repository\FavoriteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\UserPaymentMethodRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class AccountController extends AbstractController
 {
@@ -25,7 +26,7 @@ final class AccountController extends AbstractController
     /* ========================= PROFIL ========================= */
 
     #[Route('/mon-compte', name: 'account_profile', methods: ['GET'])]
-    public function profile(AdresseRepository $adresseRepo, OrderRepository $orderRepo, UserPaymentMethodRepository $walletRepo ): Response
+    public function profile(AdresseRepository $adresseRepo, OrderRepository $orderRepo, UserPaymentMethodRepository $walletRepo, FavoriteRepository $favorites ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -39,6 +40,8 @@ final class AccountController extends AbstractController
         );
         $wallet = $walletRepo->findWalletForUser($user);
         $orders = $orderRepo->findByUser($user);
+        $favList = $favorites->findForUserWithJoins($user);
+        $favIds  = array_map(fn($f) => $f->getProductVariant()->getId(), $favList);
         return $this->render('account/index.html.twig', [
             'user'      => $user,
             'addresses' => $addresses,

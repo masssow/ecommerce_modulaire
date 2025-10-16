@@ -64,12 +64,19 @@ class ProductVariant
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    /**
+     * @var Collection<int, Favorite>
+     */
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'ProductVariant')]
+    private Collection $favorites;
+
     public function __construct()
     {
         $this->price = new Money(0, 'EUR'); // valeur par défaut
         $this->prices = new ArrayCollection();
         $this->cartItems = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -275,6 +282,36 @@ class ProductVariant
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Favorite>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorite $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->setProductVariant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorite $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getProductVariant() === $this) {
+                $favorite->setProductVariant(null);
+            }
+        }
+
         return $this;
     }
 }

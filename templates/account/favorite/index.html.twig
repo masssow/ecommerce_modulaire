@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes favoris{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">Mes favoris</span>
+  </div>
+</div>
+
+<section class="bg0 p-t-52 p-b-20">
+  <div class="container">
+    <h4 class="mtext-112 cl2 p-b-20">Mes favoris</h4>
+
+    {% if favorites is empty %}
+      <p class="stext-111 cl6">Aucun favori pour le moment.</p>
+    {% else %}
+      <div class="row">
+        {% for fav in favorites %}
+          {% set v = fav.productVariant %}
+          {% set p = v ? v.product : null %}
+          {% set img = (v and v.imageName) ? asset('uploads/productVariant/' ~ v.imageName) : asset('images/placeholder-image.png') %}
+
+          <div class="col-sm-6 col-md-4 col-lg-3 p-b-35">
+            <div class="block2">
+              <div class="block2-pic hov-img0">
+                <img src="{{ img }}" alt="{{ p ? p.name : 'Article' }}" class="img-fluid">
+                <a href="{{ p ? path('product_show', { id: p.id }) : '#' }}"
+                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                  Voir l’article
+                </a>
+              </div>
+
+              <div class="block2-txt flex-w flex-t p-t-14">
+                <div class="block2-txt-child1 flex-col-l">
+                  <a href="{{ p ? path('product_show', { id: p.id }) : '#' }}"
+                     class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                    {{ p ? p.name : 'Article' }}
+                  </a>
+                  {% if v and v.priceAmount is defined %}
+                    <span class="stext-105 cl3">
+                      {{ (v.priceAmount/100)|number_format(2, '.', ' ') }} {{ v.priceCurrency|default('EUR') }}
+                    </span>
+                  {% endif %}
+                </div>
+
+                <div class="block2-txt-child2 flex-r p-t-3">
+                  {# bouton cœur (actif) #}
+                  {% include 'account/favorites/partials/_button.html.twig' with {
+                    variant: v,
+                    isActive: true
+                  } %}
+                </div>
+              </div>
+
+              <form method="post" action="{{ path('favorite_remove', { id: fav.id }) }}" class="m-t-10">
+                <input type="hidden" name="_token" value="{{ csrf_token('fav_remove_' ~ fav.id) }}">
+                <button class="stext-115 cl6 hov-cl1 trans-04" style="background:none;border:0;padding:0">
+                  Retirer
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{# JS toggle cœur #}
+<script>
+(function($){
+  $('.js-fav-toggle').on('click', function(e){
+    e.preventDefault();
+    var $btn  = $(this);
+    var url   = $btn.data('url');
+    var token = $btn.data('token');
+    var vid   = $btn.data('variant');
+
+    // Garde-fous: pas d’appel si id ou url invalide
+    if (!vid || !url || !token || /\/null(?:$|\/|\?)/.test(url)) {
+      console.warn('Favori: variant manquant');
+      return;
+    }
+
+    $btn.prop('disabled', true);
+
+    $.post(url, { _token: token })
+      .done(function(resp){
+        if (resp && typeof resp.active !== 'undefined') {
+          $btn.toggleClass('is-liked', !!resp.active)
+              .attr('aria-pressed', !!resp.active);
+          if (typeof resp.count !== 'undefined') {
+            $('.icon-header-noti').attr('data-notify', resp.count);
+          }
+        }
+      })
+      .fail(function(xhr){
+        if (xhr.status === 400) {
+          alert('Sécurité CSRF : veuillez recharger la page.');
+        } else if (xhr.status === 401 || xhr.status === 403) {
+          window.location.href = "{{ path('app_login') }}";
+        } else {
+          alert('Erreur lors de la mise à jour des favoris.');
+        }
+      })
+      .always(function(){
+        $btn.prop('disabled', false);
+      });
+  });
+})(jQuery);
+</script>
+
+{% endblock %}

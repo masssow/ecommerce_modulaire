@@ -53,42 +53,47 @@
       <div class="col-md-8 col-lg-9">
         <div class="p-l-0 p-l-25-lg">
 
-          {# ===================== FAVORIS ===================== #}
+         {# ===================== FAVORIS ===================== #}
           <div id="favorites" class="p-b-60">
             <h4 class="mtext-112 cl2 p-b-20">Mes favoris</h4>
 
             {% if favorites is defined and favorites|length > 0 %}
               <div class="row">
                 {% for fav in favorites %}
-                  {% set favProduct = fav.product ?? (fav.variant is defined ? fav.variant.product : null) %}
-                  {% set favVariant = fav.variant ?? null %}
-                  {% set imgPath = favVariant and favVariant.imageName ? asset('uploads/productVariant/' ~ favVariant.imageName) : asset('images/placeholder-image.png') %}
+                <a href="{{ p ? path('product_show', { id: p.id }) : '#' }}"
+                          class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                  {% set v = fav.productVariant %}
+                  {% set p = v ? v.product : null %}
+                  {% set imgPath = v and v.imageName
+                      ? asset('uploads/productVariant/' ~ v.imageName)
+                      : asset('images/placeholder-image.png') %}
 
                   <div class="col-sm-6 col-md-4 col-lg-3 p-b-35">
                     <div class="block2">
                       <div class="block2-pic hov-img0">
-                        <img src="{{ imgPath }}" alt="{{ favProduct ? favProduct.name : 'Article' }}" class="img-fluid">
-                        <a href="{{ favProduct ? path('product_show', { id: favProduct.id }) : '#' }}"
-                           class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                        <img src="{{ imgPath }}" alt="{{ p ? p.name : 'Article' }}" class="img-fluid">
+                        
                           Voir l’article
                         </a>
                       </div>
+
                       <div class="block2-txt flex-w flex-t p-t-14">
                         <div class="block2-txt-child1 flex-col-l">
-                          <a href="{{ favProduct ? path('product_show', { id: favProduct.id }) : '#' }}"
-                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                            {{ favProduct ? favProduct.name : 'Article' }}
+                          <a href="{{ p ? path('product_show', { id: p.id }) : '#' }}"
+                            class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                            {{ p ? p.name ~ (v and v.name ? ' — ' ~ v.name : '') : 'Article' }}
                           </a>
-                          {% if favVariant and favVariant.priceAmount is defined %}
+                          {% if v %}
                             <span class="stext-105 cl3">
-                              {{ (favVariant.priceAmount / 100) | format_currency(favVariant.priceCurrency|default('EUR')) }}
+                              {{ (v.priceAmount/100)|number_format(2, '.', ' ') }} {{ v.priceCurrency }}
                             </span>
                           {% endif %}
                         </div>
+
                         <div class="block2-txt-child2 flex-r p-t-3">
                           <a href="{{ path('favorite_remove', { id: fav.id }) }}"
-                             class="btn-addwish-b2 dis-block pos-relative js-remove-fav"
-                             title="Retirer des favoris">
+                            class="btn-addwish-b2 dis-block pos-relative js-remove-fav"
+                            title="Retirer des favoris">
                             <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="">
                             <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="">
                           </a>

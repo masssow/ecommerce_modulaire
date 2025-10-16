@@ -271,10 +271,10 @@
               </div>
 
               <div class="block2-txt-child2 flex-r p-t-3">
-                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" aria-label="Ajouter aux favoris">
-                  <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="ICON">
-                  <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="ICON">
-                </a>
+                {% include 'account/favorite/partials/_button.html.twig' with {
+                  variant: variant,
+                  isActive: variant.id in (favoritesIds ?? [])
+                } %}
               </div>
             </div>
           </div>

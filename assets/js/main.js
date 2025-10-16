@@ -177,3 +177,41 @@ import 'animsition';
   });
 
 })(jQuery);
+
+// ==========================================================
+// Favorite button
+
+(function(){
+  function updateHeaderFavCount(count){
+    // si tu as une icône en header avec badge (ex: data-notify)
+    var b = document.querySelector('.icon-header-noti[data-fav-badge]');
+    if(b){ b.setAttribute('data-notify', count); }
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.js-fav-toggle');
+    if(!btn) return;
+    e.preventDefault();
+
+    var id = btn.getAttribute('data-variant-id');
+    var token = btn.getAttribute('data-token');
+
+    var form = new FormData();
+    form.append('_token', token);
+
+    fetch('/favorite/toggle/'+id, {
+      method: 'POST',
+      headers: {'X-Requested-With':'XMLHttpRequest'},
+      body: form
+    })
+    .then(r => r.json())
+    .then(json => {
+      if(!json.ok) return;
+
+      btn.classList.toggle('is-fav', json.active);
+      updateHeaderFavCount(json.count);
+    })
+    .catch(()=>{ /* silence MVP */ });
+  });
+})();
+// ============================================================

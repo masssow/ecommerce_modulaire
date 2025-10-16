@@ -1,0 +1,24 @@
+{# Bouton cœur réutilisable #}
+{% set v = variant is defined ? variant : null %}
+{% set active = isActive|default(false) %}
+
+{% if v and v.id %}
+  <a href="#"
+     class="btn-addwish-b2 dis-block pos-relative js-fav-toggle {{ active ? 'is-liked' : '' }}"
+     data-url="{{ path('favorite_toggle', { id: v.id }) }}"
+     data-token="{{ csrf_token('fav' ~ v.id) }}"
+     data-variant="{{ v.id }}"
+     aria-pressed="{{ active ? 'true' : 'false' }}"
+     title="{{ active ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+    <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="">
+    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="">
+  </a>
+{% else %}
+  {# Variante “verrouillée” si pas de variant/id : aucun POST ne doit partir #}
+  <a href="#"
+     class="btn-addwish-b2 dis-block pos-relative is-disabled"
+     title="Favori indisponible">
+    <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="">
+    <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="">
+  </a>
+{% endif %}

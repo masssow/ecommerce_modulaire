@@ -597,7 +597,70 @@
             </div>
         </footer>
     </body>
-        
+        <script>
+(function() {
+  function updateHeaderFavCount(count) {
+    // Icône wishlist du header (classe du template CozaStore)
+    var headerFav = document.querySelector('.icon-header-item.icon-header-noti[data-notify]');
+    if (headerFav) {
+      headerFav.setAttribute('data-notify', String(count || 0));
+    }
+  }
+
+  async function toggleFavorite(el) {
+    var id = el.getAttribute('data-variant');
+    var token = el.getAttribute('data-csrf');
+    if (!id || !token) return;
+
+    try {
+      var res = await fetch('/favorite/toggle/' + id, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: '_token=' + encodeURIComponent(token)
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        // non connecté → redirige vers login
+        window.location.href = '/login';
+        return;
+      }
+
+      var data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'unknown');
+
+      // Toggle visuel
+      if (data.active) {
+        el.classList.add('is-active');
+        el.setAttribute('data-active', '1');
+        el.setAttribute('title', 'Retirer des favoris');
+      } else {
+        el.classList.remove('is-active');
+        el.setAttribute('data-active', '0');
+        el.setAttribute('title', 'Ajouter aux favoris');
+      }
+
+      // Mettre à jour le badge header
+      if (typeof data.count !== 'undefined') {
+        updateHeaderFavCount(data.count);
+      }
+    } catch (e) {
+      console.error('favorite toggle error', e);
+    }
+  }
+
+  // Délégation d’événements (marche pour les cartes et la fiche produit)
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest('.js-fav-toggle');
+    if (!a) return;
+    e.preventDefault();
+    toggleFavorite(a);
+  }, false);
+})();
+</script>
+
        {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
            

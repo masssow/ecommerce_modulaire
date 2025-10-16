@@ -1,86 +1,89 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Compte{% endblock %}
+{% block title %}Mes commandes{% endblock %}
 
 {% block body %}
 <!-- breadcrumb -->
 <div class="container">
-    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-        <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
-            Accueil
-            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-        </a>
-        <span class="stext-109 cl4">Mon compte</span>
-    </div>
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">Mes commandes</span>
+  </div>
 </div>
 
-<!-- Content page -->
 <section class="bg0 p-t-52 p-b-20">
-    <div class="container">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-4 col-lg-3 p-b-80">
-                <div class="side-menu bor10 p-t-30 p-b-30 p-lr-20">
-                    <h4 class="mtext-112 cl2 p-b-20">Navigation</h4>
-                    <ul>
-                        <li class="bor18 p-tb-8">
-                            <a href="#orders" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes commandes</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#addresses" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes adresses</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#payments" class="dis-block stext-115 cl6 hov-cl1 trans-04">Moyens de paiement</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#profile" class="dis-block stext-115 cl6 hov-cl1 trans-04">Informations personnelles</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="{{ path('app_logout') }}" class="dis-block stext-115 cl6 hov-cl1 trans-04">Déconnexion</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Main content -->
-            <div class="col-md-8 col-lg-9 p-b-80">
-                <div class="p-l-25 p-l-0-lg">
-                    
-                    <!-- Orders -->
-                    <div id="orders" class="p-b-60">
-                        <h4 class="mtext-112 cl2 p-b-20">Mes commandes</h4>
-                        <table class="table-shopping-cart">
-                            <thead>
-                                <tr class="table_head">
-                                    <th class="column-1">Commande</th>
-                                    <th class="column-2">Date</th>
-                                    <th class="column-3">Total</th>
-                                    <th class="column-4">Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="table_row">
-                                    <td class="column-1">#1001</td>
-                                    <td class="column-2">22/09/2025</td>
-                                    <td class="column-3">75,00 €</td>
-                                    <td class="column-4">Expédiée</td>
-                                </tr>
-                                <tr class="table_row">
-                                    <td class="column-1">#1000</td>
-                                    <td class="column-2">15/09/2025</td>
-                                    <td class="column-3">120,00 €</td>
-                                    <td class="column-4">Livrée</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                
-
-                
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="p-b-20">
+      <h4 class="mtext-112 cl2">Mes commandes</h4>
     </div>
+
+    {% if orders is empty %}
+      <div class="bor10 p-20">
+        <p class="stext-111 cl6">Vous n’avez pas encore de commande.</p>
+      </div>
+    {% else %}
+      {# Desktop: tableau #}
+      <div class="dis-none dis-lg-block">
+        <table class="table-shopping-cart">
+          <thead>
+            <tr class="table_head">
+              <th class="column-1">Commande</th>
+              <th class="column-2">Date</th>
+              <th class="column-3">Total</th>
+              <th class="column-4">Statut</th>
+              <th class="column-5"></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for o in orders %}
+            <tr class="table_row">
+              <td class="column-1">#{{ o.number }}</td>
+              <td class="column-2">{{ o.createdAt|date('d/m/Y') }}</td>
+              <td class="column-3">
+                {{ (o.grandTotal/100)|number_format(2, '.', ' ') }} {{ o.currency }}
+              </td>
+              <td class="column-4">
+                {% include 'account/partials/_order_status_badge.html.twig' with { status: o.status } %}
+              </td>
+              <td class="column-5">
+                <a href="{{ path('account_order_show', {id: o.id}) }}"
+                   class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+                  Voir
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {# Mobile: cartes #}
+      <div class="dis-block dis-lg-none">
+        <div class="row">
+          {% for o in orders %}
+            <div class="col-12 p-b-20">
+              <div class="bor10 p-20">
+                <div class="flex-w flex-sb-m m-b-10">
+                  <span class="mtext-112 cl2">#{{ o.number }}</span>
+                  {% include 'account/partials/_order_status_badge.html.twig' with { status: o.status } %}
+                </div>
+                <p class="stext-111 cl6 m-b-5">Date : {{ o.createdAt|date('d/m/Y') }}</p>
+                <p class="stext-111 cl6 m-b-15">
+                  Total : <span class="stext-113 cl2">{{ (o.grandTotal/100)|number_format(2, '.', ' ') }} {{ o.currency }}</span>
+                </p>
+                <a href="{{ path('account_order_show', {id: o.id}) }}"
+                   class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+                  Voir la commande
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
 </section>
 {% endblock %}

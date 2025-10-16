@@ -1,130 +1,347 @@
+{# templates/account/index.html.twig #}
 {% extends 'base.html.twig' %}
-
 {% block title %}Mon Compte{% endblock %}
 
 {% block body %}
 <!-- breadcrumb -->
 <div class="container">
-    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-        <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
-            Accueil
-            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-        </a>
-        <span class="stext-109 cl4">Mon compte</span>
-    </div>
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">Mon compte</span>
+  </div>
 </div>
 
-<!-- Content page -->
+<!-- Content -->
 <section class="bg0 p-t-52 p-b-20">
-    <div class="container">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-4 col-lg-3 p-b-80">
-                <div class="side-menu bor10 p-t-30 p-b-30 p-lr-20">
-                    <h4 class="mtext-112 cl2 p-b-20">Navigation</h4>
-                    <ul>
-                        <li class="bor18 p-tb-8">
-                            <a href="#orders" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes commandes</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#addresses" class="dis-block stext-115 cl6 hov-cl1 trans-04">Mes adresses</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#payments" class="dis-block stext-115 cl6 hov-cl1 trans-04">Moyens de paiement</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="#profile" class="dis-block stext-115 cl6 hov-cl1 trans-04">Informations personnelles</a>
-                        </li>
-                        <li class="bor18 p-tb-8">
-                            <a href="{{ path('app_logout') }}" class="dis-block stext-115 cl6 hov-cl1 trans-04">Déconnexion</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+  <div class="container">
+    {% if app.user %}
+      <div class="m-b-20">
+        <strong class="stext-110 cl2">Bonjour {{ app.user.firstName ?? app.user.email }}</strong>,
+        <span class="stext-111 cl6">bienvenue dans votre espace personnel.</span>
+      </div>
+    {% endif %}
 
-            <!-- Main content -->
-            <div class="col-md-8 col-lg-9 p-b-80">
-                <div class="p-l-25 p-l-0-lg">
-                    
-                    <!-- Orders -->
-                    <div id="orders" class="p-b-60">
-                        <h4 class="mtext-112 cl2 p-b-20">Mes commandes</h4>
-                        <table class="table-shopping-cart">
-                            <thead>
-                                <tr class="table_head">
-                                    <th class="column-1">Commande</th>
-                                    <th class="column-2">Date</th>
-                                    <th class="column-3">Total</th>
-                                    <th class="column-4">Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="table_row">
-                                    <td class="column-1">#1001</td>
-                                    <td class="column-2">22/09/2025</td>
-                                    <td class="column-3">75,00 €</td>
-                                    <td class="column-4">Expédiée</td>
-                                </tr>
-                                <tr class="table_row">
-                                    <td class="column-1">#1000</td>
-                                    <td class="column-2">15/09/2025</td>
-                                    <td class="column-3">120,00 €</td>
-                                    <td class="column-4">Livrée</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Addresses -->
-                    <div id="addresses" class="p-b-60">
-                        <h4 class="mtext-112 cl2 p-b-20">Mes adresses</h4>
-                        <div class="bor10 p-20 m-b-20">
-                            <p class="stext-111 cl6">Adresse de livraison :</p>
-                            <p class="stext-113 cl2">12 rue de Paris, 75000 Paris, France</p>
-                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
-                        </div>
-                        <div class="bor10 p-20">
-                            <p class="stext-111 cl6">Adresse de facturation :</p>
-                            <p class="stext-113 cl2">12 rue de Paris, 75000 Paris, France</p>
-                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
-                        </div>
-                    </div>
-
-                    <!-- Payments -->
-                    <div id="payments" class="p-b-60">
-                        <h4 class="mtext-112 cl2 p-b-20">Moyens de paiement</h4>
-                        <div class="bor10 p-20 m-b-20">
-                            <p class="stext-111 cl6">Carte enregistrée :</p>
-                            <p class="stext-113 cl2">Visa se terminant par •••• 4242</p>
-                            <a href="#" class="stext-115 cl6 hov-cl1 trans-04">Modifier</a>
-                        </div>
-                        <a href="#" class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
-                            Ajouter un moyen de paiement
-                        </a>
-                    </div>
-
-                    <!-- Profile -->
-                    <div id="profile" class="p-b-60">
-                        <h4 class="mtext-112 cl2 p-b-20">Informations personnelles</h4>
-                        <form>
-                            <div class="bor19 size-218 m-b-20">
-                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" value="Jean Dupont">
-                            </div>
-                            <div class="bor19 size-218 m-b-20">
-                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="email" value="jean.dupont@email.com">
-                            </div>
-                            <div class="bor19 size-218 m-b-20">
-                                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="tel" value="+33 6 12 34 56 78">
-                            </div>
-                            <button class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04">
-                                Mettre à jour
-                            </button>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+    <!-- Mobile top nav (scrollable) -->
+    <div class="flex-w m-b-25 p-t-10 show-mobile">
+      <a href="#favorites" class="dis-block stext-115 cl6 hov-cl1 trans-04 p-r-20 js-acct-nav">Favoris</a>
+      <a href="#orders"    class="dis-block stext-115 cl6 hov-cl1 trans-04 p-r-20 js-acct-nav">Commandes</a>
+      <a href="#addresses" class="dis-block stext-115 cl6 hov-cl1 trans-04 p-r-20 js-acct-nav">Adresses</a>
+      <a href="#payments"  class="dis-block stext-115 cl6 hov-cl1 trans-04 p-r-20 js-acct-nav">Paiements</a>
+      <a href="#profile"   class="dis-block stext-115 cl6 hov-cl1 trans-04 p-r-20 js-acct-nav">Profil</a>
     </div>
+
+    <div class="row">
+      <!-- Sidebar (desktop) -->
+      <div class="col-md-4 col-lg-3 p-b-40 hide-mobile">
+        <div class="side-menu bor10 p-t-30 p-b-30 p-lr-20">
+          <h4 class="mtext-112 cl2 p-b-20">Navigation</h4>
+          <ul>
+            <li class="bor18 p-tb-8"><a href="#favorites" class="dis-block stext-115 cl6 hov-cl1 trans-04 js-acct-nav">Mes Favoris</a></li>
+            <li class="bor18 p-tb-8"><a href="#orders"    class="dis-block stext-115 cl6 hov-cl1 trans-04 js-acct-nav">Mes commandes</a></li>
+            <li class="bor18 p-tb-8"><a href="#addresses" class="dis-block stext-115 cl6 hov-cl1 trans-04 js-acct-nav">Mes adresses</a></li>
+            <li class="bor18 p-tb-8"><a href="#payments"  class="dis-block stext-115 cl6 hov-cl1 trans-04 js-acct-nav">Moyens de paiement</a></li>
+            <li class="bor18 p-tb-8"><a href="#profile"   class="dis-block stext-115 cl6 hov-cl1 trans-04 js-acct-nav">Informations personnelles</a></li>
+            <li class="bor18 p-tb-8"><a href="{{ path('app_logout') }}" class="dis-block stext-115 cl6 hov-cl1 trans-04">Me déconnecter</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="col-md-8 col-lg-9">
+        <div class="p-l-0 p-l-25-lg">
+
+          {# ===================== FAVORIS ===================== #}
+          <div id="favorites" class="p-b-60">
+            <h4 class="mtext-112 cl2 p-b-20">Mes favoris</h4>
+
+            {% if favorites is defined and favorites|length > 0 %}
+              <div class="row">
+                {% for fav in favorites %}
+                  {% set favProduct = fav.product ?? (fav.variant is defined ? fav.variant.product : null) %}
+                  {% set favVariant = fav.variant ?? null %}
+                  {% set imgPath = favVariant and favVariant.imageName ? asset('uploads/productVariant/' ~ favVariant.imageName) : asset('images/placeholder-image.png') %}
+
+                  <div class="col-sm-6 col-md-4 col-lg-3 p-b-35">
+                    <div class="block2">
+                      <div class="block2-pic hov-img0">
+                        <img src="{{ imgPath }}" alt="{{ favProduct ? favProduct.name : 'Article' }}" class="img-fluid">
+                        <a href="{{ favProduct ? path('product_show', { id: favProduct.id }) : '#' }}"
+                           class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                          Voir l’article
+                        </a>
+                      </div>
+                      <div class="block2-txt flex-w flex-t p-t-14">
+                        <div class="block2-txt-child1 flex-col-l">
+                          <a href="{{ favProduct ? path('product_show', { id: favProduct.id }) : '#' }}"
+                             class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                            {{ favProduct ? favProduct.name : 'Article' }}
+                          </a>
+                          {% if favVariant and favVariant.priceAmount is defined %}
+                            <span class="stext-105 cl3">
+                              {{ (favVariant.priceAmount / 100) | format_currency(favVariant.priceCurrency|default('EUR')) }}
+                            </span>
+                          {% endif %}
+                        </div>
+                        <div class="block2-txt-child2 flex-r p-t-3">
+                          <a href="{{ path('favorite_remove', { id: fav.id }) }}"
+                             class="btn-addwish-b2 dis-block pos-relative js-remove-fav"
+                             title="Retirer des favoris">
+                            <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="">
+                            <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="">
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="stext-111 cl6">Vous n’avez pas encore de favoris.</p>
+            {% endif %}
+          </div>
+
+          {# ===================== COMMANDES ===================== #}
+          <div id="orders" class="p-b-60">
+            <h4 class="mtext-112 cl2 p-b-20">Mes commandes</h4>
+
+            <div class="table-responsive">
+              <table class="table-shopping-cart">
+                <thead>
+                  <tr class="table_head">
+                    <th class="column-1">Commande</th>
+                    <th class="column-2">Date</th>
+                    <th class="column-3">Total</th>
+                    <th class="column-4">Statut</th>
+                    <th class="column-5">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if orders is defined and orders|length > 0 %}
+                    {% for order in orders %}
+                      <tr class="table_row">
+                        <td class="column-1">#{{ order.number }}</td>
+                        <td class="column-2">{{ order.createdAt|date('d/m/Y') }}</td>
+                        <td class="column-3">
+                          {{ (order.grandTotal / 100) | number_format(2, '.', ' ') }} {{ order.currency }}
+                        </td>
+                        <td class="column-4">
+                          {% include 'account/partials/_order_status_badge.html.twig' with { status: order.status } %}
+                        </td>
+                        <td class="column-5">
+                          <div class="flex-w">
+                            <a href="{{ path('account_order_show', { id: order.id }) }}"
+                               class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04 m-r-8">
+                              Détails
+                            </a>
+
+                            {# Facultatif si vous avez ces routes #}
+                            {% if order.status in ['Expédiée','Expediee','Shipped'] %}
+                              <a href="{{ path('order_track', { id: order.id }) }}"
+                                 class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04 m-r-8">
+                                Suivre
+                              </a>
+                            {% endif %}
+
+                            {% if order.status in ['Livrée','Livree','Delivered'] %}
+                              <a href="{{ path('order_return_start', { id: order.id }) }}"
+                                 class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                                Retourner
+                              </a>
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr class="table_row">
+                      <td class="column-1">—</td>
+                      <td class="column-2">—</td>
+                      <td class="column-3">—</td>
+                      <td class="column-4">—</td>
+                      <td class="column-5">
+                        <span class="stext-111 cl6">Aucune commande.</span>
+                      </td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {# ===================== ADRESSES ===================== #}
+          <div id="addresses" class="p-b-60">
+            <div class="flex-w flex-sb-m p-b-10">
+              <h4 class="mtext-112 cl2 p-b-20">Mes adresses</h4>
+              <a href="{{ path('address_new') }}"
+                 class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+                Ajouter une adresse
+              </a>
+            </div>
+
+            <div class="row">
+              {% if addresses is defined and addresses|length > 0 %}
+                {% for addr in addresses %}
+                  <div class="col-sm-12 col-md-6 p-b-20">
+                    <div class="bor10 p-20 h-full">
+                      <div class="flex-w flex-sb-m m-b-8">
+                        <p class="stext-111 cl6 m-b-0">
+                          {% if addr.isDefault and addr.type == 'livraison' %}
+                            Adresse de livraison par défaut
+                          {% elseif addr.isDefault and addr.type == 'facturation' %}
+                            Adresse de facturation par défaut
+                          {% else %}
+                            {{ addr.label|default('Adresse') }}{% if addr.type %} — {{ addr.type|capitalize }}{% endif %}
+                          {% endif %}
+                        </p>
+                        {% if addr.isDefault %}
+                          <span class="stext-111 cl1">Par défaut</span>
+                        {% endif %}
+                      </div>
+
+                      <p class="stext-113 cl2 m-b-10">
+                        {{ addr.line1 }}
+                        {% if addr.line2 %}, {{ addr.line2 }}{% endif %}<br>
+                        {{ addr.postalCode }} {{ addr.city }}, {{ addr.country }}<br>
+                        {% if addr.phone %}{{ addr.phone }}{% endif %}
+                      </p>
+
+                      <div class="flex-w">
+                        <a href="{{ path('address_edit', { id: addr.id }) }}"
+                           class="stext-115 cl6 hov-cl1 trans-04 m-r-20">Modifier</a>
+
+                        {% if not addr.isDefault %}
+                          <form method="post" action="{{ path('address_make_default', { id: addr.id }) }}" class="d-inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('address_default_' ~ addr.id) }}">
+                            <button class="stext-115 cl6 hov-cl1 trans-04" style="background:none;border:0;padding:0">
+                              Définir par défaut
+                            </button>
+                          </form>
+                        {% endif %}
+
+                        <form method="post" action="{{ path('address_delete', { id: addr.id }) }}" class="d-inline m-l-20">
+                          <input type="hidden" name="_token" value="{{ csrf_token('address_delete_' ~ addr.id) }}">
+                          <button class="stext-115 cl6 hov-cl1 trans-04 js-confirm-delete" style="background:none;border:0;padding:0">
+                            Supprimer
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="col-12">
+                  <p class="stext-111 cl6">Aucune adresse enregistrée.</p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          {# ===================== PAIEMENTS ===================== #}
+          <div id="payments" class="p-b-60">
+            <div class="flex-w flex-sb-m p-b-10">
+              <h4 class="mtext-112 cl2 p-b-20">Moyens de paiement</h4>
+              <a href="#"
+                 class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+                Ajouter un moyen de paiement
+              </a>
+            </div>
+
+            {% if paymentMethods is defined and paymentMethods|length > 0 %}
+              <div class="row">
+                {% for pm in paymentMethods %}
+                  <div class="col-sm-12 col-md-6 p-b-20">
+                    <div class="bor10 p-20 h-full">
+                      <p class="stext-111 cl6 m-b-8">
+                        {{ pm.brand|capitalize }} •••• {{ pm.last4 }} — {{ '%02d'|format(pm.expMonth) }}/{{ pm.expYear }}
+                        {% if pm.isDefault %}<span class="cl1 m-l-10">(par défaut)</span>{% endif %}
+                      </p>
+                      <div class="flex-w">
+                        <a href="{{ path('payment_method_make_default', { id: pm.id }) }}"
+                           class="stext-115 cl6 hov-cl1 trans-04 m-r-20">Définir par défaut</a>
+                        <a href="{{ path('payment_method_delete', { id: pm.id }) }}"
+                           class="stext-115 cl6 hov-cl1 trans-04 js-confirm-delete">Supprimer</a>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="stext-111 cl6">Aucun moyen de paiement enregistré.</p>
+            {% endif %}
+          </div>
+
+          {# ===================== PROFIL ===================== #}
+          <div id="profile" class="p-b-60">
+            <h4 class="mtext-112 cl2 p-b-20">Informations personnelles</h4>
+
+            <form method="post" action="#">
+              <div class="bor19 size-218 m-b-20">
+                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="firstName"
+                       value="{{ app.user.firstName ?? '' }}" placeholder="Prénom">
+              </div>
+              <div class="bor19 size-218 m-b-20">
+                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="text" name="lastName"
+                       value="{{ app.user.lastName ?? '' }}" placeholder="Nom">
+              </div>
+              <div class="bor19 size-218 m-b-20">
+                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="email" name="email"
+                       value="{{ app.user.email ?? '' }}" placeholder="Email">
+              </div>
+              <div class="bor19 size-218 m-b-20">
+                <input class="stext-111 cl2 plh3 size-116 p-lr-18" type="tel" name="phone"
+                       value="{{ app.user.phone ?? '' }}" placeholder="Téléphone">
+              </div>
+              <button class="flex-c-m stext-101 cl0 size-125 bg3 bor2 hov-btn3 p-lr-15 trans-04">
+                Mettre à jour
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
+{# --- Mini JS (jQuery) pour nav active + scroll fluide; garde les classes du thème --- #}
+<script>
+  (function($){
+    $('.js-acct-nav').on('click', function(e){
+      var target = $(this).attr('href');
+      if (target && target.startsWith('#')) {
+        e.preventDefault();
+        $('.js-acct-nav').removeClass('cl1');
+        $(this).addClass('cl1');
+        var $el = $(target);
+        if ($el.length) {
+          $('html, body').animate({ scrollTop: $el.offset().top - 80 }, 400);
+          history.replaceState(null, '', target);
+        }
+      }
+    });
+    var hash = window.location.hash;
+    if (hash) {
+      var $link = $('.js-acct-nav[href="'+hash+'"]');
+      if ($link.length) $link.addClass('cl1');
+    } else {
+      $('.js-acct-nav').first().addClass('cl1');
+    }
+    $('.js-confirm-delete').on('click', function(e){
+      if(!confirm('Confirmer la suppression ?')) e.preventDefault();
+    });
+  })(jQuery);
+</script>
+
+<style>
+  @media (max-width: 991.98px){
+    .hide-mobile{ display:none !important; }
+    .show-mobile{ display:flex !important; overflow-x:auto; }
+  }
+  @media (min-width: 992px){
+    .show-mobile{ display:none !important; }
+  }
+</style>
 {% endblock %}

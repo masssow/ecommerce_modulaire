@@ -1,0 +1,298 @@
+{# templates/account/order_show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande #{{ order.number }}{% endblock %}
+
+{% block body %}
+{# ===================== BREADCRUMB ===================== #}
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <a href="{{ path('account_orders') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Mes commandes
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">Commande #{{ order.number }}</span>
+  </div>
+</div>
+
+<section class="bg0 p-t-52 p-b-20">
+  <div class="container">
+
+    {# ===================== PRESETS / LABELS ===================== #}
+    {% set shippingMethodLabel = order.shippingMethodName is not null
+      ? order.shippingMethodName
+      : (order.shippingMethod ? order.shippingMethod.name : '—')
+    %}
+    {% set paymentLabel = order.paymentMethodName is not null
+      ? order.paymentMethodName
+      : (order.paymentGateway ? ('via ' ~ order.paymentGateway)|capitalize : '—')
+    %}
+    {% set _isReturnable   = isReturnable is defined ? isReturnable : false %}
+    {% set _lastDelivered  = lastDeliveredAt is defined ? lastDeliveredAt : null %}
+    {% set _returnWindow   = returnWindowDays is defined ? returnWindowDays : 0 %}
+
+    {# ===================== RÉSUMÉ COMMANDE ===================== #}
+    <div class="bor10 p-20 m-b-30">
+      <div class="flex-w flex-sb-m">
+        <div class="m-b-10">
+          <h4 class="mtext-112 cl2">Commande #{{ order.number }}</h4>
+          <p class="stext-111 cl6 m-t-5">
+            Passée le <span class="stext-113 cl2">{{ order.createdAt|date('d/m/Y') }}</span>
+          </p>
+        </div>
+        <div class="m-b-10">
+          {% include 'account/partials/_order_status_badge.html.twig' with { status: order.status } %}
+        </div>
+      </div>
+
+      <div class="row m-t-10">
+        <div class="col-sm-6 p-b-10">
+          <p class="stext-111 cl6">
+            Mode de livraison :
+            <span class="stext-113 cl2">{{ shippingMethodLabel }}</span>
+          </p>
+        </div>
+        <div class="col-sm-6 p-b-10">
+          <p class="stext-111 cl6">
+            Paiement :
+            <span class="stext-113 cl2">
+              {{ paymentLabel }}
+              {% if order.stripePmBrand or order.stripePmLast4 %}
+                ({{ order.stripePmBrand }} •••• {{ order.stripePmLast4 }})
+              {% endif %}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {# ===================== LIGNES DE COMMANDE ===================== #}
+    <div class="p-b-20">
+      <h4 class="mtext-112 cl2">Articles</h4>
+    </div>
+
+    {# Desktop #}
+    <div class="dis-none dis-lg-block">
+      <table class="table-shopping-cart">
+        <thead>
+          <tr class="table_head">
+            <th class="column-1">Image</th>
+            <th class="column-2">Désignation</th>
+            <th class="column-3">Prix</th>
+            <th class="column-4">Qté</th>
+            <th class="column-5">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for it in order.orderItems %}
+          {% set pv = it.productVariant %}
+          {% set product = pv ? pv.product : null %}
+          {% set imagePath = (pv and pv.imageName)
+            ? asset('uploads/productVariant/' ~ pv.imageName)
+            : asset('images/placeholder-image.png') %}
+
+          <tr class="table_row">
+            <td class="column-1">
+              <div class="how-itemcart1">
+                <img src="{{ imagePath }}" alt="{{ product ? product.name : 'Article' }}">
+              </div>
+            </td>
+
+            <td class="column-2">
+              <a href="{{ product ? path('product_show', { id: product.id }) : '#' }}"
+                 class="stext-110 cl2 hov-cl1 trans-04 js-name-b2">
+                {{ product ? product.name : 'Article' }}
+              </a>
+              {% if pv %}
+                <div class="stext-111 cl6 m-t-5">Variante #{{ pv.id }}</div>
+              {% endif %}
+            </td>
+
+            <td class="column-3">
+              {{ (it.unitPrice/100)|number_format(2, '.', ' ') }} {{ it.currency ?? order.currency }}
+            </td>
+
+            <td class="column-4">{{ it.quantity }}</td>
+
+            <td class="column-5">
+              {{ (it.totalPrice/100)|number_format(2, '.', ' ') }} {{ it.currency ?? order.currency }}
+            </td>
+          </tr>
+        {% else %}
+          <tr class="table_row">
+            <td colspan="5" class="txt-center stext-111 cl6">Aucun article.</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {# Mobile #}
+    <div class="dis-block dis-lg-none">
+      <div class="row">
+        {% for it in order.orderItems %}
+          {% set pv = it.productVariant %}
+          {% set product = pv ? pv.product : null %}
+          {% set imagePath = (pv and pv.imageName)
+            ? asset('uploads/productVariant/' ~ pv.imageName)
+            : asset('images/placeholder-image.png') %}
+          <div class="col-12 p-b-20">
+            <div class="bor10 p-20 flex-w">
+              <div class="how-itemcart1 m-r-15">
+                <img src="{{ imagePath }}" alt="{{ product ? product.name : 'Article' }}">
+              </div>
+              <div class="flex-col-l">
+                <a href="{{ product ? path('product_show', { id: product.id }) : '#' }}"
+                   class="stext-110 cl2 hov-cl1 trans-04 js-name-b2">
+                  {{ product ? product.name : 'Article' }}
+                </a>
+                {% if pv %}
+                  <div class="stext-111 cl6 m-t-5">Variante #{{ pv.id }}</div>
+                {% endif %}
+                <div class="stext-111 cl6 m-t-10">
+                  {{ it.quantity }} × {{ (it.unitPrice/100)|number_format(2, '.', ' ') }} {{ it.currency ?? order.currency }}
+                </div>
+                <div class="stext-113 cl2 m-t-5">
+                  Total : {{ (it.totalPrice/100)|number_format(2, '.', ' ') }} {{ it.currency ?? order.currency }}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {# ===================== ADRESSES & TOTAUX ===================== #}
+    <div class="row m-t-20">
+      <div class="col-lg-6 p-b-20">
+        <div class="bor10 p-20 h-full">
+          <h5 class="mtext-112 cl2 m-b-15">Adresses</h5>
+          <div class="row">
+            <div class="col-sm-6 p-b-20">
+              <p class="stext-111 cl6 m-b-5">Livraison</p>
+              <p class="stext-113 cl2">
+                {{ order.shippingAddress.line1 }}{% if order.shippingAddress.line2 %}, {{ order.shippingAddress.line2 }}{% endif %}<br>
+                {{ order.shippingAddress.postalCode }} {{ order.shippingAddress.city }}<br>
+                {{ order.shippingAddress.country }}<br>
+                {% if order.shippingAddress.phone %}Tél : {{ order.shippingAddress.phone }}{% endif %}
+              </p>
+            </div>
+            <div class="col-sm-6 p-b-20">
+              <p class="stext-111 cl6 m-b-5">Facturation</p>
+              <p class="stext-113 cl2">
+                {{ order.billingAddress.line1 }}{% if order.billingAddress.line2 %}, {{ order.billingAddress.line2 }}{% endif %}<br>
+                {{ order.billingAddress.postalCode }} {{ order.billingAddress.city }}<br>
+                {{ order.billingAddress.country }}<br>
+                {% if order.billingAddress.phone %}Tél : {{ order.billingAddress.phone }}{% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 p-b-20">
+        <div class="bor10 p-20 h-full">
+          <h5 class="mtext-112 cl2 m-b-15">Récapitulatif</h5>
+          <div class="flex-w flex-sb-m stext-111 cl6 m-b-10">
+            <span>Sous-total</span>
+            <span class="stext-113 cl2">
+              {% if order.subtotal is not null %}
+                {{ (order.subtotal/100)|number_format(2, '.', ' ') }} {{ order.currency }}
+              {% else %}—{% endif %}
+            </span>
+          </div>
+          <div class="flex-w flex-sb-m stext-111 cl6 m-b-10">
+            <span>Livraison</span>
+            <span class="stext-113 cl2">
+              {% if order.shippingTotal is not null %}
+                {{ (order.shippingTotal/100)|number_format(2, '.', ' ') }} {{ order.currency }}
+              {% else %}—{% endif %}
+            </span>
+          </div>
+          <div class="flex-w flex-sb-m stext-111 cl6 m-b-10">
+            <span>TVA</span>
+            <span class="stext-113 cl2">
+              {% if order.taxTotal is not null %}
+                {{ (order.taxTotal/100)|number_format(2, '.', ' ') }} {{ order.currency }}
+              {% else %}—{% endif %}
+            </span>
+          </div>
+          <div class="flex-w flex-sb-m m-t-10 p-t-10 bor12">
+            <span class="mtext-112 cl2">Total TTC</span>
+            <span class="mtext-112 cl2">
+              {{ (order.grandTotal/100)|number_format(2, '.', ' ') }} {{ order.currency }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ===================== SUIVI LIVRAISON ===================== #}
+    {% if order.shipments|length > 0 %}
+      <div class="p-t-30">
+        <h4 class="mtext-112 cl2">Suivi de livraison</h4>
+      </div>
+      <div class="row">
+        {% for s in order.shipments %}
+          <div class="col-md-6 p-b-20">
+            <div class="bor10 p-20 h-full">
+              <p class="stext-111 cl6 m-b-5">
+                Transporteur :
+                <span class="stext-113 cl2">
+                  {{ order.shippingMethodName is not null
+                      ? order.shippingMethodName
+                      : (s.shippingMethod ? s.shippingMethod.name : '—') }}
+                </span>
+              </p>
+              <p class="stext-111 cl6 m-b-5">
+                N° de suivi :
+                <span class="stext-113 cl2">{{ s.trackingNumber ?? '—' }}</span>
+              </p>
+              <p class="stext-111 cl6 m-b-5">Statut : <span class="stext-113 cl2">{{ s.status }}</span></p>
+              <p class="stext-111 cl6 m-b-5">
+                Expédié : <span class="stext-113 cl2">{{ s.shippedAt ? s.shippedAt|date('d/m/Y') : '—' }}</span>
+              </p>
+              <p class="stext-111 cl6">
+                Livré : <span class="stext-113 cl2">{{ s.deliveredAt ? s.deliveredAt|date('d/m/Y') : '—' }}</span>
+              </p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# ===================== RETOUR (RMA) ===================== #}
+    <div class="p-t-20">
+      {% if _isReturnable %}
+        <form method="post"
+              action="{{ path('account_order_request_return', { id: order.id }) }}"
+              onsubmit="return confirm('Confirmer la demande de retour pour la commande #{{ order.number }} ?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('order_return_' ~ order.id) }}">
+          <button class="flex-c-m stext-101 cl0 size-101 bg7 bor11 hov-btn3 p-lr-15 trans-04">
+            Demander un retour
+          </button>
+        </form>
+        {% if _lastDelivered %}
+          <small class="stext-111 cl6 dis-block m-t-10">
+            Retour possible jusqu’à {{ _lastDelivered|date('d/m/Y') }} + {{ _returnWindow }} jours.
+          </small>
+        {% endif %}
+      {% else %}
+        <div class="bor10 p-20">
+          <p class="stext-111 cl6">
+            Cette commande n’est plus éligible au retour.
+            {% if _lastDelivered %}
+              (Livrée le {{ _lastDelivered|date('d/m/Y') }})
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% set map = {
+  'pending':    {'text':'En attente', 'cl':'cl6'},
+  'paid':       {'text':'Payée', 'cl':'cl1'},
+  'processing': {'text':'En préparation', 'cl':'cl1'},
+  'shipped':    {'text':'Expédiée', 'cl':'cl1'},
+  'delivered':  {'text':'Livrée', 'cl':'cl1'},
+  'cancelled':  {'text':'Annulée', 'cl':'cl12'},
+  'refunded':   {'text':'Remboursée', 'cl':'cl12'},
+} %}
+{% set m = map[status|lower] ?? {'text': status|capitalize, 'cl':'cl6'} %}
+<span class="stext-111 {{ m.cl }} bor10 p-lr-10 p-tb-5">{{ m.text }}</span>

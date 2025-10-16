@@ -1,0 +1,30 @@
+{# templates/payment/partials/_card.html.twig #}
+{# Paramètres : instrument (UserPaymentMethod), show_brand (bool) #}
+{% set show_brand = show_brand is defined ? show_brand : false %}
+
+<div class="bor10 p-20 h-full">
+  <p class="stext-111 cl6 m-b-8">
+    {# GATEWAY visible si tu veux (Stripe/PayPal) #}
+    {{ instrument.gateway ?? '—' }}
+
+    {# BRAND : seulement si show_brand === true (donc pas en front) #}
+    {% if show_brand and instrument.brand %}
+      — {{ instrument.brand|capitalize }}
+    {% endif %}
+
+    {% if instrument.last4 %} •••• {{ instrument.last4 }}{% endif %}
+    {% if instrument.expMonth is not null and instrument.expYear is not null %}
+      — {{ '%02d'|format(instrument.expMonth) }}/{{ instrument.expYear }}
+    {% endif %}
+    {% if instrument.isDefault %}
+      <span class="cl1 m-l-10">(par défaut)</span>
+    {% endif %}
+  </p>
+
+  <div class="flex-w">
+    <a href="{{ path('payment_method_make_default', { id: instrument.id }) }}"
+       class="stext-115 cl6 hov-cl1 trans-04 m-r-20">Définir par défaut</a>
+    <a href="{{ path('payment_method_delete', { id: instrument.id }) }}"
+       class="stext-115 cl6 hov-cl1 trans-04 js-confirm-delete">Supprimer</a>
+  </div>
+</div>

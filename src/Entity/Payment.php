@@ -13,8 +13,8 @@ class Payment
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $amount = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $amount = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
@@ -31,17 +31,20 @@ class Payment
     #[ORM\ManyToOne(inversedBy: 'payments')]
     private ?PaymentMethod $paymenMethod = null;
 
+    #[ORM\Column(length: 3, nullable: true)]
+    private ?string $currency = null;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAmount(): ?string
+    public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    public function setAmount(string $amount): static
+    public function setAmount(int $amount): static
     {
         $this->amount = $amount;
 
@@ -104,6 +107,18 @@ class Payment
     public function setPaymenMethod(?PaymentMethod $paymenMethod): static
     {
         $this->paymenMethod = $paymenMethod;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?string $currency): static
+    {
+        $this->currency = $currency;
 
         return $this;
     }

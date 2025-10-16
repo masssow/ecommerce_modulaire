@@ -1,0 +1,128 @@
+{# 
+  Requis : variables passées
+  - form : FormView (ex: UserPaymentMethodType)
+  - submit_label (string, optionnel) : libellé du bouton
+  - cancel_path (string, optionnel) : route d’annulation (retour)
+#}
+
+{% set submit_label = submit_label|default('Enregistrer') %}
+{% set cancel_path  = cancel_path|default(path('account_profile')) ~ '#payments' %}
+
+{{ form_start(form, { attr: { class: 'payment-form' } }) }}
+
+  {# erreurs globaux #}
+  {% if form_errors(form) %}
+    <div class="bor10 p-20 m-b-20">
+      {{ form_errors(form) }}
+    </div>
+  {% endif %}
+
+  <div class="row">
+    {# Passerelle (Stripe, PayPal...) #}
+    {# {% if form.gateway is defined %}
+      <div class="col-md-6 p-b-20">
+        <label class="stext-111 cl2">Passerelle</label>
+        <div class="bor19 size-218">
+          {{ form_widget(form.gateway, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18' } }) }}
+        </div>
+        {{ form_errors(form.gateway) }}
+      </div>
+    {% endif %} #}
+
+    {# Nom du titulaire (facultatif si disponible dans ton FormType) #}
+    {% if form.holderName is defined %}
+      <div class="col-md-6 p-b-20">
+        <label class="stext-111 cl2">Nom du titulaire</label>
+        <div class="bor19 size-218">
+          {{ form_widget(form.holderName, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', placeholder: 'Nom figurant sur la carte' } }) }}
+        </div>
+        {{ form_errors(form.holderName) }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="row">
+    {% if form.brand is defined %}
+      <div class="col-md-4 p-b-20">
+        <label class="stext-111 cl2">Marque</label>
+        <div class="bor19 size-218">
+          {{ form_widget(form.brand, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', placeholder: 'Visa, Mastercard…' } }) }}
+        </div>
+        {{ form_errors(form.brand) }}
+      </div>
+    {% endif %}
+
+    {% if form.last4 is defined %}
+      <div class="col-md-4 p-b-20">
+        <label class="stext-111 cl2">4 derniers</label>
+        <div class="bor19 size-218">
+          {{ form_widget(form.last4, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', maxlength: 4, placeholder: '1234' } }) }}
+        </div>
+        {{ form_errors(form.last4) }}
+      </div>
+    {% endif %}
+
+    <div class="col-md-4 p-b-20">
+      <div class="row">
+        {% if form.expMonth is defined %}
+          <div class="col-6 p-b-20">
+            <label class="stext-111 cl2">Mois</label>
+            <div class="bor19 size-218">
+              {{ form_widget(form.expMonth, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', placeholder: 'MM' } }) }}
+            </div>
+            {{ form_errors(form.expMonth) }}
+          </div>
+        {% endif %}
+        {% if form.expYear is defined %}
+          <div class="col-6 p-b-20">
+            <label class="stext-111 cl2">Année</label>
+            <div class="bor19 size-218">
+              {{ form_widget(form.expYear, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', placeholder: 'YYYY' } }) }}
+            </div>
+            {{ form_errors(form.expYear) }}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    {% if form.fingerprint is defined %}
+      <div class="col-md-8 p-b-20">
+        <label class="stext-111 cl2">Empreinte (fingerprint)</label>
+        <div class="bor19 size-218">
+          {{ form_widget(form.fingerprint, { attr: { class: 'stext-111 cl2 plh3 size-116 p-lr-18', placeholder: 'Identifiant stable du moyen (anti-doublon)' } }) }}
+        </div>
+        <small class="stext-111 cl6">Utilisée pour éviter les doublons sur un même compte.</small>
+        {{ form_errors(form.fingerprint) }}
+      </div>
+    {% endif %}
+
+    {% if form.isDefault is defined %}
+      <div class="col-md-4 p-b-20">
+        <label class="stext-111 cl2">Par défaut</label>
+        <div class="bor10 p-15">
+          <label class="stext-111 cl2">
+            {{ form_widget(form.isDefault, { attr: { class: 'm-r-10' } }) }} Utiliser par défaut
+          </label>
+        </div>
+        {{ form_errors(form.isDefault) }}
+      </div>
+    {% endif %}
+  </div>
+
+  {# Identifiant externe/token (caché souvent) #}
+  {% if form.externalId is defined %}
+    {{ form_widget(form.externalId) }}
+  {% endif %}
+
+  <div class="flex-w m-t-10">
+    <button class="flex-c-m stext-101 cl0 size-121 bg3 bor2 hov-btn3 p-lr-15 trans-04">
+      {{ submit_label }}
+    </button>
+    <a href="{{ cancel_path }}" class="flex-c-m stext-101 cl2 size-121 bor2 p-lr-15 trans-04 m-l-10">
+      Annuler
+    </a>
+  </div>
+
+{{ form_end(form) }}

@@ -8,13 +8,15 @@ use App\Entity\Order;
 use App\Entity\Adresse;
 use App\Entity\ReturnRequest;
 use App\Form\AdresseTypeForm;
+use App\Entity\UserPaymentMethod;
 use App\Repository\OrderRepository;
 use App\Repository\AdresseRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\UserPaymentMethodRepository;
 
 final class AccountController extends AbstractController
 {
@@ -23,7 +25,7 @@ final class AccountController extends AbstractController
     /* ========================= PROFIL ========================= */
 
     #[Route('/mon-compte', name: 'account_profile', methods: ['GET'])]
-    public function profile(AdresseRepository $adresseRepo, OrderRepository $orderRepo): Response
+    public function profile(AdresseRepository $adresseRepo, OrderRepository $orderRepo, UserPaymentMethodRepository $walletRepo ): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
 
@@ -35,14 +37,13 @@ final class AccountController extends AbstractController
             ['user' => $user],
             ['isDefault' => 'DESC', 'createdAt' => 'DESC']
         );
-
+        $wallet = $walletRepo->findWalletForUser($user);
         $orders = $orderRepo->findByUser($user);
-
-
         return $this->render('account/index.html.twig', [
             'user'      => $user,
             'addresses' => $addresses,
             'orders'    => $orders,
+            'wallet'    => $wallet,
         ]);
     }
 

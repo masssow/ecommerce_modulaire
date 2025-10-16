@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un moyen de paiement{% endblock %}
+
+{% block body %}
+<!-- breadcrumb -->
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <a href="{{ path('account_profile') }}#payments" class="stext-109 cl8 hov-cl1 trans-04">
+      Mon compte
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">Ajouter un moyen de paiement</span>
+  </div>
+</div>
+
+<section class="bg0 p-t-52 p-b-60">
+  <div class="container">
+    <div class="p-b-20">
+      <h4 class="mtext-112 cl2">Ajouter un moyen de paiement</h4>
+      <p class="stext-111 cl6">
+        Nous ne stockons jamais le numéro complet de votre carte. Les informations sensibles sont tokenisées par la passerelle.
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        {% include 'account/payment/partials/_form.html.twig' with {
+          form: form,
+          submit_label: 'Enregistrer',
+          cancel_path: path('account_profile')
+        } %}
+      </div>
+
+      {# Panneau “tokenisation” (Stripe/PayPal) optionnel #}
+      <div class="col-lg-4 p-t-20">
+        <div class="bor10 p-20">
+          <h5 class="mtext-107 cl2 m-b-12">Saisie sécurisée</h5>
+          <p class="stext-111 cl6 m-b-15">
+            Si vous utilisez Stripe, montez ici un élément de carte :
+          </p>
+          <div id="card-element" class="bor19 size-218 p-15" style="min-height:60px;">
+            {# Stripe Elements viendra ici (JS côté front) #}
+          </div>
+          <p class="stext-111 cl6 m-t-12">
+            Un <em>token</em> sera envoyé au serveur, puis les métadonnées (marque, 4 derniers, expiration) seront stockées.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

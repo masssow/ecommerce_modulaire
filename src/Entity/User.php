@@ -121,9 +121,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Customer $customer = null;
 
+    /**
+     * @var Collection<int, UserPaymentMethod>
+     */
+    #[ORM\OneToMany(targetEntity: UserPaymentMethod::class, mappedBy: 'user')]
+    private Collection $userPaymentMethods;
+
     public function __construct()
     {
         $this->adresses = new ArrayCollection();
+        $this->userPaymentMethods = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -324,6 +331,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->customer = $customer;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserPaymentMethod>
+     */
+    public function getUserPaymentMethods(): Collection
+    {
+        return $this->userPaymentMethods;
+    }
+
+    public function addUserPaymentMethod(UserPaymentMethod $userPaymentMethod): static
+    {
+        if (!$this->userPaymentMethods->contains($userPaymentMethod)) {
+            $this->userPaymentMethods->add($userPaymentMethod);
+            $userPaymentMethod->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserPaymentMethod(UserPaymentMethod $userPaymentMethod): static
+    {
+        if ($this->userPaymentMethods->removeElement($userPaymentMethod)) {
+            // set the owning side to null (unless already changed)
+            if ($userPaymentMethod->getUser() === $this) {
+                $userPaymentMethod->setUser(null);
+            }
+        }
 
         return $this;
     }

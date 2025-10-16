@@ -128,7 +128,7 @@
                           {{ (order.grandTotal / 100) | number_format(2, '.', ' ') }} {{ order.currency }}
                         </td>
                         <td class="column-4">
-                          {% include 'account/partials/_order_status_badge.html.twig' with { status: order.status } %}
+                          {% include 'account/order/partials/_order_status_badge.html.twig' with { status: order.status } %}
                         </td>
                         <td class="column-5">
                           <div class="flex-w">
@@ -239,30 +239,38 @@
             </div>
           </div>
 
-          {# ===================== PAIEMENTS ===================== #}
+         {# ===================== PAIEMENTS ===================== #}
           <div id="payments" class="p-b-60">
             <div class="flex-w flex-sb-m p-b-10">
               <h4 class="mtext-112 cl2 p-b-20">Moyens de paiement</h4>
-              <a href="#"
-                 class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
+              <a href="{{ path('payment_method_new') }}"
+                class="flex-c-m stext-101 cl0 size-101 bg3 bor1 hov-btn3 p-lr-15 trans-04">
                 Ajouter un moyen de paiement
               </a>
             </div>
 
-            {% if paymentMethods is defined and paymentMethods|length > 0 %}
+            {% if wallet is defined and wallet|length > 0 %}
               <div class="row">
-                {% for pm in paymentMethods %}
+                {% for pm in wallet %}
                   <div class="col-sm-12 col-md-6 p-b-20">
                     <div class="bor10 p-20 h-full">
                       <p class="stext-111 cl6 m-b-8">
-                        {{ pm.brand|capitalize }} •••• {{ pm.last4 }} — {{ '%02d'|format(pm.expMonth) }}/{{ pm.expYear }}
+                        {# {{ pm.gateway ?? '—' }} #}
+                        {% if pm.brand %} — {{ pm.brand|capitalize }}{% endif %}
+                        {% if pm.last4 %} •••• {{ pm.last4 }}{% endif %}
+                        {% if pm.expMonth is defined and pm.expYear is defined %}
+                          — {{ '%02d'|format(pm.expMonth) }}/{{ pm.expYear }}
+                        {% endif %}
                         {% if pm.isDefault %}<span class="cl1 m-l-10">(par défaut)</span>{% endif %}
                       </p>
+
                       <div class="flex-w">
-                        <a href="{{ path('payment_method_make_default', { id: pm.id }) }}"
-                           class="stext-115 cl6 hov-cl1 trans-04 m-r-20">Définir par défaut</a>
+                        {% if not pm.isDefault %}
+                          <a href="{{ path('payment_method_make_default', { id: pm.id }) }}"
+                            class="stext-115 cl6 hov-cl1 trans-04 m-r-20">Définir par défaut</a>
+                        {% endif %}
                         <a href="{{ path('payment_method_delete', { id: pm.id }) }}"
-                           class="stext-115 cl6 hov-cl1 trans-04 js-confirm-delete">Supprimer</a>
+                          class="stext-115 cl6 hov-cl1 trans-04 js-confirm-delete">Supprimer</a>
                       </div>
                     </div>
                   </div>
@@ -272,6 +280,7 @@
               <p class="stext-111 cl6">Aucun moyen de paiement enregistré.</p>
             {% endif %}
           </div>
+
 
           {# ===================== PROFIL ===================== #}
           <div id="profile" class="p-b-60">

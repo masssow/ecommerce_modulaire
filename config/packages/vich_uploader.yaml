@@ -18,5 +18,9 @@ vich_uploader:
             uri_prefix: /uploads/productVariant
             upload_destination: '%kernel.project_dir%/public/uploads/productVariant'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+        email_template_logo:
+            uri_prefix: /uploads/emailTemplates
+            upload_destination: '%kernel.project_dir%/public/uploads/emailTemplates'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
     
   

@@ -1,45 +1,44 @@
 # config/services.yaml
-
 parameters:
-  # Garde/complète tes paramètres si tu les utilises ailleurs (Twig, etc.)
-  # stripe_public_key: '%env(STRIPE_PUBLIC_KEY)%'
-  # stripe_currency: 'EUR'
+  app.email.from_address: 'no-reply@exemple.com'
+  app.email.from_name: 'Votre Boutique'
+  app.email.reply_to: 'support@exemple.com'
+
+  app.stripe.webhook_secret: '%env(STRIPE_WEBHOOK_SECRET)%'
+
 
 services:
   _defaults:
     autowire: true
     autoconfigure: true
 
-  # Découverte automatique de tout le code de src/
   App\:
     resource: '../src/'
     exclude:
       - '../src/Kernel.php'
 
-  # ✅ Client Stripe injecté proprement dans les services (pas de setApiKey global)
+  # OrderEmailService : on lui passe les paramètres d'email (+ projectDir)
+  App\Service\OrderEmailService:
+    arguments:
+      $fromEmail: '%app.email.from_address%'
+      $fromName: '%app.email.from_name%'
+      $replyTo: '%app.email.reply_to%'
+      $projectDir: '%kernel.project_dir%'
+
+
+  #  Stripe client : uniquement la config API key (pas d’autres arguments)
   Stripe\StripeClient:
     arguments:
-        $config:
-            api_key: '%env(STRIPE_SECRET_KEY)%'
+      - { api_key: '%env(STRIPE_SECRET_KEY)%' }
 
-  # === Tes services existants déclarés publics (si besoin dans des contrôleurs ou templates) ===
+  #  WebhookController : on lui passe le secret du webhook
+  App\Controller\Stripe\WebhookController:
+    arguments:
+      $webhookSecret: '%app.stripe.webhook_secret%'
+
+  # Tes autres services
   App\Services\AdressManager:
     public: true
 
   App\Services\UserProfileService:
     public: true
-
-  # === (Optionnel) Tu peux rendre publics ces services si tu veux les appeler depuis des contrôleurs manuellement ===
-  # App\Service\Checkout\CheckoutConfirmationService:
-  #   public: true
-  # App\Service\Checkout\CartClearer:
-  #   public: true
-  # App\Service\Checkout\MoneyFormatter:
-  #   public: true
-
-  # ❌ Supprimé: l’injection manuelle d’arguments sur CheckoutController
-  # Elle n’est plus nécessaire et peut casser si la signature a changé.
-  # App\Controller\CheckoutController:
-  #   arguments:
-  #     $stripePublicKey: '%stripe_public_key%'
-  #     $stripeCurrency: '%stripe_currency%'

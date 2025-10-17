@@ -1,0 +1,8 @@
+{# templates/admin/fields/field_html_preview.html.twig #}
+{% if field.value is not empty %}
+  <div class="ea-field-html-preview">
+    {{ field.value|raw }}
+  </div>
+{% else %}
+  <span class="text-muted">—</span>
+{% endif %}

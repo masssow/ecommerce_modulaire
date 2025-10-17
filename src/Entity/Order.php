@@ -135,6 +135,15 @@ class Order
     #[ORM\Column(length: 4, nullable: true)]
     private ?string $stripePmLast4 = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $invoicePdfPath = null;
+
+    /**
+     * @var Collection<int, EmailLog>
+     */
+    #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'OrderRef')]
+    private Collection $emailLogs;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -143,6 +152,7 @@ class Order
         $this->returnRequests = new ArrayCollection();
         $this->disputes = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
+        $this->emailLogs = new ArrayCollection();
     }
 
     /* ==================== Getters / Setters ==================== */
@@ -491,5 +501,47 @@ class Order
     public function getGrandTotalEuro(): string
     {
         return number_format($this->grandTotal / 100, 2, ',', ' ') . ' €';
+    }
+
+    public function getInvoicePdfPath(): ?string
+    {
+        return $this->invoicePdfPath;
+    }
+
+    public function setInvoicePdfPath(?string $invoicePdfPath): static
+    {
+        $this->invoicePdfPath = $invoicePdfPath;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EmailLog>
+     */
+    public function getEmailLogs(): Collection
+    {
+        return $this->emailLogs;
+    }
+
+    public function addEmailLog(EmailLog $emailLog): static
+    {
+        if (!$this->emailLogs->contains($emailLog)) {
+            $this->emailLogs->add($emailLog);
+            $emailLog->setOrderRef($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailLog(EmailLog $emailLog): static
+    {
+        if ($this->emailLogs->removeElement($emailLog)) {
+            // set the owning side to null (unless already changed)
+            if ($emailLog->getOrderRef() === $this) {
+                $emailLog->setOrderRef(null);
+            }
+        }
+
+        return $this;
     }
 }

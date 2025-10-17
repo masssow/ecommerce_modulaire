@@ -26,6 +26,8 @@ use App\Entity\ReturnRequest;
 use App\Entity\InventoryStock;
 use App\Entity\ProductVariant;
 use App\Entity\ShippingMethod;
+use App\Entity\EmailLog; // ⬅️ AJOUT : entité des logs e-mails
+use App\Entity\EmailTemplate;
 use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -106,6 +108,11 @@ class BackofficeController extends AbstractDashboardController
         yield MenuItem::section('Panier');
         yield MenuItem::linkToCrud('Paniers', 'fas fa-shopping-basket', Cart::class);
         yield MenuItem::linkToCrud('Articles panier', 'fas fa-list-ul', CartItem::class);
+
+        //  NOUVELLE SECTION + LIEN CRUD : Logs e-mails
+        yield MenuItem::section('Communication');
+        yield MenuItem::linkToCrud('Logs e-mails', 'fas fa-envelope-open', EmailLog::class);
+        yield MenuItem::linkToCrud('Modèles d\'e-mails', 'fas fa-envelope-open-text', EmailTemplate::class);
 
         yield MenuItem::linkToLogout('Déconnexion', 'fas fa-sign-out-alt');
     }

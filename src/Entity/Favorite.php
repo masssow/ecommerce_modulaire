@@ -24,7 +24,7 @@ class Favorite
     private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: ProductVariant::class, inversedBy: 'favorites')]
-    #[ORM\JoinColumn(name: 'product_variant_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'product_variant_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?ProductVariant $productVariant = null;
 
     #[ORM\Column] private \DateTimeImmutable $createdAt;

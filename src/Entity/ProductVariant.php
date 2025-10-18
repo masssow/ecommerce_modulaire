@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Favorite; 
 use App\Entity\InventoryStock;
 use App\ValueObject\Money;
 use Doctrine\DBAL\Types\Types;
@@ -67,7 +68,12 @@ class ProductVariant
     /**
      * @var Collection<int, Favorite>
      */
-    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'ProductVariant')]
+    #[ORM\OneToMany(
+        targetEntity: Favorite::class,
+        mappedBy: 'productVariant',        // 👈 ICI camelCase correct
+        cascade: ['remove'],
+        orphanRemoval: true
+    )]
     private Collection $favorites;
 
     public function __construct()

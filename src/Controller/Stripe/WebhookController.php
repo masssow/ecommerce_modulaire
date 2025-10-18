@@ -2,7 +2,7 @@
 
 namespace App\Controller\Stripe;
 
-use App\Service\StripeEventProcessor;
+use App\Service\Checkout\StripeEventProcessor;
 use Psr\Log\LoggerInterface;
 use Stripe\Webhook;
 use Symfony\Component\HttpFoundation\Request;

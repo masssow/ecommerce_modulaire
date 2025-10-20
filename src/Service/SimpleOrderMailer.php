@@ -11,7 +11,7 @@ final class SimpleOrderMailer
 {
     public function __construct(
         private readonly MailerInterface $mailer,
-        private readonly string $fromEmail = 'no-reply@example.com',
+        private readonly string $fromEmail = 'no-reply@yopmail.com',
         private readonly string $fromName  = 'Votre Boutique',
         private readonly ?string $replyTo  = null,
     ) {}

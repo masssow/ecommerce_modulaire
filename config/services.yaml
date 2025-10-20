@@ -18,12 +18,12 @@ services:
       - '../src/Kernel.php'
 
   # OrderEmailService : on lui passe les paramètres d'email (+ projectDir)
-  App\Service\OrderEmailService:
+  App\Service\SimpleOrderMailer:
     arguments:
       $fromEmail: '%app.email.from_address%'
       $fromName: '%app.email.from_name%'
       $replyTo: '%app.email.reply_to%'
-      $projectDir: '%kernel.project_dir%'
+      # $em: '@doctrine.orm.entity_manager'
 
 
   #  Stripe client : uniquement la config API key (pas d’autres arguments)

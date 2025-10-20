@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Envoyer un e-mail — Commande {{ order.number ?? order.id }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 16px; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    label { font-weight: 600; margin-bottom: 4px; display:block; }
+    input[type="text"], input[type="email"], textarea, select {
+      width: 100%; padding: 10px; border:1px solid #dcdcdc; border-radius: 6px; font: inherit;
+    }
+    .btns { display:flex; gap: 8px; margin-top: 8px; }
+    .btn { padding:10px 14px; border:1px solid #dcdcdc; border-radius:6px; background:#f8f8f8; cursor:pointer; }
+    .btn.primary { background:#111827; color:white; border-color:#111827; }
+    .flash { padding:10px 12px; border-radius:6px; margin:8px 0; font-size:.95rem; }
+    .flash.success{ background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0;}
+    .flash.info{    background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe;}
+    .flash.warning{ background:#fffbeb; color:#92400e; border:1px solid #fde68a;}
+    .flash.danger{  background:#fef2f2; color:#991b1b; border:1px solid #fecaca;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    {% for label, messages in app.flashes %}
+      {% for m in messages %}
+        <div class="flash {{ label }}">{{ m }}</div>
+      {% endfor %}
+    {% endfor %}
+
+    <h2 style="margin:0 0 12px 0;">Envoyer un e-mail — Commande {{ order.number ?? order.id }}</h2>
+
+    {{ form_start(form, { attr: { novalidate: 'novalidate' } }) }}
+      <div class="row">
+        <div>
+          {{ form_label(form.to) }}
+          {{ form_widget(form.to) }}
+          {{ form_errors(form.to) }}
+        </div>
+
+        <div>
+          {{ form_label(form.template) }}
+          {{ form_widget(form.template) }}
+          {{ form_errors(form.template) }}
+        </div>
+
+        <div>
+          {{ form_label(form.subject) }}
+          {{ form_widget(form.subject) }}
+          {{ form_errors(form.subject) }}
+        </div>
+
+        <div>
+          {{ form_label(form.bodyHtml) }}
+          {{ form_widget(form.bodyHtml) }}
+          {{ form_errors(form.bodyHtml) }}
+        </div>
+
+        <div>
+          {{ form_row(form.attachInvoice) }}
+        </div>
+      </div>
+
+      <div class="btns">
+        {{ form_widget(form.load, { attr: { class: 'btn' } }) }}
+        {{ form_widget(form.send, { attr: { class: 'btn primary' } }) }}
+      </div>
+    {{ form_end(form) }}
+  </div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% set orderId = entity.primaryKeyValue %}
+<div class="card p-3" style="border:1px solid #e5e5e5; border-radius:8px;">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <strong>Envoyer un e-mail (formulaire intégré)</strong>
+  </div>
+
+  <iframe
+    src="{{ path('admin_order_send_email', { id: orderId }) }}"
+    style="width:100%; height:720px; border:1px solid #e5e5e5; border-radius:6px;"
+    loading="lazy"
+  ></iframe>
+
+  <p class="text-muted mt-2" style="font-size:.9rem">
+    Le destinataire est prérempli automatiquement depuis la commande. Choisissez un modèle pour remplir l’objet et le contenu.
+  </p>
+</div>

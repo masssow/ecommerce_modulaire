@@ -3,17 +3,20 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Order;
-use App\Entity\Customer;
 use App\Entity\Adresse;
+use App\Entity\Customer;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 
 final class OrderCrudController extends AbstractCrudController
 {
@@ -186,6 +189,11 @@ final class OrderCrudController extends AbstractCrudController
 
         $createdAt = DateTimeField::new('createdAt', 'Créée le')
             ->setFormTypeOption('disabled', true);
+        // $emailInline = Field::new('emailInline', 'Envoyer un e-mail')
+            // ->onlyOnForms()                               // visible uniquement dans un formulaire (EDIT/NEW)
+            // ->setFormTypeOption('mapped', false)          // non mappé à l'entité
+            // ->setTemplatePath('admin/order/_email_inline_widget.html.twig'); // iframe
+
 
         if (Crud::PAGE_INDEX === $pageName) {
             // (ID retiré)
@@ -269,5 +277,25 @@ final class OrderCrudController extends AbstractCrudController
             $payType,
             $status,
         ];
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $sendPaid = Action::new('sendPaid', 'Email : Paiement confirmé', 'fa fa-envelope')
+            ->linkToRoute('admin_order_send_status', fn(Order $o) => ['id' => $o->getId(), 'status' => 'paid']);
+
+        $sendPreparing = Action::new('sendPreparing', 'Email : En préparation', 'fa fa-envelope')
+            ->linkToRoute('admin_order_send_status', fn(Order $o) => ['id' => $o->getId(), 'status' => 'preparing']);
+
+        $sendShipped = Action::new('sendShipped', 'Email : Expédiée', 'fa fa-envelope')
+            ->linkToRoute('admin_order_send_status', fn(Order $o) => ['id' => $o->getId(), 'status' => 'shipped']);
+
+        return $actions
+            ->add(Crud::PAGE_DETAIL, $sendPaid)
+            ->add(Crud::PAGE_DETAIL, $sendPreparing)
+            ->add(Crud::PAGE_DETAIL, $sendShipped)
+            ->add(Crud::PAGE_EDIT, $sendPaid)
+            ->add(Crud::PAGE_EDIT, $sendPreparing)
+            ->add(Crud::PAGE_EDIT, $sendShipped);
     }
 }

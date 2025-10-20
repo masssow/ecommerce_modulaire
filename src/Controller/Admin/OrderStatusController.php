@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Order;
 use App\Enum\OrderStatus;
-use App\Service\OrderEmailService;
+// use App\Service\OrderEmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,7 +23,7 @@ class OrderStatusController extends AbstractController
         EntityManagerInterface $em,
         CsrfTokenManagerInterface $csrf,
         AdminUrlGenerator $adminUrlGenerator,
-        ?OrderEmailService $orderEmailService = null
+        // ?OrderEmailService $orderEmailService = null
     ) {
         $token = $request->request->get('_token');
         if (!$csrf->isTokenValid(new \Symfony\Component\Security\Csrf\CsrfToken('order_status' . $id, $token))) {
@@ -54,9 +54,9 @@ class OrderStatusController extends AbstractController
         $em->flush();
 
         // optionnel : envoi auto d'email si un template est lié à ce statut
-        if ($orderEmailService) {
-            $orderEmailService->sendOnStatusChange($order, $old, $newStatus);
-        }
+        // if ($orderEmailService) {
+        //     $orderEmailService->sendOnStatusChange($order, $old, $newStatus);
+        // }
 
         $this->addFlash('success', 'Statut mis à jour.');
 

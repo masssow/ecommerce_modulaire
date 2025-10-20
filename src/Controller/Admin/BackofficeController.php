@@ -112,7 +112,8 @@ class BackofficeController extends AbstractDashboardController
         //  NOUVELLE SECTION + LIEN CRUD : Logs e-mails
         yield MenuItem::section('Communication');
         yield MenuItem::linkToCrud('Logs e-mails', 'fas fa-envelope-open', EmailLog::class);
-        yield MenuItem::linkToCrud('Modèles d\'e-mails', 'fas fa-envelope-open-text', EmailTemplate::class);
+        
+        // yield MenuItem::linkToCrud('Modèles d\'e-mails', 'fas fa-envelope-open-text', EmailTemplate::class);
 
         yield MenuItem::linkToLogout('Déconnexion', 'fas fa-sign-out-alt');
     }

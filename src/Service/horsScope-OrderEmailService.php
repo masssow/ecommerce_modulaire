@@ -14,6 +14,8 @@ use Twig\Environment;
 
 class OrderEmailService
 {
+    // {# ==================================  hors scope - fichier laissé pour référence ==================================
+    #}
     public function __construct(
         private readonly Environment $twig,
         private readonly MailerInterface $mailer,

@@ -32,27 +32,46 @@ class FavoriteRepository extends ServiceEntityRepository
         return array_map('intval', array_column($rows, 'vid'));
     }
 
+    /**
+     * Liste des favoris de l'utilisateur avec joins (variant + product).
+     * Null-safe : retourne [] si $user est null.
+     *
+     * @return Favorite[]
+     */
+    public function findForUserWithJoins(?User $user): array
+    {
+        if (!$user) {
+            return [];
+        }
 
-    public function existsFor(User $user, ProductVariant $variant): bool
-    {
-        return (bool) $this->createQueryBuilder('f')
-            ->select('1')
-            ->andWhere('f.user = :u')->andWhere('f.productVariant = :v')
-            ->setParameter('u', $user)
-            ->setParameter('v', $variant)
-            ->setMaxResults(1)->getQuery()->getOneOrNullResult();
-    }
-    /** @return Favorite[] */
-    public function findForUserWithJoins(User $user): array
-    {
         return $this->createQueryBuilder('f')
-            ->addSelect('pv', 'p')
-            ->join('f.productVariant', 'pv')
-            ->join('pv.product', 'p')
+            ->addSelect('v', 'p')
+            ->join('f.productVariant', 'v')
+            ->join('v.product', 'p')
             ->andWhere('f.user = :u')->setParameter('u', $user)
-            ->orderBy('f.createdAt', 'DESC')
             ->getQuery()->getResult();
     }
+
+    /**
+     * Ids des variantes en favoris (pour un rendu rapide côté Twig/JS).
+     * Null-safe : retourne [] si $user est null.
+     *
+     * @return int[]
+     */
+    public function getFavoriteVariantIdsForUser(?User $user): array
+    {
+        if (!$user) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('f')
+            ->select('IDENTITY(f.productVariant) AS id')
+            ->andWhere('f.user = :u')->setParameter('u', $user)
+            ->getQuery()->getScalarResult();
+
+        return array_map(static fn(array $r) => (int) $r['id'], $rows);
+    }
+   
 
     public function countForUser(User $user): int
     {

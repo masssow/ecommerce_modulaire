@@ -16,6 +16,14 @@ class ProductVariantRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductVariant::class);
     }
 
+    public function findOneWithProduct(int $variantId): ?ProductVariant
+    {
+        return $this->createQueryBuilder('v')
+            ->leftJoin('v.product', 'p')->addSelect('p')
+            ->andWhere('v.id = :id')->setParameter('id', $variantId)
+            ->getQuery()->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return ProductVariant[] Returns an array of ProductVariant objects
     //     */

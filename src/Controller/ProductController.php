@@ -20,45 +20,30 @@ final class ProductController extends AbstractController
         FavoriteRepository $favorites, UserRepository $userR
     ): Response {
         // 1) Tenter comme "variant id"
-        $variant = $variantRepo->createQueryBuilder('v')
-            ->leftJoin('v.product', 'p')->addSelect('p')
-            ->where('v.id = :id')->setParameter('id', $id)
-            ->getQuery()->getOneOrNullResult();
+        $variant = $variantRepo->findOneWithProduct($id);
 
         $product = $variant?->getProduct();
 
         // 2) Si pas de variant => essayer comme "product id"
         if (!$variant) {
-            $product = $productRepo->createQueryBuilder('p')
-                ->leftJoin('p.productVariants', 'v')->addSelect('v')
-                ->where('p.id = :pid')->setParameter('pid', $id)
-                ->getQuery()->getOneOrNullResult();
-
+            $product = $productRepo->findOneWithVariants($id);
             if (!$product) {
-                throw $this->createNotFoundException('Variante introuvable.');
+                throw $this->createNotFoundException('Variante ou produit introuvable.');
             }
-
-            // Prendre la 1ʳᵉ variante disponible du produit
             $variant = $product->getProductVariants()->first() ?: null;
             if (!$variant) {
                 throw $this->createNotFoundException('Aucune variante disponible pour ce produit.');
             }
         }
 
-        if (!$product) {
-            $product = $variant->getProduct();
-            if (!$product) {
-                throw $this->createNotFoundException('Produit lié introuvable.');
-            }
-        }
         $userRepo = $this->getUser();
 
         $favList = $favorites->findForUserWithJoins($userRepo);
-        $favIds  = array_map(fn($f) => $f->getProductVariant()->getId(), $favList);
+        $favIds  = $favorites->getFavoriteVariantIdsForUser($userRepo);
 
         return $this->render('product/show.html.twig', [
             'variant'        => $variant,
-            'product'        => $product,
+            'product'        =>  $product ?? $variant->getProduct(),
             'currentVariant' => $variant,
             'variants'       => $product->getProductVariants(),
             'favorites'    => $favList,  // pour la section "Mes favoris"

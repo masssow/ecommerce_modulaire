@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\ProductVariant;
+use App\Repository\UserRepository;
 use App\Repository\ProductRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ProductVariantRepository;
-use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,13 +41,29 @@ final class ProductController extends AbstractController
 
         $favList = $favorites->findForUserWithJoins($userRepo);
         $favIds  = $favorites->getFavoriteVariantIdsForUser($userRepo);
+        $related = $variantRepo->findRelatedForVariant($variant, 8);
 
+        $relatedVm = array_map(function (ProductVariant $v) {
+            $p = $v->getProduct();
+            return [
+                'id'            => $v->getId(),
+                'name'          => $p ? $p->getName() : 'Produit',
+                'priceAmount'   => $v->getPriceAmount(),
+                'priceCurrency' => $v->getPriceCurrency() ?? 'EUR',
+                'imageUrl'      => $v->getImageName()
+                    ? '/uploads/productVariant/' . $v->getImageName()
+                    : '/images/placeholder-image.png',
+            ];
+        }, $related);
+        
         return $this->render('product/show.html.twig', [
             'variant'        => $variant,
             'product'        =>  $product ?? $variant->getProduct(),
             'currentVariant' => $variant,
             'variants'       => $product->getProductVariants(),
-            'favorites'    => $favList,  // pour la section "Mes favoris"
+            'favorites'    => $favList,
+            'relatedProducts' => $relatedVm,
+            // pour la section "Mes favoris"
             'favoritesIds' => $favIds,
             'availableSizes' => ['XS', 'S', 'M', 'L', 'XL'],   // optionnel / mock
             'availableColors' => ['A', 'B', 'C'],             // optionnel / mock

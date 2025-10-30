@@ -1,3 +1,4 @@
+# config/packages/messenger.yaml
 framework:
   messenger:
     enabled: true
@@ -5,7 +6,6 @@ framework:
     failure_transport: failed
 
     transports:
-      # Transport asynchrone (Doctrine/MySQL)
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
         options:
@@ -16,30 +16,19 @@ framework:
           multiplier: 2
           max_delay: 0
           jitter: 0.1
-
-      # File d’échecs (stockée en DB aussi)
       failed:
         dsn: 'doctrine://default?queue_name=failed'
         options:
           table_name: messenger_messages
 
-    # Bus par défaut (pipeline standard)
     buses:
       messenger.bus.default: ~
 
-    # Routage : Mailer/Notifier + vos messages applicatifs
     routing:
       Symfony\Component\Mailer\Messenger\SendEmailMessage: async
       Symfony\Component\Notifier\Message\ChatMessage: async
       Symfony\Component\Notifier\Message\SmsMessage: async
-      'App\Message\*': async
+      App\Message\*: async
 
-    # Serializer JSON recommandé (portable, stable)
-    serializer:
-      default_serializer: messenger.transport.symfony_serializer
-      symfony_serializer:
-        format: json
-        context: {}
-
-    # Arrêt propre du worker (mutualisé)
-    stop_worker_on_signals: [SIGTERM, SIGINT]
+    # ⚠️ Sur Windows, laissez vide pour éviter pcntl
+    stop_worker_on_signals: []

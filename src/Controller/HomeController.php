@@ -22,11 +22,14 @@ final class HomeController extends AbstractController
         $subCategories = $subCategoryRepository->findBy([], null, 4);
         $user = $this->getUser();
         $favoritesIds = $user ? $favRepo->idsForUser($user) : [];
+        $footerCategories = $categoryRepository->findBy([], ['name' => 'ASC'], 4);
+
         return $this->render('home/index.html.twig', [
             'categories' => $categories,
             'productVariants' => $productVariants,
             'subCategories' => $subCategories,
             'favoritesIds' => $favoritesIds,
+            'footerCategories' => $footerCategories,
         ]);
     }
 }

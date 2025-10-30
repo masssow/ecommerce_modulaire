@@ -32762,190 +32762,6 @@ textarea.form-control-lg {
   transform: rotate(-90deg);
 }
 
-/* === Bouton "Voir l’article" toujours visible, sans dépendre du :hover === */
-.block2 .block2-pic {
-  position: relative;
-}
-
-.block2 .block2-btn {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%) !important;
-  /* on garde les classes de style du thème pour couleurs/typos */
-}
-
-.block2 .block2-pic {
-  aspect-ratio: 1/1;
-  overflow: hidden;
-  background: #f7f7f7;
-}
-
-.block2 .block2-pic img {
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  display: block;
-  /* évite les espaces fantômes */
-}
-
-/* Désactive les effets "hover-only" sur écrans tactiles */
-@media (hover: none) {
-  .hov-img0:hover {
-    transform: none !important;
-  }
-  .hov-btn1:hover,
-  .hov-btn3:hover {
-    transform: none !important;
-  }
-  .block2 .block2-pic:hover .block2-btn {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-/* Images fluides et recadrage propre */
-.wrap-pic-w img,
-.block2-pic img {
-  width: 100%;
-  height: auto;
-  display: block;
-  -o-object-fit: cover;
-     object-fit: cover;
-}
-
-.sec-relate-product .block2-pic {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4/5;
-  /* ajuste si tu veux un ratio 1/1 : 1 / 1 */
-  overflow: hidden;
-}
-
-/* Image plein cadre, recadrée proprement */
-.sec-relate-product .block2-pic img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  /* couvre sans déformer, recadre si besoin */
-  display: block;
-}
-
-/* Fallback anciens navigateurs sans aspect-ratio */
-@supports not (aspect-ratio: 1/1) {
-  .sec-relate-product .block2-pic {
-    height: 0;
-    padding-top: 125%;
-    /* 4/5 -> 1.25 = 125% ; si 1/1 -> 100% */
-  }
-  .sec-relate-product .block2-pic img {
-    position: absolute;
-  }
-}
-/* Annule d’éventuelles tailles “figées” du thème */
-.wrap-slick2 .slick-slide img,
-.slick2 .slick-slide img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Aide Slick à garder la même hauteur entre slides */
-.wrap-slick2 .slick-track {
-  display: flex !important;
-}
-
-.wrap-slick2 .slick-slide {
-  height: auto;
-}
-
-.wrap-slick2 .slick-slide > div {
-  height: 100%;
-}
-
-/* Optionnel : zone texte homogène sous l’image */
-.sec-relate-product .block2-txt {
-  min-height: 90px;
-  /* ajuste selon tes contenus */
-}
-
-.sec-relate-product .block2-pic {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1/1;
-  /* ← était 4/5, passe à 1/1 pour compacter */
-  overflow: hidden;
-}
-
-.sec-relate-product .block2-pic img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  display: block;
-}
-
-/* Fallback sans aspect-ratio */
-@supports not (aspect-ratio: 1/1) {
-  .sec-relate-product .block2-pic {
-    height: 0;
-    padding-top: 100%;
-  }
-  .sec-relate-product .block2-pic img {
-    position: absolute;
-  }
-}
-/* ↓↓↓ IMPORTANT : annule le flex sur le track (si tu l’as mis) ↓↓↓ */
-/* Le display:flex sur .slick-track peut figer une hauteur “fantôme” */
-.wrap-slick2 .slick-track {
-  display: block !important;
-  height: auto !important;
-}
-
-.wrap-slick2 .slick-list {
-  height: auto !important;
-}
-
-/* Les slides reviennent en hauteur auto */
-.wrap-slick2 .slick-slide,
-.wrap-slick2 .slick-slide > div {
-  height: auto !important;
-}
-
-/* Un peu moins d’espace autour du carousel */
-.sec-relate-product {
-  padding-top: 24px;
-  padding-bottom: 56px;
-  /* au lieu de 105px via classes utilitaires */
-}
-
-/* (Optionnel) limite la hauteur max sur mobile si tu veux encore plus serré */
-@media (max-width: 576px) {
-  .sec-relate-product .block2-pic {
-    aspect-ratio: 4/5;
-  }
-  /* un peu plus haut en mobile si tu préfères */
-}
-/* Grille: petites améliorations responsives */
-@media (max-width: 991.98px) {
-  .p-b-35 {
-    padding-bottom: 24px !important;
-  }
-}
-/* Accessibilité focus visible (clavier) */
-a:focus,
-button:focus {
-  outline: 2px solid rgba(0, 0, 0, 0.25);
-  outline-offset: 2px;
-}
-
 /*//////////////////////////////////////////////////////////////////
 [ RS PLUGIN ]*/
 /*------------------------------------------------------------------
@@ -33334,6 +33150,23 @@ button:focus {
 }
 
 /*---------------------------------------------*/
+.icon-header-noti::after {
+  content: attr(data-notify);
+  font-family: Poppins-Regular;
+  font-size: 12px;
+  color: #fff;
+  line-height: 15px;
+  text-align: center;
+  display: block;
+  position: absolute;
+  top: -7px;
+  right: 0;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  background-color: #717fe0;
+}
+
 /*---------------------------------------------*/
 .wrap-header-mobile .wrap-icon-header {
   flex-grow: unset;
@@ -36199,4 +36032,4 @@ input.num-product::-webkit-inner-spin-button {
   .respon3 {
     padding: 20px;
   }
-}/*# sourceMappingURL=app.css.map */
+}/*# sourceMappingURL=app_backup.css.map */

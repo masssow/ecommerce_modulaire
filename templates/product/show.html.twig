@@ -1,33 +1,36 @@
 {% extends 'base.html.twig' %}
-{% block title %}{{ (product.product is defined ? product.product.name : (variant.product.name ?? 'Produit')) }}{% endblock %}
+{% block title %}{{ (variant is defined and variant.product ? variant.product.name : (product.product is defined ? product.product.name : (product.name ?? 'Produit'))) }}{% endblock %}
 
 {% block body %}
 
-{# Normalisation des variables pour éviter les incohérences (tu avais "product" et "variant") #}
-{% set currentVariant = variant is defined ? variant : product %}
-{% set p = (currentVariant.product is defined) ? currentVariant.product : (product.product is defined ? product.product : null) %}
-{% set currency = currentVariant.priceCurrency is defined ? currentVariant.priceCurrency : (variant.priceCurrency is defined ? variant.priceCurrency : 'EUR') %}
+{# ---------------- Normalisation des variables ---------------- #}
+{% set currentVariant =
+  variant is defined ? variant :
+  (product is defined and product.priceAmount is defined ? product : null)
+%}
+{% set p =
+  (currentVariant and currentVariant.product is defined) ? currentVariant.product :
+  (product is defined and product.product is defined ? product.product :
+   (product is defined and product.name is defined ? product : null))
+%}
+{% set currency = (currentVariant and currentVariant.priceCurrency is defined) ? currentVariant.priceCurrency : 'EUR' %}
 
 {# =================== Breadcrumb =================== #}
 <div class="container">
   <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
     <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
-      Accueil
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      Accueil <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
     </a>
 
     {% if p and p.subCategory is defined and p.subCategory %}
-      <a href="#" class="stext-109 cl8 hov-cl1 trans-04">
-      {# TODO : PAth dynamique #}
-      {# <a href="{{ path('boutique_category', { slug: p.subCategory.slug }) }}" class="stext-109 cl8 hov-cl1 trans-04"> #}
-        {{ p.subCategory.name }}
-        <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      <a href="#"
+         class="stext-109 cl8 hov-cl1 trans-04">
+         {{ p.subCategory.name }}
+         <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
       </a>
     {% endif %}
 
-    <span class="stext-109 cl4">
-      {{ p ? p.name : 'Produit' }}
-    </span>
+    <span class="stext-109 cl4">{{ p ? p.name : 'Produit' }}</span>
   </div>
 </div>
 
@@ -44,8 +47,8 @@
             <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
 
             <div class="slick3 gallery-lb">
-              {# 1) Si currentVariant.images est dispo (tableau) #}
-              {% if currentVariant.images is defined and currentVariant.images|length > 0 %}
+              {# 1) tableau d’images du variant #}
+              {% if currentVariant and currentVariant.images is defined and currentVariant.images|length > 0 %}
                 {% for img in currentVariant.images %}
                   {% set src = asset('uploads/productVariant/' ~ (img.imageName ?? img)) %}
                   <div class="item-slick3" data-thumb="{{ src }}">
@@ -57,8 +60,8 @@
                     </div>
                   </div>
                 {% endfor %}
-              {# 2) Sinon, imageName du variant en fallback #}
-              {% elseif currentVariant.imageName is defined and currentVariant.imageName %}
+              {# 2) imageName du variant #}
+              {% elseif currentVariant and currentVariant.imageName is defined and currentVariant.imageName %}
                 {% set src = asset('uploads/productVariant/' ~ currentVariant.imageName) %}
                 <div class="item-slick3" data-thumb="{{ src }}">
                   <div class="wrap-pic-w pos-relative">
@@ -90,17 +93,14 @@
           </h4>
 
           <span class="mtext-106 cl2">
-            {{ ((currentVariant.priceAmount ?? 0) / 100) }} €
+            {{ ((currentVariant.priceAmount ?? 0) / 100) | number_format(2, ',', ' ') }} €
           </span>
-          {# TODO voir ce format_currency #}
-           {# <span class="mtext-106 cl2">
-            {{ (((currentVariant.priceAmount ?? 0) / 100) | format_currency(currency)) }} €
-          </span> #}
 
-          {# Prix barré si prix de comparaison dispo #}
-          {% if currentVariant.compareAtAmount is defined and currentVariant.compareAtAmount and currentVariant.compareAtAmount > currentVariant.priceAmount %}
+          {% if currentVariant.compareAtAmount is defined
+                and currentVariant.compareAtAmount
+                and currentVariant.compareAtAmount > (currentVariant.priceAmount ?? 0) %}
             <span class="stext-105 cl3 p-l-10">
-              <s>{{ ((currentVariant.compareAtAmount / 100) | format_currency(currency)) }}</s>
+              <s>{{ (currentVariant.compareAtAmount / 100) | number_format(2, ',', ' ') }} €</s>
             </span>
           {% endif %}
 
@@ -108,16 +108,15 @@
             {{ p and p.description ? p.description : '' }}
           </p>
 
-          {# -------- Options (squelette) -------- #}
+          {# -------- Options (ex : tailles) -------- #}
           <div class="p-t-33">
-            {# Taille #}
             <div class="flex-w flex-r-m p-b-10">
               <div class="size-203 flex-c-m respon6">
                 Taille
               </div>
               <div class="size-204 respon6-next">
                 <div class="rs1-select2 bor8 bg0">
-                  <select class="js-select2" name="size" id="select-size" {% if not (availableSizes is defined and availableSizes|length) %}disabled{% endif %}>
+                  <select class="js-select2" name="size" id="select-size" {{ (not(availableSizes is defined and availableSizes|length)) ? 'disabled' }}>
                     {% if availableSizes is defined and availableSizes|length %}
                       <option value="">Choisir une taille</option>
                       {% for s in availableSizes %}
@@ -132,28 +131,6 @@
               </div>
             </div>
 
-            {# Couleur #}
-            {# <div class="flex-w flex-r-m p-b-10">
-              <div class="size-203 flex-c-m respon6">
-                Couleur
-              </div>
-              <div class="size-204 respon6-next">
-                <div class="rs1-select2 bor8 bg0">
-                  <select class="js-select2" name="color" id="select-color" {% if not (availableColors is defined and availableColors|length) %}disabled{% endif %}>
-                    {% if availableColors is defined and availableColors|length %}
-                      <option value="">Choisir une couleur</option>
-                      {% for c in availableColors %}
-                        <option value="{{ c }}" {{ (selectedColor is defined and selectedColor == c) ? 'selected' : '' }}>{{ c }}</option>
-                      {% endfor %}
-                    {% else %}
-                      <option>—</option>
-                    {% endif %}
-                  </select>
-                  <div class="dropDownSelect2"></div>
-                </div>
-              </div>
-            </div> #}
-
             {# Quantité + Add to cart #}
             <div class="flex-w flex-r-m p-b-10">
               <div class="size-204 flex-w flex-m respon6-next">
@@ -161,58 +138,54 @@
                   <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
                     <i class="fs-16 zmdi zmdi-minus"></i>
                   </div>
-
                   <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" id="qty" value="1" min="1">
-
                   <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
                     <i class="fs-16 zmdi zmdi-plus"></i>
                   </div>
                 </div>
 
-                {# <input type="number" id="qty" value="1" min="1"> #}
                 <button
                   type="button"
                   class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail"
                   data-variant-id="{{ currentVariant.id }}"
-                  data-qty-el="#qty" >
+                  data-qty-el="#qty">
                   Ajouter au panier
                 </button>
               </div>
             </div>
           </div>
 
-          {# Wishlist + partage #}
-          <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-            <div class="flex-m bor9 p-r-10 m-r-11">
-             {% set isActive = favoritesIds is defined and (product.id is defined ? (product.id in favoritesIds) : (variant.id in favoritesIds)) %}
-            <a href="#"
-              class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-fav-toggle {{ isActive ? 'is-active' : '' }}"
-              data-variant="{{ variant.id }}"
-              data-active="{{ isActive ? '1' : '0' }}"
-              data-csrf="{{ csrf_token('fav' ~ variant.id) }}"
-              title="{{ isActive ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
-              <i class="zmdi zmdi-favorite"></i>
-            </a>
-            </div>
+          {# -------- Wishlist / Partage -------- #}
+          {# <div class="flex-w flex-m p-l-100 p-t-40 respon7"> #}
+            {# <div class="flex-m bor9 p-r-10 m-r-11"> #}
+              {# {% set favActive = (favoritesIds is defined) and (currentVariant.id in favoritesIds) %} #}
+              {# <a href="#" #}
+                 {# class="btn-addwish-b2 dis-block pos-relative js-fav-toggle {{ favActive ? 'is-liked' : '' }}" #}
+                 {# data-url="{{ path('favorite_toggle', { id: currentVariant.id }) }}" #}
+                 {# data-token="{{ csrf_token('fav' ~ currentVariant.id) }}" #}
+                 {# aria-label="{{ favActive ? 'Retirer des favoris' : 'Ajouter aux favoris' }}"> #}
+                {# <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt=""> #}
+                {# <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt=""> #}
+              {# </a> #}
+            {# </div> #}
 
-            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook">
-              <i class="fa fa-facebook"></i>
-            </a>
-            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Twitter">
-              <i class="fa fa-twitter"></i>
-            </a>
-            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Google Plus">
-              <i class="fa fa-google-plus"></i>
-            </a>
-          </div>
+            {# <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook"> #}
+              {# <i class="fa fa-facebook"></i> #}
+            {# </a> #}
+            {# <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Twitter"> #}
+              {# <i class="fa fa-twitter"></i> #}
+            {# </a> #}
+            {# <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Google Plus"> #}
+              {# <i class="fa fa-google-plus"></i> #}
+            {# </a> #}
+          {# </div> #}
         </div>
       </div>
     </div>
 
-    {# -------- Onglets (Description / Infos / Avis) -------- #}
+    {# -------- Onglets -------- #}
     <div class="bor10 m-t-50 p-t-43 p-b-40">
       <div class="tab01">
-        {# Nav tabs #}
         <ul class="nav nav-tabs" role="tablist">
           <li class="nav-item p-b-10">
             <a class="nav-link active" data-toggle="tab" href="#description" role="tab">Description</a>
@@ -227,9 +200,7 @@
           </li>
         </ul>
 
-        {# Tab panes #}
         <div class="tab-content p-t-43">
-          {# Description #}
           <div class="tab-pane fade show active" id="description" role="tabpanel">
             <div class="how-pos2 p-lr-15-md">
               <p class="stext-102 cl6">
@@ -238,11 +209,10 @@
             </div>
           </div>
 
-          {# Informations additionnelles #}
           <div class="tab-pane fade" id="information" role="tabpanel">
             <div class="row">
               <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
-                {% if product.attributes is defined and product.attributes|length > 0 %}
+                {% if product is defined and product.attributes is defined and product.attributes|length > 0 %}
                   <ul class="p-lr-28 p-lr-15-sm">
                     {% for name, value in product.attributes %}
                       <li class="flex-w flex-t p-b-7">
@@ -258,13 +228,10 @@
             </div>
           </div>
 
-          {# Avis (squelette) #}
           <div class="tab-pane fade" id="reviews" role="tabpanel">
             <div class="row">
               <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
                 <div class="p-b-30 m-lr-15-sm">
-
-                  {# Liste des avis si dispo #}
                   {% if reviews is defined and reviews|length > 0 %}
                     {% for r in reviews %}
                       <div class="flex-w flex-t p-b-30">
@@ -276,9 +243,7 @@
                             <span class="mtext-107 cl2 p-r-20">{{ r.userName }}</span>
                             {% set rating = r.rating is defined ? r.rating : 0 %}
                             <span class="fs-18 cl11">
-                              {# étoiles pleines #}
                               {% for i in 1..(rating|round(0, 'floor')) %}<i class="zmdi zmdi-star"></i>{% endfor %}
-                              {# étoiles vides #}
                               {% for i in 1..(5 - (rating|round(0, 'floor'))) %}<i class="zmdi zmdi-star-outline"></i>{% endfor %}
                             </span>
                           </div>
@@ -290,7 +255,6 @@
                     <p class="stext-102 cl6">Aucun avis pour l’instant.</p>
                   {% endif %}
 
-                  {# Formulaire ajout d’avis (squelette) #}
                   <form class="w-full" method="post" action="#">
                     <h5 class="mtext-108 cl2 p-b-7">Ajouter un avis</h5>
                     <p class="stext-102 cl6">Votre email ne sera pas publié. Champs requis *</p>
@@ -332,20 +296,19 @@
             </div>
           </div>
 
-        </div> {# /.tab-content #}
-      </div> {# /.tab01 #}
-    </div> {# /.bor10 #}
-
-  </div> {# /.container #}
+        </div> {# /tab-content #}
+      </div> {# /tab01 #}
+    </div> {# /bor10 #}
+  </div> {# /container #}
 
   {# -------- Bandeau SKU / Catégories -------- #}
   <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
     <span class="stext-107 cl6 p-lr-25">
-      SKU : {{ currentVariant.sku is defined and currentVariant.sku ? currentVariant.sku : (p and p.sku is defined ? p.sku : 'N/A') }}
+      SKU : {{ currentVariant and currentVariant.sku is defined and currentVariant.sku ? currentVariant.sku : (p and p.sku is defined ? p.sku : 'N/A') }}
     </span>
 
     <span class="stext-107 cl6 p-lr-25">
-      Catégorie : 
+      Catégorie :
       {% if p and p.subCategory is defined and p.subCategory %}
         {{ p.subCategory.name }}
       {% elseif p and p.category is defined and p.category %}
@@ -378,18 +341,16 @@
                 </div>
                 <div class="block2-txt flex-w flex-t p-t-14">
                   <div class="block2-txt-child1 flex-col-l">
-                    <a href="{{ path('product_show', { id: rp.id }) }}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                      {{ rp.name }}
-                    </a>
+                    <a href="{{ path('product_show', { id: rp.id }) }}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">{{ rp.name }}</a>
                     <span class="stext-105 cl3">
-                      {{ (((rp.priceAmount ?? 0) / 100) | format_currency(rp.priceCurrency|default('EUR'))) }}
+                      {{ ((rp.priceAmount ?? 0) / 100) | number_format(2, ',', ' ') }} €
                     </span>
                   </div>
                   <div class="block2-txt-child2 flex-r p-t-3">
-                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" aria-label="Ajouter aux favoris">
-                      <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt="ICON">
-                      <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt="ICON">
-                    </a>
+                    {# <a href="#" class="btn-addwish-b2 dis-block pos-relative" aria-label="Ajouter aux favoris"> #}
+                      {# <img class="icon-heart1 dis-block trans-04" src="{{ asset('images/icons/icon-heart-01.png') }}" alt=""> #}
+                      {# <img class="icon-heart2 dis-block trans-04 ab-t-l" src="{{ asset('images/icons/icon-heart-02.png') }}" alt=""> #}
+                    {# </a> #}
                   </div>
                 </div>
               </div>

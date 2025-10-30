@@ -3,12 +3,8 @@
 {% block title %}Accueil - Boutique en ligne{% endblock %}
 
 {% block body %}
-
 {# =========================
-   Slider (squelette dynamique)
-   - Utilise le template .wrap-slick1/.slick1
-   - Si "slides" est fourni par le contrôleur -> dynamique
-   - Sinon -> 3 slides fallback
+   Slider (dynamique si "slides" fourni)
    ========================= #}
 <section class="section-slide">
   <div class="wrap-slick1">
@@ -19,16 +15,21 @@
           <div class="item-slick1" style="background-image: url({{ slide.imageUrl }});">
             <div class="container h-full">
               <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-                <div class="layer-slick1 animated visible-false" data-appear="{{ slide.appearSmall|default('fadeInDown') }}" data-delay="{{ slide.delaySmall|default(0) }}">
+                <div class="layer-slick1 animated visible-false"
+                     data-appear="{{ slide.appearSmall|default('fadeInDown') }}"
+                     data-delay="{{ slide.delaySmall|default(0) }}">
                   <span class="ltext-101 cl2 respon2">{{ slide.titleSmall }}</span>
                 </div>
-
-                <div class="layer-slick1 animated visible-false" data-appear="{{ slide.appearBig|default('fadeInUp') }}" data-delay="{{ slide.delayBig|default(800) }}">
+                <div class="layer-slick1 animated visible-false"
+                     data-appear="{{ slide.appearBig|default('fadeInUp') }}"
+                     data-delay="{{ slide.delayBig|default(800) }}">
                   <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">{{ slide.titleBig }}</h2>
                 </div>
-
-                <div class="layer-slick1 animated visible-false" data-appear="{{ slide.appearCta|default('zoomIn') }}" data-delay="{{ slide.delayCta|default(1600) }}">
-                  <a href="{{ slide.ctaHref|default('#') }}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                <div class="layer-slick1 animated visible-false"
+                     data-appear="{{ slide.appearCta|default('zoomIn') }}"
+                     data-delay="{{ slide.delayCta|default(1600) }}">
+                  <a href="{{ slide.ctaHref|default('#') }}"
+                     class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
                     {{ slide.ctaLabel|default('Shop Now') }}
                   </a>
                 </div>
@@ -37,6 +38,7 @@
           </div>
         {% endfor %}
       {% else %}
+        {# 3 slides fallback #}
         <div class="item-slick1" style="background-image: url({{ asset('images/hammam.jpg') }});">
           <div class="container h-full">
             <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
@@ -91,39 +93,37 @@
 </section>
 
 {# =========================
-   Bannières catégories (dynamique OK)
-   - Corrigé: remise de l'<a> overlay clickable
+   Bannières catégories (dynamique)
    ========================= #}
 <div class="sec-banner bg0 p-t-80 p-b-50">
   <div class="container">
     <div class="row">
-      {% for category in categories %}
-        <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
-          <div class="block1 wrap-pic-w">
-            <img src="{{ asset('/uploads/category/' ~ category.imageName) }}" alt="{{ category.name }}" loading="lazy">
+    {% for category in categories %}
+    {% set catImg = category.imageName ? asset('uploads/category/' ~ category.imageName) : asset('images/placeholder-image.png') %}
+      <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
+    <div class="block1 wrap-pic-w">
+      <img src="{{ catImg }}" alt="{{ category.name }}" loading="lazy">
 
-            <a href="#"
-               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-			   {# TODO : Path dynamique #}
-			    {# <a href="{{ path('boutique_category', { slug: category.slug }) }}"
-               class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3"> #}
-              <div class="block1-txt-child1 flex-col-l">
-                <span class="block1-name ltext-102 trans-04 p-b-8">{{ category.name }}</span>
-                <span class="block1-info stext-102 trans-04">Découvrez nos produits</span>
-              </div>
-              <div class="block1-txt-child2 p-b-4 trans-05">
-                <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
-              </div>
-            </a>
-          </div>
+      <a href="{{ path('category_show', { id: category.id }) }}"
+         class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+        <div class="block1-txt-child1 flex-col-l">
+          <span class="block1-name ltext-102 trans-04 p-b-8">{{ category.name }}</span>
+          <span class="block1-info stext-102 trans-04">Découvrez nos produits</span>
         </div>
-      {% endfor %}
+        <div class="block1-txt-child2 p-b-4 trans-05">
+          <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
+        </div>
+      </a>
+    </div>
+  </div>
+{% endfor %}
+
     </div>
   </div>
 </div>
 
 {# =========================
-   Produits + Filtres/Search (squelette prêt)
+   Produits + Filtres/Search
    ========================= #}
 <section class="bg0 p-t-23 p-b-140">
   <div class="container">
@@ -132,7 +132,6 @@
     </div>
 
     <div class="flex-w flex-sb-m p-b-52">
-      {# Filtres (dynamiques : 5 sous-catégories max comme tu l'avais) #}
       <div class="flex-w flex-l-m filter-tope-group m-tb-10">
         <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
           Tous les produits
@@ -141,22 +140,21 @@
         {% set count = 0 %}
         {% for subCategory in subCategories %}
           {% if count < 5 %}
-            <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".{{ subCategory.slug }}">
+            <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
+                    data-filter=".{{ subCategory.slug }}">
               {{ subCategory.name }}
             </button>
             {% set count = count + 1 %}
           {% endif %}
         {% endfor %}
 
-        <a href="#" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5">
-		{# TODO : Path Dynamique #}
-		{# <a href="{{ path('categories_list') }}" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"> #}
+      <a href="{{ path('app_category') }}">
           Voir toutes les catégories
         </a>
       </div>
 
-      {# Boutons panneau Filtrer/Rechercher (squelette) #}
-      <div class="flex-w flex-c-m m-tb-10">
+      {# Boutons panneau Filtrer/Rechercher #}
+      {# <div class="flex-w flex-c-m m-tb-10">
         <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
           <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
           <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
@@ -168,10 +166,10 @@
           <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
           Rechercher
         </div>
-      </div>
+      </div> #}
 
-      {# Search (squelette, sans logique) #}
-      <div class="dis-none panel-search w-full p-t-10 p-b-15">
+      {# Search (squelette) #}
+      {# <div class="dis-none panel-search w-full p-t-10 p-b-15">
         <form class="bor8 dis-flex p-l-15" method="get" action="#">
           <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04" type="submit">
             <i class="zmdi zmdi-search"></i>
@@ -179,12 +177,11 @@
           <input class="mtext-107 cl2 size-114 plh2 p-r-15"
                  type="text" name="q" placeholder="Rechercher un produit...">
         </form>
-      </div>
+      </div> #}
 
-      {# Filter (squelette statique à brancher côté contrôleur plus tard) #}
-      <div class="dis-none panel-filter w-full p-t-10">
+      {# Filter (squelette statique) #}
+      {# <div class="dis-none panel-filter w-full p-t-10">
         <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
-
           <div class="filter-col1 p-r-15 p-b-27">
             <div class="mtext-102 cl2 p-b-15">Trier par</div>
             <ul>
@@ -231,62 +228,20 @@
               <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Crafts</a>
             </div>
           </div>
-
         </div>
-      </div>
+      </div> #}
     </div>
 
-    {# Grille produits (DYNAMIQUE OK) — doit être dans .row.isotope-grid #}
-    <div class="row isotope-grid">
-      {% for variant in productVariants %}
-        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ variant.product.subCategory.slug }}">
-          <div class="block2">
-            <div class="block2-pic hov-img0">
-              <img
-                src="{{ asset('uploads/productVariant/' ~ variant.imageName) }}"
-                alt="{{ variant.product.name }}"
-                loading="lazy"
-                class="img-fluid">
-                
-                  <a href="{{ path('product_show', { id:variant.id }) }}"
-                 class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-                Voir le produit
-                  </a>
-            </div>
-
-            <div class="block2-txt flex-w flex-t p-t-14">
-              <div class="block2-txt-child1 flex-col-l">
-                <a href="{{ path('product_show', { id: variant.product.id }) }}"
-                   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                  {{ variant.product.name }}
-                </a>
-
-                <span class="stext-105 cl3">
-                  {{ ((variant.priceAmount ?? 0) / 100) }} €                </span>
-                
-                {# TODO format_currency à voir #}
-                {# <span class="stext-105 cl3">
-                  {{ ((variant.priceAmount ?? 0) / 100) | format_currency(variant.priceCurrency|default('EUR')) }}
-                </span> #}
-              </div>
-
-              <div class="block2-txt-child2 flex-r p-t-3">
-                {% include 'account/favorite/partials/_button.html.twig' with {
-                  variant: variant,
-                  isActive: variant.id in (favoritesIds ?? [])
-                } %}
-              </div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
+    {# =========================
+       Grille produits — .row.isotope-grid
+       ========================= #}
+    {% include 'product/partials/_grid_product.html.twig' with {
+      productVariants: productVariants,
+      favoritesIds: favoritesIds
+    } %}
     {# Load More (squelette) #}
     {# <div class="flex-c-m flex-w w-full p-t-45">
-      <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-        Load More
-      </a>
+      <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">Load More</a>
     </div> #}
   </div>
 </section>

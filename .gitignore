@@ -10,6 +10,12 @@
 /public/bundles/
 /var/
 /vendor/
+/documentation/
+/tests/
+/Message/
+/MessageHandler/
+/config/packages/messenger.yaml
+
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###

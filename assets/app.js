@@ -1,8 +1,6 @@
-
+// assets/app.js
 import './bootstrap.js';
 import './styles/app.scss';
-
-
 
 // ==============================
 // ✅ Dépendances JS principales
@@ -18,8 +16,8 @@ import GLightbox from 'glightbox';
 import 'magnific-popup';
 import 'select2';
 import Isotope from 'isotope-layout';
-
-// console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+import imagesLoaded from 'imagesloaded';               // 🆕 important
+import 'isotope-layout/js/layout-modes/fit-rows';      // 🆕 si tu utilises fitRows
 
 // ==============================
 // ✅ Attache globale
@@ -28,9 +26,17 @@ window.$ = $;
 window.jQuery = $;
 window.Isotope = Isotope;
 
-// ➜ Attacher Isotope à jQuery pour ton thème
-$.fn.isotope = function(options) {
-    return new Isotope(this[0], options);
+// ➜ Wrapper jQuery **complet** pour Isotope (init + appels méthode)
+$.fn.isotope = function (optsOrMethod, ...args) {
+  return this.each(function () {
+    let inst = $.data(this, 'isotopeInstance');
+    if (!inst) {
+      inst = new Isotope(this, optsOrMethod || {});
+      $.data(this, 'isotopeInstance', inst);
+    } else if (typeof optsOrMethod === 'string' && typeof inst[optsOrMethod] === 'function') {
+      inst[optsOrMethod](...args);
+    }
+  });
 };
 
 // ==============================
@@ -43,38 +49,67 @@ import './js/slick-custom.js';
 // import './js/map-custom.js'; // décommenter si nécessaire
 
 // ==============================
-// ✅ Initialisations optionnelles
+// ✅ Initialisations UI diverses
 // ==============================
 
 // GLightbox
-const lightbox = GLightbox({
-    selector: '.glightbox'
-});
+GLightbox({ selector: '.glightbox' });
 
 // Owl Carousel
-$(document).ready(function() {
-    $(".owl-carousel").owlCarousel();
+$(function () {
+  $('.owl-carousel').owlCarousel();
 });
 
 // Daterangepicker
 $(function () {
-    $('input[name="daterange"]').daterangepicker({
-        opens: 'left'
-    }, function(start, end, label) {
-        console.log("New date range selected: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-    });
+  $('input[name="daterange"]').daterangepicker({
+    opens: 'left'
+  }, function (start, end) {
+    console.log('New date range selected:', start.format('YYYY-MM-DD'), 'to', end.format('YYYY-MM-DD'));
+  });
 });
 
 // Magnific Popup
-$(document).ready(function() {
-    $('.popup-link').magnificPopup({
-        type: 'image'
-    });
+$(function () {
+  $('.popup-link').magnificPopup({ type: 'image' });
+});
+
+// ==============================
+// ✅ Isotope — après chargement des images
+// ==============================
+$(function () {
+  const $grid = $('.isotope-grid');
+  if (!$grid.length) return;
+
+  // 1) Init
+  $grid.isotope({
+    itemSelector: '.isotope-item',
+    layoutMode: 'fitRows',
+    percentPosition: true
+  });
+
+  // Récupère l’instance stockée par le wrapper
+  const iso = $grid.data('isotopeInstance');
+
+  // 2) Relayout au fil du chargement des images
+  imagesLoaded($grid.get(0)).on('progress', () => iso.layout());
+
+  // 3) Filtres
+  $('.filter-tope-group').on('click', 'button', function () {
+    const filterValue = $(this).attr('data-filter') || '*';
+    iso.arrange({ filter: filterValue });
+    $('.filter-tope-group .how-active1').removeClass('how-active1');
+    $(this).addClass('how-active1');
+    setTimeout(() => iso.layout(), 50);
+  });
+
+  // 4) Filets de sécurité
+  $(window).on('load resize', () => iso.layout());
+  setTimeout(() => iso.layout(), 200);
 });
 
 // ==============================
 // ✅ Debug
 // ==============================
-console.log('✅ app.js chargé, jQuery version:', $.fn.jquery);
-console.log('✅ Isotope attaché à jQuery :', typeof $.fn.isotope);
-console.log('🎉 Welcome to your modular Symfony E-commerce frontend!');
+console.log('✅ app.js chargé, jQuery:', $.fn.jquery);
+console.log('✅ Isotope wrapper:', typeof $.fn.isotope);

@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ category.name }} — Catégorie{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+    <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <a href="{{ path('app_category') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Catégories <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+    </a>
+    <span class="stext-109 cl4">{{ category.name }}</span>
+  </div>
+</div>
+
+<section class="bg0 p-t-23 p-b-140">
+  <div class="container">
+    <div class="p-b-10">
+      <h3 class="ltext-103 cl5 m-b-5">{{ category.name }}</h3>
+      {% if category.description is defined and category.description %}
+        <p class="stext-111 cl6 p-t-10 m-b-0">{{ category.description }}</p>
+      {% endif %}
+    </div>
+
+    {# ======= Grille — 20 premiers produits ======= #}
+    <div class="row isotope-grid">
+      {% for variant in productVariants|slice(0, 20) %}
+        {% set p = variant.product %}
+        {% set img = variant.imageName ? asset('uploads/productVariant/' ~ variant.imageName) : asset('images/placeholder-image.png') %}
+
+        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ p.subCategory is defined and p.subCategory ? p.subCategory.slug : '' }}">
+          <div class="block2">
+            <div class="block2-pic hov-img0">
+              <img src="{{ img }}" alt="{{ p.name }}" class="img-fluid" loading="lazy">
+              <a href="{{ path('product_show', { id: variant.id }) }}"
+                 class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                Voir le produit
+              </a>
+            </div>
+            <div class="block2-txt flex-w flex-t p-t-14">
+              <div class="block2-txt-child1 flex-col-l">
+                <a href="{{ path('product_show', { id: variant.product.id }) }}"
+                   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">{{ p.name }}</a>
+                <span class="stext-105 cl3">
+                  {{ ((variant.priceAmount ?? 0) / 100)|number_format(2, ',', ' ') }} €
+                </span>
+              </div>
+              <div class="block2-txt-child2 flex-r p-t-3">
+                {# Inclure le bouton favoris si tu as le partial #}
+                {# {% include 'account/favorite/partials/_button.html.twig' with { variant: variant, isActive: variant.id in (favoritesIds ?? []) } %} #}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="col-12">
+          <p class="stext-111 cl6">Aucun produit dans cette catégorie pour le moment.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    {# ======= Section "Autres catégories" (après 20 items ou à la fin) ======= #}
+    {% set hasMoreThan20 = productVariants|length > 20 %}
+    {% set showOthers = (otherCategories is defined and otherCategories|length) or (footerCategories is defined and footerCategories|length) %}
+
+    {% if showOthers %}
+      <div class="sec-banner bg0 p-t-60 p-b-30">
+        <div class="container">
+          <h4 class="mtext-112 cl2 p-b-20">Autres catégories</h4>
+          <div class="row">
+            {# Source de catégories : priorité à otherCategories, sinon fallback footerCategories #}
+            {% set displayed = 0 %}
+            {% for cat in (otherCategories is defined and otherCategories|length ? otherCategories : (footerCategories is defined ? footerCategories : [])) %}
+              {% if cat.id != category.id and displayed < 6 %}
+                {% set catImg = cat.imageName ? asset('uploads/category/' ~ cat.imageName) : asset('images/placeholder-image.png') %}
+                <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
+                  <div class="block1 wrap-pic-w">
+                    <img src="{{ catImg }}" alt="{{ cat.name }}" loading="lazy">
+                    <a href="{{ path('category_show', { id: cat.id }) }}"
+                       class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                      <div class="block1-txt-child1 flex-col-l">
+                        <span class="block1-name ltext-102 trans-04 p-b-8">{{ cat.name }}</span>
+                        <span class="block1-info stext-102 trans-04">Découvrez nos produits</span>
+                      </div>
+                      <div class="block1-txt-child2 p-b-4 trans-05">
+                        <div class="block1-link stext-101 cl0 trans-09">Voir</div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                {% set displayed = displayed + 1 %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {# ======= Grille — le reste des produits (après la section catégories) ======= #}
+    {% if hasMoreThan20 %}
+      <div class="row isotope-grid m-t-30">
+        {% for variant in productVariants|slice(20) %}
+          {% set p = variant.product %}
+          {% set img = variant.imageName ? asset('uploads/productVariant/' ~ variant.imageName) : asset('images/placeholder-image.png') %}
+
+          <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ p.subCategory is defined and p.subCategory ? p.subCategory.slug : '' }}">
+            <div class="block2">
+              <div class="block2-pic hov-img0">
+                <img src="{{ img }}" alt="{{ p.name }}" class="img-fluid" loading="lazy">
+                <a href="{{ path('product_show', { id: variant.id }) }}"
+                   class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                  Voir le produit
+                </a>
+              </div>
+              <div class="block2-txt flex-w flex-t p-t-14">
+                <div class="block2-txt-child1 flex-col-l">
+                  <a href="{{ path('product_show', { id: variant.product.id }) }}"
+                     class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">{{ p.name }}</a>
+                  <span class="stext-105 cl3">
+                    {{ ((variant.priceAmount ?? 0) / 100)|number_format(2, ',', ' ') }} €
+                  </span>
+                </div>
+                <div class="block2-txt-child2 flex-r p-t-3">
+                  {# Bouton favoris si dispo #}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

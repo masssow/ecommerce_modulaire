@@ -146,6 +146,6 @@ final class StripeEventProcessor
             $this->em->persist($payment);
         }
 
-        // $this->emails?->sendOnStatusChange($order, $old, 'cancelled');
+        $this->emails?->sendOnStatusChange($order, $old, 'cancelled');
     }
 }

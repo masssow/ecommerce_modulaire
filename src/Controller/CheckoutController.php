@@ -50,32 +50,26 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('cart_page');
         }
 
-        // === MODES D’EXPÉDITION ACTIFS + SÉLECTION ===
         $methods  = $this->em->getRepository(ShippingMethod::class)->findBy(
             $this->hasProperty(ShippingMethod::class, 'enabled') ? ['enabled' => true] : [],
             ['name' => 'ASC']
         );
-        $selected = $this->resolveSelectedMethod($request, $methods); // peut être null si aucun mode
+        $selected = $this->resolveSelectedMethod($request, $methods);
 
-        // --- Montants en CENTIMES pour l’affichage ---
-        $taxRate = (float) $this->settings->getTva(); // ex: 20
+        $taxRate = (float) $this->settings->getTva();
         $rate    = 1 + ($taxRate / 100);
 
         $subTotalCts = (int) $cart->getTotal();
-        
 
-        // 💡 Calcul du port depuis le mode sélectionné (fallback: SettingService)
         [$shippingCts, $appliedMethod] = $this->computeShippingFor(
             subtotalCts: $subTotalCts,
             method: $selected
         );
 
-        // === Calculs "bruts" utiles au JS ===
-        $taxableBaseCts = $subTotalCts + $shippingCts;                 // livraison taxable
+        $taxableBaseCts = $subTotalCts + $shippingCts;
         $tvaAmountCts   = (int) round($taxableBaseCts * ($taxRate / 100));
         $grandTotalCts  = $subTotalCts + $shippingCts + $tvaAmountCts;
 
-        // Affichage en euros
         $subTotalTtc = round($subTotalCts / 100, 2);
         $shippingTtc = round($shippingCts / 100, 2);
         $subTotalHt  = round($subTotalTtc / $rate, 2);
@@ -92,12 +86,12 @@ final class CheckoutController extends AbstractController
             'cart'              => $cart,
             'addresses'         => $adresses,
             'taxRate'           => $taxRate,
-            'shippingFee'       => $shippingCts,  // cts
-            'shippingMethod'    => $appliedMethod, // peut être null
+            'shippingFee'       => $shippingCts,
+            'shippingMethod'    => $appliedMethod,
             'shippingMethods'   => $methods,
             'selectedMethodId'  => $appliedMethod?->getId(),
-            'subTotalCts'       => $subTotalCts,          
-            'totalWithShipCts'  =>  $totalWithShipCts,
+            'subTotalCts'       => $subTotalCts,
+            'totalWithShipCts'  => $totalWithShipCts,
             'tvaPercent'        => $taxRate,
             'tvaAmountCts'      => $tvaAmountCts,
             'grandTotalCts'     => $grandTotalCts,
@@ -137,7 +131,6 @@ final class CheckoutController extends AbstractController
             $this->em->flush();
         }
 
-        // Validation adresses stricte
         $billingSame = $request->request->get('billing_same_as_shipping', '1') === '1';
         if (
             !$this->isAddressBlockValid($request, 'shipping') ||
@@ -147,12 +140,11 @@ final class CheckoutController extends AbstractController
             return $this->redirectToRoute('app_checkout_index');
         }
 
-        // === ShippingMethod choisi (depuis POST ou session) ===
         $methods  = $this->em->getRepository(ShippingMethod::class)->findBy(
             $this->hasProperty(ShippingMethod::class, 'enabled') ? ['enabled' => true] : [],
             ['name' => 'ASC']
         );
-        $selected = $this->resolveSelectedMethod($request, $methods); // persiste en session aussi
+        $selected = $this->resolveSelectedMethod($request, $methods);
 
         $subTotalCts = (int) $cart->getTotal();
         [$shippingCts, $appliedMethod] = $this->computeShippingFor($subTotalCts, $selected);
@@ -160,7 +152,6 @@ final class CheckoutController extends AbstractController
         $taxCts   = 0;
         $grandCts = $subTotalCts + $shippingCts + $taxCts;
 
-        // Commande (centimes)
         $order = (new Order())
             ->setNumber($this->generateNumber())
             ->setStatus('pending')
@@ -171,13 +162,11 @@ final class CheckoutController extends AbstractController
             ->setCreatedAt(new \DateTimeImmutable())
             ->setCustomer($customer);
 
-        // Snapshot du mode d’expédition sélectionné
         if ($appliedMethod) {
             $order->setShippingMethod($appliedMethod);
             if (method_exists($appliedMethod, 'getName')) {
                 $order->setShippingMethodName($appliedMethod->getName());
             }
-            // Code technique prioritaire: code, sinon carrierCode
             $code = null;
             if (method_exists($appliedMethod, 'getCode')) {
                 $code = $appliedMethod->getCode();
@@ -187,7 +176,6 @@ final class CheckoutController extends AbstractController
             $order->setShippingMethodCode($code);
         }
 
-        // Adresses
         $shippingAddress = $this->resolveAdresseFromRequest($request, 'shipping', $user);
         $billingAddress  = $billingSame ? $shippingAddress : $this->resolveAdresseFromRequest($request, 'billing', $user);
         if (!$shippingAddress || !$billingAddress) {
@@ -209,7 +197,7 @@ final class CheckoutController extends AbstractController
                 }
 
                 $qty     = (int) $ci->getQuantity();
-                $unitCts = (int) $ci->getUnitPrice(); // centimes
+                $unitCts = (int) $ci->getUnitPrice();
 
                 if ($unitCts <= 0 || $qty <= 0) {
                     throw new \RuntimeException('Article invalide pour la commande.');
@@ -268,7 +256,7 @@ final class CheckoutController extends AbstractController
                     'price_data' => [
                         'currency'     => $currency,
                         'product_data' => ['name' => $shipName],
-                        'unit_amount'  => $order->getShippingTotal(), // cts
+                        'unit_amount'  => $order->getShippingTotal(),
                     ],
                     'quantity' => 1,
                 ];
@@ -284,11 +272,21 @@ final class CheckoutController extends AbstractController
                 'success_url'         => $successUrl,
                 'cancel_url'          => $cancelUrl,
                 'client_reference_id' => $order->getNumber(),
+
+                // metadata pour relier la commande
                 'metadata'            => [
                     'order_id' => (string) $order->getId(),
                     'number'   => (string) $order->getNumber(),
                 ],
+                // metadata propagée dans le PaymentIntent
+                'payment_intent_data' => [
+                    'metadata' => [
+                        'order_id' => (string) $order->getId(),
+                        'number'   => (string) $order->getNumber(),
+                    ],
+                ],
             ]);
+
             $order->setStripeSessionId($session->id);
             $this->em->flush();
 
@@ -302,6 +300,58 @@ final class CheckoutController extends AbstractController
         }
     }
 
+    // ✅ PAGE SUCCESS — route /checkout/success (utilisée par success_url)
+    #[Route('/success', name: 'success', methods: ['GET'])]
+    public function success(Request $request): Response
+    {
+        $sessionId = (string) $request->query->get('session_id', '');
+        if ($sessionId === '') {
+            return $this->render('checkout/success.html.twig', [
+                'order'   => null,
+                'paid'    => false,
+                'message' => "Identifiant de session Stripe manquant.",
+            ]);
+        }
+
+        try {
+            $this->initStripe();
+            $cs = \Stripe\Checkout\Session::retrieve($sessionId, ['expand' => ['payment_intent']]);
+
+            $order = $this->em->getRepository(Order::class)->findOneBy(['stripeSessionId' => $cs->id])
+                ?? $this->em->getRepository(Order::class)->findOneBy(['number' => $cs->client_reference_id]);
+
+            $isPaid      = ($cs->payment_status ?? null) === 'paid';
+            $amountCts   = (int) ($cs->amount_total ?? 0);
+            $expectedCts = (int) ($order?->getGrandTotal() ?? 0);
+            $amountOk    = $order ? ($amountCts === $expectedCts) : false;
+
+            return $this->render('checkout/success.html.twig', [
+                'order'         => $order,
+                'paid'          => $isPaid && $amountOk,
+                'paymentStatus' => $cs->payment_status ?? null,
+                'message'       => $isPaid
+                    ? ($amountOk ? "Merci ! Votre paiement a bien été pris en compte."
+                                 : "Montant non concordant, le support a été notifié.")
+                    : "Le paiement n'est pas finalisé.",
+            ]);
+        } catch (\Throwable $e) {
+            $this->logger->error('Checkout success render failed', ['error' => $e->getMessage()]);
+            return $this->render('checkout/success.html.twig', [
+                'order'   => null,
+                'paid'    => false,
+                'message' => "Une erreur est survenue lors de la vérification du paiement.",
+            ]);
+        }
+    }
+
+    // ✅ PAGE CANCEL — route /checkout/cancel (utilisée par cancel_url)
+    #[Route('/cancel', name: 'cancel', methods: ['GET'])]
+    public function cancel(): Response
+    {
+        return $this->render('checkout/cancel.html.twig');
+    }
+
+    // (Optionnel) Ancienne page de confirmation par ID
     #[Route('/confirmation/{id}', name: 'confirm', methods: ['GET'])]
     public function confirm(Order $order, Request $request): Response
     {
@@ -334,7 +384,7 @@ final class CheckoutController extends AbstractController
 
                     $payment = new Payment();
                     $payment
-                        ->setAmount((int) $order->getGrandTotal()) // cts
+                        ->setAmount((int) $order->getGrandTotal())
                         ->setStatus('succeeded')
                         ->setPaidAt(new \DateTimeImmutable())
                         ->setOrders($order);
@@ -456,7 +506,6 @@ final class CheckoutController extends AbstractController
         return $addr;
     }
 
-    /** Retourne [shippingCts, appliedMethod] avec fallback Settings si aucun mode. */
     private function computeShippingFor(int $subtotalCts, ?ShippingMethod $method): array
     {
         if ($method) {
@@ -466,7 +515,6 @@ final class CheckoutController extends AbstractController
             return [$ship, $method];
         }
 
-        // Fallback (compat réglages globaux)
         $shippingCts   = $this->eurToCents((float) ($this->settings->getShippingFee() ?? 0.0));
         $freeThreshEu  = $this->settings->getFreeShippingThreshold();
         $freeThreshCts = $freeThreshEu !== null ? $this->eurToCents((float) $freeThreshEu) : null;
@@ -476,23 +524,16 @@ final class CheckoutController extends AbstractController
         return [$shippingCts, null];
     }
 
-    /** Base en cts : supporte basePrice ou baseCost. */
     private function getBaseAmountCts(ShippingMethod $m): int
     {
-       
-        
-            return (int) $m->getBaseCost();
-        
-       
+        return (int) $m->getBaseCost();
     }
 
-    /** Seuil franco en cts (nullable). */
     private function getFreeThresholdCts(ShippingMethod $m): ?int
     {
         return method_exists($m, 'getFreeShippingThreshold') ? $m->getFreeShippingThreshold() : null;
     }
 
-    /** Résout la sélection (GET ?sm=..., POST shipping_method_id, ou session), et persiste en session. */
     private function resolveSelectedMethod(Request $request, array $methods): ?ShippingMethod
     {
         if (empty($methods)) {
@@ -501,7 +542,6 @@ final class CheckoutController extends AbstractController
 
         $session = $request->getSession();
 
-        // 1) POST (formulaire checkout)
         $postId = $request->request->getInt('shipping_method_id', 0);
         if ($postId > 0) {
             $found = $this->findMethodById($methods, $postId);
@@ -511,7 +551,6 @@ final class CheckoutController extends AbstractController
             }
         }
 
-        // 2) GET (?sm=ID) pour pré-sélection
         $getId = $request->query->getInt('sm', 0);
         if ($getId > 0) {
             $found = $this->findMethodById($methods, $getId);
@@ -521,7 +560,6 @@ final class CheckoutController extends AbstractController
             }
         }
 
-        // 3) Session
         $sid = (int) ($session?->get(self::SESSION_SM_ID) ?? 0);
         if ($sid > 0) {
             $found = $this->findMethodById($methods, $sid);
@@ -530,7 +568,6 @@ final class CheckoutController extends AbstractController
             }
         }
 
-        // 4) Fallback: premier mode
         $first = $methods[0] ?? null;
         if ($first) {
             $session?->set(self::SESSION_SM_ID, $first->getId());

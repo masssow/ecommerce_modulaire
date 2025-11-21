@@ -1,0 +1,46 @@
+{# templates/partials/_mobile_bottom_nav.html.twig #}
+
+<nav class="mg-mobile-nav d-md-none d-lg-none">
+    <ul class="mg-mobile-nav__list">
+        {# Accueil #}
+        <li class="mg-mobile-nav__item">
+            <a href="{{ path('app_home') }}"
+               class="mg-mobile-nav__link {% if app.request.get('_route') starts with 'homepage' %}is-active{% endif %}">
+                <i class="zmdi zmdi-home"></i>
+                <span>Accueil</span>
+            </a>
+        </li>
+
+        {# Boutique / Catalogue #}
+        <li class="mg-mobile-nav__item">
+            <a href="{{ path('product_index') }}"
+               class="mg-mobile-nav__link {% if app.request.get('_route') starts with 'product_' %}is-active{% endif %}">
+                <i class="zmdi zmdi-view-column"></i>
+                <span>Boutique</span>
+            </a>
+        </li>
+
+        {# Panier #}
+        {# <li class="mg-mobile-nav__item mg-mobile-nav__item--cart">
+            <a href="{{ path('cart_page') }}"
+               class="mg-mobile-nav__link {% if app.request.get('_route') starts with 'cart_' %}is-active{% endif %}">
+                <i class="zmdi zmdi-shopping-cart"></i>
+                <span>Panier</span> #}
+
+                {# Badge quantité si tu as une variable/cart dispo #}
+                {% if cart is defined and cart.items is defined and cart.items|length > 0 %}
+                    <span class="mg-mobile-nav__badge">{{ cart.items|length }}</span>
+                {% endif %}
+            </a>
+        </li>
+
+        {# Compte #}
+        {# <li class="mg-mobile-nav__item">
+            <a href="{{ path('account_profile') }}"
+               class="mg-mobile-nav__link {% if app.request.get('_route') starts with 'account_' %}is-active{% endif %}">
+                <i class="zmdi zmdi-account"></i>
+                <span>Compte</span>
+            </a>
+        </li> #}
+    </ul>
+</nav>

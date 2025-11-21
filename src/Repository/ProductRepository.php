@@ -36,6 +36,82 @@ class ProductRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
 }
+
+    /**
+     * Recherche produits par mot-clé (name + éventuellement description)
+     * et filtre optionnel par catégorie.
+     *
+     * @param string|null $term       Mot-clé tapé par l’utilisateur
+     * @param int|string|null $categoryId  ID de catégorie (ou null)
+     *
+     * @return Product[]
+     */
+    public function searchByNameAndCategory(?string $term, $categoryId = null): array
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC');
+
+        // Filtre texte
+        if ($term !== null && $term !== '') {
+            $term = trim($term);
+
+            // On cherche sur name (et description s'il y en a une)
+            $qb
+                ->andWhere('LOWER(p.name) LIKE LOWER(:term) OR LOWER(p.description) LIKE LOWER(:term)')
+                ->setParameter('term', '%' . $term . '%');
+        }
+
+        // 🏷 Filtre catégorie
+        if ($categoryId) {
+            // si relation ManyToOne Product->Category
+            $qb
+                ->join('p.subCategory', 'sc')
+                ->andWhere('sc.id = :catId')
+                ->setParameter('catId', $categoryId);
+
+            // SI dans ton modèle réel c’est plutôt subCategory :
+            // ->join('p.subCategory', 'sc')
+            // ->andWhere('sc.id = :catId')
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Suggestions rapides pour auto-complétion.
+     * Retourne des lignes légères (id + name + éventuellement slug).
+     *
+     * @return array<int, array{id:int, name:string, slug:?string}>
+     */
+    public function suggestByName(?string $term, $categoryId = null, int $limit = 8): array
+    {
+        if ($term === null || trim($term) === '') {
+            return [];
+        }
+
+        $term = trim($term);
+
+        $qb = $this->createQueryBuilder('p')
+            ->select('p.id, p.name, p.id')
+            ->orderBy('p.name', 'ASC')
+            ->setMaxResults($limit);
+
+        $qb
+            ->andWhere('LOWER(p.name) LIKE LOWER(:term)')
+            ->setParameter('term', $term . '%'); // préfixe pour suggestion
+
+        if ($categoryId) {
+            $qb
+                ->join('p.category', 'c')
+                ->andWhere('c.id = :catId')
+                ->setParameter('catId', $categoryId);
+        }
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
+
+
     //    /**
     //     * @return Product[] Returns an array of Product objects
     //     */

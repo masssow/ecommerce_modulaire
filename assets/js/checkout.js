@@ -27,7 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Recalcul dynamique des totaux (TVA + Port + Total)
+   // --- Recalcul dynamique des totaux (TVA + Port + Total)
+  // IMPORTANT : ces montants sont UNIQUEMENT pour l'affichage.
+  // Le backend recalcule toujours le total à partir du panier + shipping_method_id.
   const summary = document.getElementById('order-summary');
   if (!summary) return;
 

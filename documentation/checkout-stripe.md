@@ -1,4 +1,13 @@
 
+Sécurisation Stripe Checkout – état au 21/11/2025
+✅ Audit sécurité Stripe Checkout (Front + Back)
+
+Confirmé que le front ne manipule aucun montant sensible (prix/total non transmis depuis Twig/JS).
+
+Confirmé que tous les montants Stripe sont recalculés côté backend à partir du panier (Money en centimes).
+
+État : implémentation actuelle jugée sécurisée pour la gestion des montants.
+
 # Spécifications techniques — Checkout Stripe & Commande
 
 ## Contexte

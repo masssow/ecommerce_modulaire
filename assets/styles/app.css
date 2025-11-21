@@ -32762,190 +32762,6 @@ textarea.form-control-lg {
   transform: rotate(-90deg);
 }
 
-/* === Bouton "Voir l’article" toujours visible, sans dépendre du :hover === */
-.block2 .block2-pic {
-  position: relative;
-}
-
-.block2 .block2-btn {
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%) !important;
-  /* on garde les classes de style du thème pour couleurs/typos */
-}
-
-.block2 .block2-pic {
-  aspect-ratio: 1/1;
-  overflow: hidden;
-  background: #f7f7f7;
-}
-
-.block2 .block2-pic img {
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  display: block;
-  /* évite les espaces fantômes */
-}
-
-/* Désactive les effets "hover-only" sur écrans tactiles */
-@media (hover: none) {
-  .hov-img0:hover {
-    transform: none !important;
-  }
-  .hov-btn1:hover,
-  .hov-btn3:hover {
-    transform: none !important;
-  }
-  .block2 .block2-pic:hover .block2-btn {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-/* Images fluides et recadrage propre */
-.wrap-pic-w img,
-.block2-pic img {
-  width: 100%;
-  height: auto;
-  display: block;
-  -o-object-fit: cover;
-     object-fit: cover;
-}
-
-.sec-relate-product .block2-pic {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4/5;
-  /* ajuste si tu veux un ratio 1/1 : 1 / 1 */
-  overflow: hidden;
-}
-
-/* Image plein cadre, recadrée proprement */
-.sec-relate-product .block2-pic img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  /* couvre sans déformer, recadre si besoin */
-  display: block;
-}
-
-/* Fallback anciens navigateurs sans aspect-ratio */
-@supports not (aspect-ratio: 1/1) {
-  .sec-relate-product .block2-pic {
-    height: 0;
-    padding-top: 125%;
-    /* 4/5 -> 1.25 = 125% ; si 1/1 -> 100% */
-  }
-  .sec-relate-product .block2-pic img {
-    position: absolute;
-  }
-}
-/* Annule d’éventuelles tailles “figées” du thème */
-.wrap-slick2 .slick-slide img,
-.slick2 .slick-slide img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Aide Slick à garder la même hauteur entre slides */
-.wrap-slick2 .slick-track {
-  display: flex !important;
-}
-
-.wrap-slick2 .slick-slide {
-  height: auto;
-}
-
-.wrap-slick2 .slick-slide > div {
-  height: 100%;
-}
-
-/* Optionnel : zone texte homogène sous l’image */
-.sec-relate-product .block2-txt {
-  min-height: 90px;
-  /* ajuste selon tes contenus */
-}
-
-.sec-relate-product .block2-pic {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1/1;
-  /* ← était 4/5, passe à 1/1 pour compacter */
-  overflow: hidden;
-}
-
-.sec-relate-product .block2-pic img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  display: block;
-}
-
-/* Fallback sans aspect-ratio */
-@supports not (aspect-ratio: 1/1) {
-  .sec-relate-product .block2-pic {
-    height: 0;
-    padding-top: 100%;
-  }
-  .sec-relate-product .block2-pic img {
-    position: absolute;
-  }
-}
-/* ↓↓↓ IMPORTANT : annule le flex sur le track (si tu l’as mis) ↓↓↓ */
-/* Le display:flex sur .slick-track peut figer une hauteur “fantôme” */
-.wrap-slick2 .slick-track {
-  display: block !important;
-  height: auto !important;
-}
-
-.wrap-slick2 .slick-list {
-  height: auto !important;
-}
-
-/* Les slides reviennent en hauteur auto */
-.wrap-slick2 .slick-slide,
-.wrap-slick2 .slick-slide > div {
-  height: auto !important;
-}
-
-/* Un peu moins d’espace autour du carousel */
-.sec-relate-product {
-  padding-top: 24px;
-  padding-bottom: 56px;
-  /* au lieu de 105px via classes utilitaires */
-}
-
-/* (Optionnel) limite la hauteur max sur mobile si tu veux encore plus serré */
-@media (max-width: 576px) {
-  .sec-relate-product .block2-pic {
-    aspect-ratio: 4/5;
-  }
-  /* un peu plus haut en mobile si tu préfères */
-}
-/* Grille: petites améliorations responsives */
-@media (max-width: 991.98px) {
-  .p-b-35 {
-    padding-bottom: 24px !important;
-  }
-}
-/* Accessibilité focus visible (clavier) */
-a:focus,
-button:focus {
-  outline: 2px solid rgba(0, 0, 0, 0.25);
-  outline-offset: 2px;
-}
-
 /*//////////////////////////////////////////////////////////////////
 [ RS PLUGIN ]*/
 /*------------------------------------------------------------------
@@ -33175,6 +32991,58 @@ button:focus {
   background-color: #fff;
 }
 
+/* Pagination Boutique / Coza */
+.mg-pagination ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mg-pagination li {
+  display: inline-flex;
+}
+
+.mg-pagination a,
+.mg-pagination span {
+  border-radius: 999px;
+  /* pills */
+}
+
+/* Ajuste un peu sur très petit écran */
+@media (max-width: 576px) {
+  .mg-pagination a,
+  .mg-pagination span {
+    padding: 6px 10px;
+    margin: 4px;
+    font-size: 0.9rem;
+  }
+}
+/* Barre sticky "Ajouter au panier" */
+.mg-sticky-addtocart {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  padding: 10px 0;
+}
+
+/* Évite que la barre masque le contenu au scroll */
+body.has-sticky-addtocart {
+  padding-bottom: 72px;
+}
+
+/* Optionnel : ajuster sur très petits écrans */
+@media (max-width: 480px) {
+  .mg-sticky-addtocart .stext-110 {
+    font-size: 14px;
+  }
+  .mg-sticky-addtocart .stext-106 {
+    font-size: 13px;
+  }
+}
 /*---------------------------------------------*/
 .limiter-menu-desktop {
   height: 100%;
@@ -33318,6 +33186,95 @@ button:focus {
   .main-menu > .respon-sub-menu > .sub-menu {
     right: 0px;
     left: auto;
+  }
+}
+/* Barre de navigation mobile type app */
+.mg-mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  /* iOS safe area */
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.mg-mobile-nav__list {
+  margin: 0;
+  padding: 0 8px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.mg-mobile-nav__item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.mg-mobile-nav__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #555;
+}
+
+.mg-mobile-nav__link i {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+/* État actif */
+.mg-mobile-nav__link.is-active {
+  color: #0d6efd;
+  /* adapte à ta couleur principale */
+}
+
+.mg-mobile-nav__link.is-active i {
+  /* si tu veux souligner l’icône active */
+  transform: translateY(-1px);
+}
+
+/* Badge panier */
+.mg-mobile-nav__item--cart {
+  position: relative;
+}
+
+.mg-mobile-nav__badge {
+  position: absolute;
+  top: 4px;
+  right: 20%;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Masquer sur desktop si ton template n’a pas déjà d-md-none etc. */
+@media (min-width: 768px) {
+  .mg-mobile-nav {
+    display: none;
+  }
+}
+/* Exemple si ton contenu est dans body ou .page-wrapper */
+@media (max-width: 767.98px) {
+  body {
+    padding-bottom: 70px;
+    /* hauteur nav + marge */
   }
 }
 /*------------------------------------------------------------------

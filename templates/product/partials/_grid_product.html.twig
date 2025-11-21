@@ -1,43 +1,71 @@
-<div class="row isotope-grid">
-      {% set favIds = favoritesIds|default([]) %}
-      {% for variant in productVariants %}
-        {% set vImg = variant.imageName ? asset('uploads/productVariant/' ~ variant.imageName) : asset('images/placeholder-image.png') %}
-        <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ variant.product.subCategory.slug }}">
-          <div class="block2">
-            <div class="block2-pic hov-img0">
-              <img
-                src="{{ vImg }}"
-                alt="{{ variant.product.name }}"
-                loading="lazy"
-                class="img-fluid">
+{# templates/product/partials/_grid_product.html.twig #}
 
-              {# CTA visible (géré via SCSS pour enlever le hover) #}
-              <a href="{{ path('product_show', { id: variant.product.id }) }}"
-                 class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04"
-                 data-force-visible="1">
-                Voir le produit
+<div class="row isotope-grid">
+  {% set favIds = favoritesIds|default([]) %}
+
+  {% for variant in productVariants %}
+    {% set product = variant.product %}
+    {% if product %}
+      {# Image via VichUploader ou fallback #}
+      {% set vImg = variant.imageName
+        ? asset('uploads/productVariant/' ~ variant.imageName)
+        : asset('images/placeholder-image.png')
+      %}
+
+      <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item {{ product.subCategory.slug ?? '' }}">
+        <!-- Block2 -->
+        <div class="block2">
+          <div class="block2-pic hov-img0">
+            <img
+              src="{{ vImg }}"
+              alt="{{ product.name }}"
+              loading="lazy"
+            >
+
+            <a
+              href="{{ path('product_show', { id: product.id }) }}"
+              class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04"
+            >
+              Voir le produit
+            </a>
+          </div>
+
+          <div class="block2-txt flex-w flex-t p-t-14">
+            <div class="block2-txt-child1 flex-col-l">
+              <a
+                href="{{ path('product_show', { id: product.id }) }}"
+                class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6"
+              >
+                {{ product.name }}
+              </a>
+
+              <span class="stext-105 cl3">
+                {{ (variant.priceAmount|default(0) / 100)|number_format(2, '.', ' ') }}
+                {{ variant.priceCurrency|default('€') }}
+              </span>
+            </div>
+
+            {# Wishlist (optionnel, à réactiver plus tard) #}
+            {#
+            <div class="block2-txt-child2 flex-r p-t-3">
+              <a href="#"
+                 class="btn-addwish-b2 dis-block pos-relative js-addwish-b2 {{ variant.id in favIds ? 'js-addedwish-b2' : '' }}">
+                <img class="icon-heart1 dis-block trans-04"
+                     src="{{ asset('images/icons/icon-heart-01.png') }}"
+                     alt="Favori off">
+                <img class="icon-heart2 dis-block trans-04 ab-t-l"
+                     src="{{ asset('images/icons/icon-heart-02.png') }}"
+                     alt="Favori on">
               </a>
             </div>
-
-            <div class="block2-txt flex-w flex-t p-t-14">
-              <div class="block2-txt-child1 flex-col-l">
-                <a href="{{ path('product_show', { id: variant.product.id }) }}"
-                   class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                  {{ variant.product.name }}
-                </a>
-                <span class="stext-105 cl3">
-                  {{ ((variant.priceAmount|default(0)) / 100)|number_format(2, '.', ' ') }} {{ variant.priceCurrency|default('€') }}
-                </span>
-              </div>
-
-              {# <div class="block2-txt-child2 flex-r p-t-3">
-                {% include 'account/favorite/partials/_button.html.twig' with {
-                  variant: variant,
-                  isActive: variant.id in favIds
-                } %}
-              </div> #}
-            </div>
+            #}
           </div>
         </div>
-      {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="col-12 p-b-35">
+      <p class="stext-111 cl6">Aucun produit trouvé pour ces critères.</p>
     </div>
+  {% endfor %}
+</div>

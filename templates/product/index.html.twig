@@ -1,7 +1,71 @@
+{# templates/product/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ProductController!{% endblock %}
+{% block title %}Boutique{% endblock %}
 
 {% block body %}
+<div class="container">
 
+  {# Breadcrumb / Header #}
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+        <span class="stext-109 cl4">Boutique</span>
+    </div>
+
+    <section class="bg0 p-t-40 p-b-50">
+        <h3 class="ltext-103 cl5 p-b-20">
+            Boutique
+        </h3>
+        {# Filtres : recherche + catégorie #}
+        {% include 'product/partials/_section_catalogue.html.twig' with {
+        productVariants: productVariants,
+        subCategories: subCategories|default([]),
+        favoritesIds: favoritesIds|default([]),
+        current_q: current_q|default('')
+        } %}
+        {# <div class="mg-shop-filters mb-3">
+            <form method="get" action="{{ path('product_index') }}" class="row g-2 align-items-end">
+                <div class="col-12 col-md-5">
+                <label class="form-label stext-111">Rechercher</label>
+                <input
+            type="search"
+            name="q"
+            value="{{ current_q|default('') }}"
+            class="form-control"
+            placeholder="Rechercher un produit..."
+            >
+                </div> 
+
+            <div class="col-12 col-md-4">
+            <label class="form-label stext-111">Catégorie</label>
+          <select name="category" class="form-select">
+            <option value="">Toutes</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}"
+                {% if current_category is defined and current_category == cat.id %}selected{% endif %}
+                    >
+                {{ cat.name }}
+                    </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label d-none d-md-block">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">
+                    Filtrer
+                        </button>
+                    </div>
+                </form>
+            </div>#}
+
+        {# Pagination KNP en dessous de la grille #}
+        <div class="flex-c-m flex-w w-full">
+            {{ knp_pagination_render(productVariants, 'pagination/_pagination.html.twig') }}
+        </div>
+    </section>
+</div>
 {% endblock %}

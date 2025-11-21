@@ -62,7 +62,7 @@ final class AccountController extends AbstractController
 
         $list = $orders->findByUser($user);
 
-        return $this->render('account/orders.html.twig', [
+        return $this->render('account/order/orders.html.twig', [
             'orders' => $list,
         ]);
     }
@@ -76,7 +76,7 @@ final class AccountController extends AbstractController
         $lastDeliveredAt   = $this->getLastDeliveredAt($order);
         $isReturnable      = $this->isReturnEligible($order);
 
-        return $this->render('account/order_show.html.twig', [
+        return $this->render('account/order/order_show.html.twig', [
             'order'             => $order,
             'lastDeliveredAt'   => $lastDeliveredAt,
             'isReturnable'      => $isReturnable,

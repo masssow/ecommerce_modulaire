@@ -362,6 +362,61 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   background-color: #fff;
 }
 
+/* Pagination Boutique / Coza */
+.mg-pagination ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mg-pagination li {
+  display: inline-flex;
+}
+
+.mg-pagination a,
+.mg-pagination span {
+  border-radius: 999px;
+  /* pills */
+}
+
+/* Ajuste un peu sur très petit écran */
+@media (max-width: 576px) {
+
+  .mg-pagination a,
+  .mg-pagination span {
+    padding: 6px 10px;
+    margin: 4px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Barre sticky "Ajouter au panier" */
+.mg-sticky-addtocart {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, .08);
+  padding: 10px 0;
+}
+
+/* Évite que la barre masque le contenu au scroll */
+body.has-sticky-addtocart {
+  padding-bottom: 72px;
+}
+
+/* Optionnel : ajuster sur très petits écrans */
+@media (max-width: 480px) {
+  .mg-sticky-addtocart .stext-110 {
+    font-size: 14px;
+  }
+
+  .mg-sticky-addtocart .stext-106 {
+    font-size: 13px;
+  }
+}
 
 /*---------------------------------------------*/
 .limiter-menu-desktop {
@@ -534,6 +589,98 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   .main-menu > .respon-sub-menu > .sub-menu {
     right: 0px;
     left: auto;
+  }
+}
+
+/* Barre de navigation mobile type app */
+.mg-mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+
+  /* iOS safe area */
+  padding-bottom: env(safe-area-inset-bottom);
+
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.mg-mobile-nav__list {
+  margin: 0;
+  padding: 0 8px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.mg-mobile-nav__item {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+.mg-mobile-nav__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #555;
+}
+
+.mg-mobile-nav__link i {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+/* État actif */
+.mg-mobile-nav__link.is-active {
+  color: #0d6efd;
+  /* adapte à ta couleur principale */
+}
+
+.mg-mobile-nav__link.is-active i {
+  /* si tu veux souligner l’icône active */
+  transform: translateY(-1px);
+}
+
+/* Badge panier */
+.mg-mobile-nav__item--cart {
+  position: relative;
+}
+
+.mg-mobile-nav__badge {
+  position: absolute;
+  top: 4px;
+  right: 20%;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #dc3545;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Masquer sur desktop si ton template n’a pas déjà d-md-none etc. */
+@media (min-width: 768px) {
+  .mg-mobile-nav {
+    display: none;
+  }
+}
+/* Exemple si ton contenu est dans body ou .page-wrapper */
+@media (max-width: 767.98px) {
+  body {
+    padding-bottom: 70px;
+    /* hauteur nav + marge */
   }
 }
 

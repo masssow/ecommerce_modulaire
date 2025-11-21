@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Category;
 use App\Entity\ProductVariant;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
@@ -17,94 +18,95 @@ class ProductVariantRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductVariant::class);
     }
 
-    public function findOneWithProduct(int $variantId): ?ProductVariant
+    /**
+     * Charge une variante avec son produit (et éventuellement sous-catégorie).
+     */
+    public function findOneWithProduct(int $id): ?ProductVariant
     {
         return $this->createQueryBuilder('v')
             ->leftJoin('v.product', 'p')->addSelect('p')
-            ->andWhere('v.id = :id')->setParameter('id', $variantId)
-            ->getQuery()->getOneOrNullResult();
+            ->leftJoin('p.subCategory', 'sc')->addSelect('sc')
+            ->andWhere('v.id = :id')->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
+    /**
+     * Variantes "liées" pour suggestion (par ex même sous-catégorie).
+     *
+     * @return ProductVariant[]
+     */
     public function findRelatedForVariant(ProductVariant $variant, int $limit = 8): array
     {
-        $product   = $variant->getProduct();
-        $subCat    = $product?->getSubCategory();
+        $product     = $variant->getProduct();
+        $subCategory = $product?->getSubCategory();
 
         $qb = $this->createQueryBuilder('v')
-            ->addSelect('p', 'sc')
-            ->join('v.product', 'p')
-            ->leftJoin('p.subCategory', 'sc')
-            ->where('p != :product')
-            ->setParameter('product', $product)
-            ->orderBy('v.id', 'DESC')
+            ->join('v.product', 'p')->addSelect('p')
+            ->andWhere('v != :current')
+            ->setParameter('current', $variant)
             ->setMaxResults($limit);
 
-        if ($subCat) {
-            $qb->andWhere('sc = :subCat')
-                ->setParameter('subCat', $subCat);
+        if ($subCategory) {
+            $qb
+                ->join('p.subCategory', 'sc')
+                ->andWhere('sc = :subCat')
+                ->setParameter('subCat', $subCategory);
         }
 
         return $qb->getQuery()->getResult();
     }
 
-    public function findByCategory(Category $category, int $limit = 24): array
+    /**
+     * QueryBuilder pour la boutique (catalogue) :
+     * - recherche par mot-clé (sur product.name/description)
+     * - filtre optionnel par "categoryId" (ici on considère que c’est la sous-catégorie).
+     */
+    public function createCatalogQb(?string $searchTerm = null, $categoryId = null): QueryBuilder
     {
-        // VERSION A (Product -> subCategory -> category)
-        return $this->createQueryBuilder('v')
-            ->innerJoin('v.product', 'p')
-            ->innerJoin('p.subCategory', 'sc')
-            ->innerJoin('sc.categorie', 'c')
-            ->andWhere('c = :cat')
-            ->setParameter('cat', $category)
-            ->orderBy('v.id', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+        $qb = $this->createQueryBuilder('v')
+            ->join('v.product', 'p')->addSelect('p')
+            ->leftJoin('p.subCategory', 'sc')->addSelect('sc')
+            ->orderBy('v.id', 'DESC');
 
-        /* --- VERSION B (si Product a directement "category") ---
-        return $this->createQueryBuilder('v')
-            ->innerJoin('v.product', 'p')
-            ->andWhere('p.category = :cat')
-            ->setParameter('cat', $category)
-            ->orderBy('v.id', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-        */
+        if ($searchTerm !== null && $searchTerm !== '') {
+            $searchTerm = trim($searchTerm);
+            $qb
+                ->andWhere('LOWER(p.name) LIKE LOWER(:term) OR LOWER(p.description) LIKE LOWER(:term)')
+                ->setParameter('term', '%' . $searchTerm . '%');
+        }
+
+        if ($categoryId) {
+            // Ici on interprète "category" comme l’ID de la sous-catégorie
+            $qb
+                ->andWhere('sc.id = :subCatId')
+                ->setParameter('subCatId', $categoryId);
+        }
+
+        return $qb;
     }
 
+    /**
+     * Catalogue filtré par Categorie (parent de SousCategorie).
+     */
+    public function createByCategoryQb(Category $category, ?string $searchTerm = null): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('v')
+            ->join('v.product', 'p')->addSelect('p')
+            ->join('p.subCategory', 'sc')->addSelect('sc')
+            ->join('sc.categorie', 'c') 
+            ->andWhere('c = :cat')
+            ->setParameter('cat', $category)
+            ->orderBy('v.id', 'DESC');
 
-    //  Favorite-related methods helper?s
-    // public function idsForUser(User $user): array
-    // {
-    //     return array_map('intval', $this->createQueryBuilder('f')
-    //         ->select('IDENTITY(f.productVariant) AS id')
-    //         ->where('f.user = :u')->setParameter('u', $user)
-    //         ->getQuery()->getSingleColumnResult());
-    // }
+        if ($searchTerm !== null && $searchTerm !== '') {
+            $searchTerm = trim($searchTerm);
+            $qb
+                ->andWhere('LOWER(p.name) LIKE LOWER(:term) OR LOWER(p.description) LIKE LOWER(:term)')
+                ->setParameter('term', '%' . $searchTerm . '%');
+        }
 
-    //    /**
-    //     * @return ProductVariant[] Returns an array of ProductVariant objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+        return $qb;
+    }
 
-    //    public function findOneBySomeField($value): ?ProductVariant
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

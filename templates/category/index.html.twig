@@ -1,4 +1,4 @@
-
+{# templates/category/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Catégories{% endblock %}
@@ -7,7 +7,8 @@
 <div class="container">
   <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
     <a href="{{ path('app_home') }}" class="stext-109 cl8 hov-cl1 trans-04">
-      Accueil <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+      Accueil
+      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
     </a>
     <span class="stext-109 cl4">Catégories</span>
   </div>
@@ -19,7 +20,10 @@
 
     <div class="row">
       {% for category in categories %}
-        {% set img = category.imageName ? asset('uploads/category/' ~ category.imageName) : asset('images/placeholder-image.png') %}
+        {% set img = category.imageName
+          ? asset('uploads/category/' ~ category.imageName)
+          : asset('images/placeholder-image.png')
+        %}
         <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
           <div class="block1 wrap-pic-w">
             <img src="{{ img }}" alt="{{ category.name }}" loading="lazy">
@@ -44,4 +48,3 @@
   </div>
 </section>
 {% endblock %}
-

@@ -19,6 +19,9 @@
         showCart: "{{ path('cart_show') }}"
             };
     </script>
+
+    {% include 'partials/_mobile_bottom_nav.html.twig' %}
+
     <body class="animsition" data-is-auth="{{ app.user ? '1' : '0' }}"
     data-login-url="{{ path('app_login') }}">
 
@@ -39,11 +42,11 @@
                             </a>
 
 
-                           {% if app.user %}
+                           {# {% if app.user %}
                                 <a href="{{ path('account_profile') }}" class="flex-c-m trans-04 p-lr-25">Mon compte</a>
                             {% else %}
                                 <a href="{{ path('app_login') }}" class="flex-c-m trans-04 p-lr-25">Se connecter</a>
-                            {% endif %}
+                            {% endif %} #}
                         </div>
                     </div>
                 </div>
@@ -61,7 +64,7 @@
                         <div class="menu-desktop">
                             <ul class="main-menu">
                                 <li class="active-menu">
-                                    <a href="index.html">Categories</a>
+                                    <a href="{{ path('app_category')}}">Categories</a>
                                     
                                     <ul class="sub-menu">
                                         <li>
@@ -82,7 +85,7 @@
                                 </li>
 
                                 <li>
-                                    <a href="product.html">Boutique</a>
+                                    <a href="{{ path('product_index')}}">Boutique</a>
                                 </li>
 
                                 {# <li class="label1" data-label1="hot">
@@ -160,21 +163,21 @@
                     <li>
                         <div class="right-top-bar flex-w h-full">
                             <a href="#" class="flex-c-m p-lr-10 trans-04">
-                                Help & FAQs
+                                Aide & FAQs
                             </a>
 
-                            {% if app.user %}
+                            {# {% if app.user %}
                                 <a href="{{ path('account_profile') }}" class="flex-c-m trans-04 p-lr-25">Mon compte</a>
                             {% else %}
                                 <a href="{{ path('app_login') }}" class="flex-c-m trans-04 p-lr-25">Se connecter</a>
-                            {% endif %}
+                            {% endif %} #}
                         </div>
                     </li>
                 </ul>
 
                 <ul class="main-menu-m">
                     <li>
-                        <a href="index.html">Categories</a>
+                            <a href="{{ path('app_category')}}">Categories</a>
                         <ul class="sub-menu-m">
                         {% for cat in footerCategories|slice(0, 4) %}
                             <li><a href="{{ path('category_show', { id: cat.id }) }}">{{cat.name}}</a></li>
@@ -188,7 +191,7 @@
                     </li>
 
                     <li>
-                        <a href="product.html">Boutique</a>
+                        <a href="{{ path('product_index')}}">Boutique</a>
                     </li>
 
                     {# <li>
@@ -278,7 +281,7 @@
                         </ul>
                     </div>
 
-                    <div class="col-sm-6 col-lg-3 p-b-50">
+                    {# <div class="col-sm-6 col-lg-3 p-b-50">
                         <h4 class="stext-301 cl0 p-b-30">
                             GET IN TOUCH
                         </h4>
@@ -300,7 +303,7 @@
                                 <i class="fa fa-pinterest-p"></i>
                             </a>
                         </div>
-                    </div>
+                    </div> #}
                         {# NewsLetter #}
                     {# <div class="col-sm-6 col-lg-3 p-b-50">
                         <h4 class="stext-301 cl0 p-b-30">

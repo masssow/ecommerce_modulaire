@@ -1,0 +1,50 @@
+{# templates/pagination/_pagination.html.twig #}
+
+{% if pageCount > 1 %}
+  <div class="mg-pagination flex-c-m w-full p-t-10 p-b-40">
+    <ul class="flex-c-m flex-w">
+      {# Page précédente #}
+      {% if previous is defined %}
+        <li>
+          <a
+            href="{{ path(route, query|merge({ (pageParameterName): previous })) }}"
+            class="flex-c-m stext-101 cl5 bg0 bor1 hov-btn1 p-lr-15 p-tb-8 m-r-8 m-b-8 trans-04"
+          >
+            &laquo;
+          </a>
+        </li>
+      {% endif %}
+
+      {# Pages #}
+      {% for page in pagesInRange %}
+        <li>
+          {% if page == current %}
+            {# Page active : pill remplie #}
+            <span class="flex-c-m stext-101 cl0 bg2 bor1 p-lr-15 p-tb-8 m-r-8 m-b-8">
+              {{ page }}
+            </span>
+          {% else %}
+            <a
+              href="{{ path(route, query|merge({ (pageParameterName): page })) }}"
+              class="flex-c-m stext-101 cl5 bg0 bor1 hov-btn1 p-lr-15 p-tb-8 m-r-8 m-b-8 trans-04"
+            >
+              {{ page }}
+            </a>
+          {% endif %}
+        </li>
+      {% endfor %}
+
+      {# Page suivante #}
+      {% if next is defined %}
+        <li>
+          <a
+            href="{{ path(route, query|merge({ (pageParameterName): next })) }}"
+            class="flex-c-m stext-101 cl5 bg0 bor1 hov-btn1 p-lr-15 p-tb-8 m-r-8 m-b-8 trans-04"
+          >
+            &raquo;
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+{% endif %}

@@ -1,3 +1,4 @@
+{# cart/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Mon panier{% endblock %}
@@ -26,7 +27,7 @@
                     </thead>
                     <tbody class="small">
                         {% for item in cart.cartItems %}
-                            <tr class="table_row" data-unit-price="{{ item.unitPrice }}">
+                            <tr class="table_row" ">
                                 <td style="width: 60px;">
                                     <img src="{{ item.productVariant.imageName
                                         ? asset('uploads/productVariant/' ~ item.productVariant.imageName)

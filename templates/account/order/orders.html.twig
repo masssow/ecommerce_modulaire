@@ -50,7 +50,7 @@
                 {{ (o.grandTotal/100)|number_format(2, '.', ' ') }} {{ o.currency }}
               </td>
               <td class="column-4">
-                {% include 'account/partials/_order_status_badge.html.twig' with { status: o.status } %}
+                {% include 'account/order/partials/_order_status_badge.html.twig' with { status: o.status } %}
               </td>
               <td class="column-5">
                 <a href="{{ path('account_order_show', {id: o.id}) }}"

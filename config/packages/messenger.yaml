@@ -6,6 +6,9 @@ framework:
     failure_transport: failed
 
     transports:
+      # Transport sync = exécution immédiate dans la requête HTTP
+      sync: 'sync://'
+
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
         options:
@@ -16,6 +19,7 @@ framework:
           multiplier: 2
           max_delay: 0
           jitter: 0.1
+
       failed:
         dsn: 'doctrine://default?queue_name=failed'
         options:
@@ -25,10 +29,13 @@ framework:
       messenger.bus.default: ~
 
     routing:
-      Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+      # ⚠️ FORCER LES EMAILS EN SYNCHRONE
+      Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+      App\Message\Email\SendOrderEmail: sync
+
+      # Le reste peut rester async si tu veux
       Symfony\Component\Notifier\Message\ChatMessage: async
       Symfony\Component\Notifier\Message\SmsMessage: async
       App\Message\*: async
 
-    # ⚠️ Sur Windows, laissez vide pour éviter pcntl
     stop_worker_on_signals: []

@@ -1,7 +1,7 @@
 # config/services.yaml
 parameters:
-  app.email.from_address: 'no-reply@exemple.com'
-  app.email.from_name: 'Votre Boutique'
+  app.email.from_address: '%env(APP_EMAIL_FROM)%'
+  app.email.from_name: '%env(APP_EMAIL_FROM_NAME)%'
   app.email.reply_to: 'support@exemple.com'
 
   app.stripe.webhook_secret: '%env(STRIPE_WEBHOOK_SECRET)%'

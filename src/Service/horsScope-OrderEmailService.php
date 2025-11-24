@@ -22,8 +22,8 @@ class OrderEmailService
         private readonly EntityManagerInterface $em,
         private readonly EmailTemplateRepository $templateRepo,
         private readonly string $projectDir,
-        private readonly string $fromEmail = 'no-reply@example.com',
-        private readonly string $fromName  = 'Ma Boutique',
+        private readonly string $fromEmail = 'noreply@sandbox.massgrafik.com',
+        private readonly string $fromName  = 'Lacrose Shop',
         private readonly ?string $replyTo = null
     ) {}
 

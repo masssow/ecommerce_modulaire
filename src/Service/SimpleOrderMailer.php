@@ -6,13 +6,17 @@ use App\Entity\Order;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 
 final class SimpleOrderMailer
 {
     public function __construct(
         private readonly MailerInterface $mailer,
-        private readonly string $fromEmail = 'no-reply@yopmail.com',
-        private readonly string $fromName  = 'Votre Boutique',
+        #[Autowire('%env(APP_EMAIL_FROM)%')]
+        private readonly string $fromEmail,
+        #[Autowire('%env(APP_EMAIL_FROM_NAME)%')]
+        private readonly string $fromName,
         private readonly ?string $replyTo  = null,
     ) {}
 

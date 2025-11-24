@@ -1,5 +1,5 @@
 <?php
-namespace App\Payment\Event\Subscriber\Subscriber;
+namespace App\Payment\Event\Subscriber;
 
 use App\Payment\Event\PaymentSucceeded;
 use App\Payment\Event\PaymentFailed;

@@ -1,7 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
     globals:
-        categoriesFilter: '@App\Twig\Layout\CategoryFilter'
+        categoriesFilterService: '@App\Twig\Layout\CategoryFilterService'
 
 when@test:
     twig:

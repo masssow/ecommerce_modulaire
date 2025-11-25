@@ -8,6 +8,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\SubCategoryRepository;
 use App\Repository\ProductVariantRepository;
+use App\Twig\Layout\CategoryFilterService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,14 +23,12 @@ final class HomeController extends AbstractController
         $subCategories = $subCategoryRepository->findBy([], null, 4);
         $user = $this->getUser();
         $favoritesIds = $user ? $favRepo->idsForUser($user) : [];
-        $footerCategories = $categoryRepository->findBy([], ['name' => 'ASC'], 4);
 
         return $this->render('home/index.html.twig', [
             'categories' => $categories,
             'productVariants' => $productVariants,
             'subCategories' => $subCategories,
             'favoritesIds' => $favoritesIds,
-            'categoriesFilter' => $footerCategories,
         ]);
     }
 }

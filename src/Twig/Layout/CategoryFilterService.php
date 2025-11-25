@@ -4,7 +4,7 @@ namespace App\Twig\Layout;
 
 use App\Repository\CategoryRepository;
 
-class CategoryFilter
+class CategoryFilterService
 {
     public function __construct(private CategoryRepository $repo) {}
 

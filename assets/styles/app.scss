@@ -1906,6 +1906,13 @@ button.mfp-close {
 
 /*//////////////////////////////////////////////////////////////////
 [ Filter ]*/
+.js-show-search .icon-close-search.dis-none {
+  display: none !important;
+}
+
+.js-show-search .icon-search.dis-none {
+  display: none !important;
+}
 .show-search .icon-search,
 .show-filter .icon-filter {display: none;}
 

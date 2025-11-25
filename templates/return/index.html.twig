@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ReturnController!{% endblock %}
+
+{% block body %}
+{% extends 'base.html.twig' %}
+
+{% block title %}Retours & échanges - Lacrose{% endblock %}
+
+{% block body %}
+<section class="bg0 p-t-75 p-b-120">
+  <div class="container">
+    <div class="row p-b-48">
+      <div class="col-12 col-md-8">
+        <h1 class="mtext-111 cl2 p-b-12">Retours & échanges</h1>
+        <p class="stext-113 cl6">
+          Vous disposez d’un délai de X jours pour demander un retour ou un échange sur vos achats Lacrose.
+        </p>
+      </div>
+      <div class="col-12 col-md-4 d-flex align-items-end justify-content-md-end p-t-20">
+        <a href="#return-form" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15">
+          Faire une demande de retour
+        </a>
+      </div>
+    </div>
+
+    <div class="row p-b-48">
+      <div class="col-12">
+        <h2 class="mtext-111 cl2 p-b-24">Comment ça marche ?</h2>
+      </div>
+
+      <div class="col-sm-6 col-md-4 p-b-30">
+        <div class="p-t-10">
+          <h3 class="stext-301 cl2 p-b-8">1. Remplissez le formulaire</h3>
+          <p class="stext-113 cl6">
+            Indiquez votre email, votre numéro de commande et le motif du retour.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-md-4 p-b-30">
+        <div class="p-t-10">
+          <h3 class="stext-301 cl2 p-b-8">2. Nous analysons votre demande</h3>
+          <p class="stext-113 cl6">
+            Notre équipe vérifie les informations et vous répond par email avec la marche à suivre.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-md-4 p-b-30">
+        <div class="p-t-10">
+          <h3 class="stext-301 cl2 p-b-8">3. Retournez votre colis</h3>
+          <p class="stext-113 cl6">
+            Suivez les instructions reçues par email pour renvoyer votre colis ou effectuer un échange.
+          </p>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}

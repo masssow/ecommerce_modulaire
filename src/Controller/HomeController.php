@@ -29,7 +29,7 @@ final class HomeController extends AbstractController
             'productVariants' => $productVariants,
             'subCategories' => $subCategories,
             'favoritesIds' => $favoritesIds,
-            'footerCategories' => $footerCategories,
+            'categoriesFilter' => $footerCategories,
         ]);
     }
 }

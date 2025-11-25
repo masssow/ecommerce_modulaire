@@ -117,14 +117,34 @@ import 'animsition';
     }    
   });
 
-  $('.js-show-search').on('click',function(){
-    $(this).toggleClass('show-search');
-    $('.panel-search').slideToggle(400);
-    if($('.js-show-filter').hasClass('show-filter')) {
-      $('.js-show-filter').removeClass('show-filter');
-      $('.panel-filter').slideUp(400);
-    }    
-  });
+ $('.js-show-search').on('click', function(){
+    const isOpen = $(this).hasClass('show-search');
+
+    // Si c’était ouvert → on va le fermer
+    if (isOpen) {
+        $(this).removeClass('show-search');
+        $('.panel-search').slideUp(400);
+    } 
+    // Si c’était fermé → on va l’ouvrir
+    else {
+        $(this).addClass('show-search');
+        $('.panel-search').slideDown(400);
+
+        // On ferme le filtre si ouvert
+        $('.js-show-filter').removeClass('show-filter');
+        $('.panel-filter').slideUp(400);
+    }
+
+    // Sync icons avec l’état réel
+    if ($(this).hasClass('show-search')) {
+        $(this).find('.icon-search').addClass('dis-none');
+        $(this).find('.icon-close-search').removeClass('dis-none');
+    } else {
+        $(this).find('.icon-search').removeClass('dis-none');
+        $(this).find('.icon-close-search').addClass('dis-none');
+    }
+});
+
 
   $('.btn-num-product-down').on('click', function(){
     var numProduct = Number($(this).next().val());

@@ -1,0 +1,26 @@
+{% set cats = categoriesFilter.get()|slice(0,5) %}
+
+
+           <a href="{{ path('product_index') }}">
+                <button
+                    class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1"
+                    data-filter="*"
+                >   
+                Tous les produits
+                </button>
+          </a>
+{% for cat in cats %}
+        <a href="{{ path('category_show', { id: cat.id }) }}"
+                class="{{ category is defined and category and category.id == cat.id ? 'active' : '' }}">
+        <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-10 m-tb-2" data-filter=".{{ cat.id }}">
+                    {{ cat.name }}  
+        </button>    
+          </a>   
+       
+    
+{% else %}
+    <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter="*">
+        <span>Aucune catégorie disponible</span>
+    </button>
+    
+{% endfor %}

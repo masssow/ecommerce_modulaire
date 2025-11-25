@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contactez-nous - Lacrose{% endblock %}
+
+{% block body %}
+<section class="bg0 p-t-75 p-b-120">
+  <div class="container">
+    <div class="row p-b-48">
+      <div class="col-12 col-md-8">
+        <h1 class="mtext-111 cl2 p-b-12">Contactez-nous</h1>
+        <p class="stext-113 cl6">
+          Une question sur une commande, un produit ou un retour ? Écrivez-nous, nous vous répondons rapidement.
+        </p>
+      </div>
+    </div>
+
+    <div class="row p-b-48">
+      <div class="col-12 col-md-5 p-b-30">
+        <h2 class="mtext-111 cl2 p-b-16">Nos coordonnées</h2>
+        <p class="stext-113 cl6 p-b-10">
+          <i class="zmdi zmdi-email p-r-8"></i> contact@lacrose.com
+        </p>
+        <p class="stext-113 cl6 p-b-10">
+          <i class="zmdi zmdi-pin p-r-8"></i> [Adresse ou ville]
+        </p>
+        {# Téléphone si tu veux #}
+        {# <p class="stext-113 cl6"><i class="zmdi zmdi-phone p-r-8"></i> +33 ...</p> #}
+      </div>
+
+      <div class="col-12 col-md-7">
+        <h2 class="mtext-111 cl2 p-b-16">Formulaire de contact</h2>
+        {# <form method="post" action="{{ path('contact_send') }}"> #}
+          <div class="row">
+            <div class="col-12 col-md-6 p-b-16">
+              <label class="stext-102 cl3">Nom *</label>
+              <input type="text" name="name" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15">
+            </div>
+            <div class="col-12 col-md-6 p-b-16">
+              <label class="stext-102 cl3">Email *</label>
+              <input type="email" name="email" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15">
+            </div>
+            <div class="col-12 p-b-16">
+              <label class="stext-102 cl3">Sujet *</label>
+              <input type="text" name="subject" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15">
+            </div>
+            <div class="col-12 p-b-16">
+              <label class="stext-102 cl3">Numéro de commande (optionnel)</label>
+              <input type="text" name="order_number"
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15">
+            </div>
+            <div class="col-12 p-b-24">
+              <label class="stext-102 cl3">Message *</label>
+              <textarea name="message" rows="4" required
+                        class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15"></textarea>
+            </div>
+          </div>
+
+          <button type="submit"
+                  class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15">
+            Envoyer mon message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

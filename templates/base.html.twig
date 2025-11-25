@@ -20,10 +20,10 @@
             };
     </script>
 
-    {% include 'partials/_mobile_bottom_nav.html.twig' %}
 
     <body class="animsition" data-is-auth="{{ app.user ? '1' : '0' }}"
     data-login-url="{{ path('app_login') }}">
+    {% include 'partials/_mobile_bottom_nav.html.twig' %}
 
         <!-- Header -->
         <header>
@@ -60,37 +60,31 @@
                         </a>
                             
                         <!-- Menu desktop -->
-                        {% set footerCategories = footerCategories|default([]) %}
                         <div class="menu-desktop">
                             <ul class="main-menu">
-                                <li class="active-menu">
-                                    <a href="{{ path('app_category')}}">Categories</a>
-                                    
-                                    <ul class="sub-menu">
-                                        <li>
-                                            <a href="{{ path('app_home')}}">Accueil</a>
-                                        </li>
-
-                                        {% for cat in (footerCategories|default([]))|slice(0,4) %}
-                                            <li>
-                                            <a href="{{ path('category_show', { id: cat.id }) }}"
-                                                class="{{ category is defined and category and category.id == cat.id ? 'active' : '' }}">
-                                                {{ cat.name }}
-                                            </a>
-                                            </li>
-                                        {% else %}
-                                        <li><span>Aucune catégorie disponible</span></li>
-                                        {% endfor %}
-                                    </ul>
+                                <li>
+                                    <a href="{{ path('app_home')}}">Accueil</a>
                                 </li>
+                                                            
+                                {# <li class="label1" data-label1="hot">
+								<a href="shoping-cart.html">Vente Flash</a>
+                                </li> #}
 
                                 <li>
                                     <a href="{{ path('product_index')}}">Boutique</a>
                                 </li>
 
-                                {# <li class="label1" data-label1="hot">
-                                    <a href="shoping-cart.html">Vente Flash</a>
-                                </li> #}
+                                <li>
+                                    <a href="#">Contact</a>
+                                </li>
+                                <li class="active-menu">         
+                                    <ul class="sub-menu">
+                                        {% include 'partials/_category_filter.html.twig' %}
+                                    </ul>      
+                                </li>
+                                <li>
+                                    <a href="{{ path('app_about')}}">Qui sommes nous ?</a>
+                                </li>
                             </ul>
                         </div>	
 
@@ -175,28 +169,38 @@
                     </li>
                 </ul>
 
-                <ul class="main-menu-m">
+                <ul class="main-menu">
                     <li>
-                            <a href="{{ path('app_category')}}">Categories</a>
-                        <ul class="sub-menu-m">
-                        {% for cat in footerCategories|slice(0, 4) %}
-                            <li><a href="{{ path('category_show', { id: cat.id }) }}">{{cat.name}}</a></li>
-                            {% else %}
-                            <li><span>Aucune catégorie disponible</span></li>
-                            {% endfor %}
-                        </ul>
-                        <span class="arrow-main-menu-m">
-                            <i class="fa fa-angle-right" aria-hidden="true"></i>
-                        </span>
-                    </li>
-
+                        <a href="{{ path('app_home')}}">Accueil</a>
+                    </li>                             
+                    {# <li class="label1" data-label1="hot">
+                    <a href="shoping-cart.html">Vente Flash</a>
+                    </li> #}
                     <li>
                         <a href="{{ path('product_index')}}">Boutique</a>
                     </li>
 
-                    {# <li>
-                        <a href="shoping-cart.html" class="label1 rs1" data-label1="hot">Vente Flash</a>
-                    </li> #}
+                    <li>
+                        <a href="#">Contact</a>
+                    </li>
+                    <li class="active-menu">
+                            <a href="{{ path('app_category')}}">Categories</a>
+                    <ul class="sub-menu">
+                        {% for cat in (footerCategories|default([]))|slice(0,4) %}
+                                <li>
+                                <a href="{{ path('category_show', { id: cat.id }) }}"
+                                    class="{{ category is defined and category and category.id == cat.id ? 'active' : '' }}">
+                                    {{ cat.name }}
+                                </a>
+                                </li>
+                            {% else %}
+                            <li><span>Aucune catégorie disponible</span></li>
+                            {% endfor %}
+                    </ul>      
+                    </li>
+                    <li>
+                        <a href="#">Qui sommes nous ?</a>
+                    </li>
                 </ul>
             </div>
 
@@ -227,83 +231,85 @@
         <footer class="bg3 p-t-75 p-b-32">
             <div class="container">
                 <div class="row">
-                    <div class="col-sm-6 col-lg-3 p-b-50">
+                    <div class="col-sm-6 col-lg-6 p-b-50">
                         <h4 class="stext-301 cl0 p-b-30">Catégories</h4>
+                           {% include 'partials/_category_footer.html.twig' %}
 
-                        <ul>
-                            {% for cat in footerCategories|slice(0, 4) %}
-                            <li class="p-b-10">
-                                <a
-                                href="{{ path('category_show', { id: cat.id }) }}"
-                                class="stext-107 cl7 hov-cl1 trans-04"
-                                >
-                                {{ cat.name }}
-                                </a>
-                            </li>
-                            {% else %}
-                            <li class="p-b-10">
-                                <span class="stext-107 cl7">Aucune catégorie disponible</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
+                        
                     </div>
 
 
-                    <div class="col-sm-6 col-lg-3 p-b-50">
-                        <h4 class="stext-301 cl0 p-b-30">
-                            FAQ
-                        </h4>
-
+                    <div class="col-sm-6 col-lg-6 p-b-50">
+                        <h4 class="stext-301 cl0 p-b-30">SERVICE CLIENT </h4>
                         <ul>
                             <li class="p-b-10">
-                                <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                                    Track Order
+                                      {% if app.user %}
+                                <a href="{{ path('account_profile') }}" class="stext-107 cl7 hov-cl1 trans-04">Mon compte</a>
+                                {% else %}
+                                <a href="{{ path('app_login') }}" class="stext-107 cl7 hov-cl1 trans-04">Se connecter</a>
+                                {% endif %}
                                 </a>
                             </li>
 
                             <li class="p-b-10">
-                                <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                                <a href="{{ path('app_return') }}" class="stext-107 cl7 hov-cl1 trans-04">
                                     Retours 
                                 </a>
                             </li>
 
                             <li class="p-b-10">
-                                <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                                    Shipping
+                                <a href="{{ path('app_about')}}" class="stext-107 cl7 hov-cl1 trans-04">
+                                   Qui sommes nous ?
                                 </a>
                             </li>
 
                             <li class="p-b-10">
-                                <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                                    FAQs
+                                <a href="{{ path('app_contact')}}" class="stext-107 cl7 hov-cl1 trans-04">
+                                    Contactez-nous
                                 </a>
                             </li>
                         </ul>
-                    </div>
-
-                    {# <div class="col-sm-6 col-lg-3 p-b-50">
-                        <h4 class="stext-301 cl0 p-b-30">
-                            GET IN TOUCH
-                        </h4>
-
-                        <p class="stext-107 cl7 size-201">
-                            Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879
-                        </p>
-
                         <div class="p-t-27">
-                            <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                                <i class="fa fa-facebook"></i>
+                                <a href="https://tiktok.com/@lacroseshop" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                                <i class="fa-brands fa-tiktok"></i>
                             </a>
 
                             <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                                <i class="fa fa-instagram"></i>
+                                <i class="fa-brands fa-instagram"></i>
                             </a>
 
                             <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                                <i class="fa fa-pinterest-p"></i>
+                                <i class="fa-brands fa-pinterest-p"></i>
                             </a>
                         </div>
-                    </div> #}
+                    </div>
+                    <div class="col-sm-6 col-lg-3 p-b-50">
+                        <h4 class="stext-301 cl0 p-b-30">
+                            MENTIONS LÉGALES
+                        </h4>
+                            <ul>
+                                <li class="p-b-10">
+                                    <a href="{{ path('app_cgv') }}" class="stext-107 cl7 hov-cl1 trans-04">
+                                    CGV
+                                    </a>
+                                </li>
+                                <li class="p-b-10">
+                                    <a href="{{ path('app_cgu') }}" class="stext-107 cl7 hov-cl1 trans-04">
+                                    CGU
+                                    </a>
+                                </li>
+                                <li class="p-b-10">
+                                    <a href="{{ path('app_pconfidentialite') }}" class="stext-107 cl7 hov-cl1 trans-04">
+                                    Politiques de confidentialité
+                                    </a>
+                                </li>
+                                <li class="p-b-10">
+                                    <a href="{{ path('app_cookies') }}" class="stext-107 cl7 hov-cl1 trans-04">
+                                    Cookies
+                                    </a>
+                                </li>
+                            </ul>
+                    </div>
                         {# NewsLetter #}
                     {# <div class="col-sm-6 col-lg-3 p-b-50">
                         <h4 class="stext-301 cl0 p-b-30">
@@ -350,78 +356,77 @@
 
                     <p class="stext-107 cl6 txt-center">
                         <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Temlate Made  by <a href="https://colorlib.com" target="_blank">Colorlib</a> &amp; Application developped by <a href="https://Massgrafik.com" target="_blank">Massgrafik</a>
-            <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Temlate Made  by <a href="https://colorlib.com" target="_blank">Colorlib</a> &amp; Application developped by <a href="https://Massgrafik.com" target="_blank">Massgrafik</a>
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
 
                     </p>
                 </div>
             </div>
         </footer>
     </body>
-        <script>
-(function() {
-  function updateHeaderFavCount(count) {
-    // Icône wishlist du header (classe du template CozaStore)
-    var headerFav = document.querySelector('.icon-header-item.icon-header-noti[data-notify]');
-    if (headerFav) {
-      headerFav.setAttribute('data-notify', String(count || 0));
-    }
-  }
+    <script>
+        (function() {
+        function updateHeaderFavCount(count) {
+            // Icône wishlist du header (classe du template CozaStore)
+            var headerFav = document.querySelector('.icon-header-item.icon-header-noti[data-notify]');
+            if (headerFav) {
+            headerFav.setAttribute('data-notify', String(count || 0));
+            }
+        }
 
-  async function toggleFavorite(el) {
-    var id = el.getAttribute('data-variant');
-    var token = el.getAttribute('data-csrf');
-    if (!id || !token) return;
+        async function toggleFavorite(el) {
+            var id = el.getAttribute('data-variant');
+            var token = el.getAttribute('data-csrf');
+            if (!id || !token) return;
 
-    try {
-      var res = await fetch('/favorite/toggle/' + id, {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: '_token=' + encodeURIComponent(token)
-      });
+            try {
+            var res = await fetch('/favorite/toggle/' + id, {
+                method: 'POST',
+                headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: '_token=' + encodeURIComponent(token)
+            });
 
-      if (res.status === 401 || res.status === 403) {
-        // non connecté → redirige vers login
-        window.location.href = '/login';
-        return;
-      }
+            if (res.status === 401 || res.status === 403) {
+                // non connecté → redirige vers login
+                window.location.href = '/login';
+                return;
+            }
 
-      var data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'unknown');
+            var data = await res.json();
+            if (!data.ok) throw new Error(data.error || 'unknown');
 
-      // Toggle visuel
-      if (data.active) {
-        el.classList.add('is-active');
-        el.setAttribute('data-active', '1');
-        el.setAttribute('title', 'Retirer des favoris');
-      } else {
-        el.classList.remove('is-active');
-        el.setAttribute('data-active', '0');
-        el.setAttribute('title', 'Ajouter aux favoris');
-      }
+            // Toggle visuel
+            if (data.active) {
+                el.classList.add('is-active');
+                el.setAttribute('data-active', '1');
+                el.setAttribute('title', 'Retirer des favoris');
+            } else {
+                el.classList.remove('is-active');
+                el.setAttribute('data-active', '0');
+                el.setAttribute('title', 'Ajouter aux favoris');
+            }
 
-      // Mettre à jour le badge header
-      if (typeof data.count !== 'undefined') {
-        updateHeaderFavCount(data.count);
-      }
-    } catch (e) {
-      console.error('favorite toggle error', e);
-    }
-  }
+            // Mettre à jour le badge header
+            if (typeof data.count !== 'undefined') {
+                updateHeaderFavCount(data.count);
+            }
+            } catch (e) {
+            console.error('favorite toggle error', e);
+            }
+        }
 
-  // Délégation d’événements (marche pour les cartes et la fiche produit)
-  document.addEventListener('click', function(e) {
-    var a = e.target.closest('.js-fav-toggle');
-    if (!a) return;
-    e.preventDefault();
-    toggleFavorite(a);
-  }, false);
-})();
-</script>
-
+        // Délégation d’événements (marche pour les cartes et la fiche produit)
+        document.addEventListener('click', function(e) {
+            var a = e.target.closest('.js-fav-toggle');
+            if (!a) return;
+            e.preventDefault();
+            toggleFavorite(a);
+        }, false);
+        })();
+    </script>
        {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
            

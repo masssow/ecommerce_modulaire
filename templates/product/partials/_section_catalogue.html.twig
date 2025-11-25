@@ -8,14 +8,12 @@
          Filtres Isotope (client-side)
          ======================== #}
       <div class="flex-w flex-l-m filter-tope-group m-tb-10">
-        <button
-          class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1"
-          data-filter="*"
-        >
-          Tous les produits
-        </button>
+      
+        {% include 'partials/_category_filter.html.twig' %}
 
-        {% set count = 0 %}
+    
+
+        {# {% set count = 0 %}
         {% for subCategory in subCategories|default([]) %}
           {% if count < 5 %}
             <button
@@ -30,22 +28,24 @@
 
         <a href="{{ path('app_category') }}" class="m-tb-5 stext-106 cl5 hov-cl1 trans-04">
           Voir toutes les catégories
-        </a>
+        </a> #}
       </div>
 
+     
       {# ========================
          Boutons Filter / Search
          ======================== #}
       <div class="flex-w flex-c-m m-tb-10">
+      {# STREAMS FILTER A VENIR #}
         {# <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
           <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
           <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
           Filtrer
         </div> #}
-
+        {# BARRE DE RECHERCHE #}
         <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
           <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
-          <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+          {# <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i> #}
           Rechercher
         </div>
       </div>
@@ -61,7 +61,8 @@
         action="{{ path('product_index') }}"
       >
         <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04" type="submit">
-          <i class="zmdi zmdi-search"></i>
+          {# <i class="zmdi zmdi-search"></i> #}
+          <i class="zmdi zmdi-close"></i>
         </button>
 
         <input

@@ -15,6 +15,12 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 class ReturnRequest
 {
+    public const STATUS_REQUESTED = 'requested';
+    public const STATUS_IN_REVIEW = 'in_review';
+    public const STATUS_APPROVED  = 'approved';
+    public const STATUS_REJECTED  = 'rejected';
+    public const STATUS_COMPLETED = 'completed';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -41,6 +47,8 @@ class ReturnRequest
     public function __construct()
     {
         $this->returnItems = new ArrayCollection();
+        $this->status      = self::STATUS_REQUESTED;
+        $this->requestedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int

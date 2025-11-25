@@ -14,9 +14,9 @@
         </p>
       </div>
       <div class="col-12 col-md-4 d-flex align-items-end justify-content-md-end p-t-20">
-        <a href="#return-form" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15">
-          Faire une demande de retour
-        </a>
+        {# <a href="#return-form" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15"> #}
+          {# Faire une demande de retour #}
+        {# </a> #}
       </div>
     </div>
 
@@ -46,10 +46,17 @@
       <div class="col-sm-6 col-md-4 p-b-30">
         <div class="p-t-10">
           <h3 class="stext-301 cl2 p-b-8">3. Retournez votre colis</h3>
-          <p class="stext-113 cl6">
-            Suivez les instructions reçues par email pour renvoyer votre colis ou effectuer un échange.
-          </p>
+          {# <p class="stext-113 cl6"> #}
+            {# Suivez les instructions reçues par email pour renvoyer votre colis ou effectuer un échange. #}
+          {# </p> #}
         </div>
+
+        <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end p-t-20">
+        <a href="{{ path('app_returnForm')}}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15">
+          Faire une demande de retour
+        </a>
+      </div>
+    </div>
       </div>
     </div>
 

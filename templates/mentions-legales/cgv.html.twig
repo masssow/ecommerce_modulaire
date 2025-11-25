@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions Générales de Vente - Lacrose{% endblock %}
+
+{% block body %}
+<section class="bg0 p-t-75 p-b-120">
+  <div class="container">
+    <div class="row p-b-32">
+      <div class="col-12">
+        <h1 class="mtext-111 cl2 p-b-12">Conditions Générales de Vente</h1>
+        <p class="stext-113 cl6">
+          Dernière mise à jour : JJ/MM/AAAA
+        </p>
+      </div>
+    </div>
+
+    {# Sommaire #}
+    <div class="row p-b-32">
+      <div class="col-12 col-md-4">
+        <div class="bor16 p-3">
+          <h2 class="stext-301 cl2 p-b-8">Sommaire</h2>
+          <ul class="stext-113 cl6">
+            <li class="p-b-6"><a href="#article-1" class="cl6 hov-cl1">1. Objet</a></li>
+            <li class="p-b-6"><a href="#article-2" class="cl6 hov-cl1">2. Commandes</a></li>
+            <li class="p-b-6"><a href="#article-3" class="cl6 hov-cl1">3. Prix</a></li>
+            <li class="p-b-6"><a href="#article-4" class="cl6 hov-cl1">4. Livraison</a></li>
+            <!-- etc. -->
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-8">
+        <div id="article-1" class="p-b-24">
+          <h2 class="mtext-111 cl2 p-b-8">1. Objet</h2>
+          <p class="stext-113 cl6">
+            [Contenu juridique...]
+          </p>
+        </div>
+
+        <div id="article-2" class="p-b-24">
+          <h2 class="mtext-111 cl2 p-b-8">2. Commandes</h2>
+          <p class="stext-113 cl6">
+            [Contenu...]
+          </p>
+        </div>
+
+        <div id="article-3" class="p-b-24">
+          <h2 class="mtext-111 cl2 p-b-8">3. Prix</h2>
+          <p class="stext-113 cl6">
+            [Contenu...]
+          </p>
+        </div>
+
+        {# etc pour CGU / Politique / Cookies #}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

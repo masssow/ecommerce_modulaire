@@ -144,6 +144,12 @@ class Order
     #[ORM\OneToMany(targetEntity: EmailLog::class, mappedBy: 'OrderRef')]
     private Collection $emailLogs;
 
+    /**
+     * @var Collection<int, SupportMessage>
+     */
+    #[ORM\OneToMany(targetEntity: SupportMessage::class, mappedBy: 'orderRequest')]
+    private Collection $supportMessages;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -153,6 +159,7 @@ class Order
         $this->disputes = new ArrayCollection();
         $this->orderItems = new ArrayCollection();
         $this->emailLogs = new ArrayCollection();
+        $this->supportMessages = new ArrayCollection();
     }
 
     /* ==================== Getters / Setters ==================== */
@@ -539,6 +546,36 @@ class Order
             // set the owning side to null (unless already changed)
             if ($emailLog->getOrderRef() === $this) {
                 $emailLog->setOrderRef(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SupportMessage>
+     */
+    public function getSupportMessages(): Collection
+    {
+        return $this->supportMessages;
+    }
+
+    public function addSupportMessage(SupportMessage $supportMessage): static
+    {
+        if (!$this->supportMessages->contains($supportMessage)) {
+            $this->supportMessages->add($supportMessage);
+            $supportMessage->setOrderRequest($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupportMessage(SupportMessage $supportMessage): static
+    {
+        if ($this->supportMessages->removeElement($supportMessage)) {
+            // set the owning side to null (unless already changed)
+            if ($supportMessage->getOrderRequest() === $this) {
+                $supportMessage->setOrderRequest(null);
             }
         }
 

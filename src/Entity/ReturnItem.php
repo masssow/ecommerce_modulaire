@@ -8,6 +8,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ReturnItemRepository::class)]
 class ReturnItem
 {
+    public const STATUS_REQUESTED = 'requested';
+    public const STATUS_APPROVED  = 'approved';
+    public const STATUS_REJECTED  = 'rejected';
+    public const STATUS_REFUNDED  = 'refunded';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -27,6 +32,12 @@ class ReturnItem
 
     #[ORM\ManyToOne(inversedBy: 'returnItems')]
     private ?OrderItem $orderItem = null;
+
+    public function __construct()
+    {
+        $this->status     = self::STATUS_REQUESTED;
+        $this->requestedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

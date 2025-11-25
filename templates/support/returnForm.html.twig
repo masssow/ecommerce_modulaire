@@ -1,0 +1,82 @@
+{# templates/support/returns.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Demande de retour - Lacrose{% endblock %}
+
+{% block body %}
+<section class="bg0 p-t-75 p-b-120">
+  <div class="container">
+
+    {# Hero + intro #}
+    <div class="row p-b-48">
+      <div class="col-12 col-lg-8">
+        <h1 class="mtext-111 cl2 p-b-12">Demande de retour</h1>
+        <p class="stext-113 cl6">
+          Vous disposez d’un délai de X jours après réception pour demander un retour, un échange ou un remboursement.
+          Remplissez ce formulaire, nous vous répondrons par email avec la procédure détaillée.
+        </p>
+      </div>
+    </div>
+
+    {# Formulaire dédié #}
+    <div class="row" id="return-form">
+      <div class="col-12 col-lg-8">
+        <h2 class="mtext-111 cl2 p-b-16">Formulaire de demande</h2>
+        <p class="stext-113 cl6 p-b-16">
+          Indiquez votre numéro de commande et le type de demande. Nous reviendrons vers vous rapidement.
+        </p>
+
+        <form method="post" action="{{ path('app_returnForm') }}">
+          <div class="row">
+            <div class="col-12 p-b-16">
+              <label class="stext-102 cl3">Adresse email *</label>
+              <input type="email" name="email" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15"
+                     value="{{ prefilled_email is defined and prefilled_email ? prefilled_email : (app.user ? app.user.email : '') }}">
+            </div>
+
+            <div class="col-12 col-md-6 p-b-16">
+              <label class="stext-102 cl3">Numéro de commande *</label>
+              <input type="text" name="order_number" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15"
+                     placeholder="Ex : LAC-2025-000123">
+            </div>
+
+            <div class="col-12 col-md-6 p-b-16">
+              <label class="stext-102 cl3">Type de demande *</label>
+              <select name="request_kind" required
+                      class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15">
+                <option value="">Sélectionner...</option>
+                <option value="return">Retour</option>
+                <option value="exchange">Échange</option>
+                <option value="refund">Demande de remboursement</option>
+                <option value="credit">Avoir</option>
+              </select>
+            </div>
+
+            <div class="col-12 p-b-16">
+              <label class="stext-102 cl3">Motif *</label>
+              <input type="text" name="reason" required
+                     class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15"
+                     placeholder="Précisez le motif de votre retour">
+            </div>
+
+            <div class="col-12 p-b-24">
+              <label class="stext-102 cl3">Message (optionnel)</label>
+              <textarea name="message" rows="4"
+                        class="form-control stext-111 cl2 p-t-10 p-b-10 p-l-15 p-r-15"
+                        placeholder="Informations complémentaires (articles concernés, photos, etc.)"></textarea>
+            </div>
+          </div>
+
+          <button type="submit"
+                  class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15">
+            Envoyer ma demande
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

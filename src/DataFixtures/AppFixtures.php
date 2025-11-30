@@ -147,7 +147,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
         $subNames = [
             ['Soins visage', 'Maquillage', 'Accessoires'],
             ['Eaux de parfum', 'Eaux de toilette', 'Coffrets'],
-            ['Bazin', 'Wax', 'Broderies'],
+            ['Mode Femme', 'Mode Homme', 'Enfants'],
             ['Décoration murale', 'Bougies', 'Textiles maison'],
         ];
 
@@ -200,7 +200,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                     $baseName = match ($catName) {
                         'Beauté'       => $faker->randomElement(['Crème hydratante', 'Sérum éclat', 'Gommage doux', 'Masque purifiant', 'Maquillage set']),
                         'Parfum'       => $faker->randomElement(['Eau de parfum Ambre', 'Eau de toilette Citrus', 'Coffret Découverte', 'Musc Blanc']),
-                        'Couture Afro' => $faker->randomElement(['Bazin premium', 'Wax Ankara', 'Tissu brodé', 'Boubou sur-mesure']),
+                        'Couture Afro' => $faker->randomElement(['Grand Boubou Ndadan Homme', 'Robe Ankara Femme', 'Robe swee princesse fille', 'Boubou garçon']),
                         default        => $faker->randomElement(['Déco murale', 'Bougie parfumée', 'Coussin motif', 'Tapis tissé']),
                     };
                     $name = $baseName . ' ' . $faker->unique()->numberBetween(100, 999);
@@ -237,7 +237,45 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
             for ($v = 0; $v < 3; $v++) {
                 $variant = new ProductVariant();
                 $variant->setProduct($product);
-                $variant->setSlug('var-' . $idx . '-' . $v);
+
+                /* ---------- Attributs selon catégorie ---------- */
+                $variantAttrs = match ($catName) {
+
+                    'Parfum' => [
+                        'volume' => $faker->randomElement(['30ml', '50ml', '100ml']),
+                    ],
+
+                    'Couture Afro' => [
+                        'taille' => $faker->randomElement(['S', 'M', 'L', 'XL']),
+                        'couleur' => $faker->randomElement(['Rouge', 'Bleu', 'Vert', 'Jaune']),
+                    ],
+
+                    'Beauté' => [
+                        'pack' => $faker->randomElement(['30ml', '50ml']),
+                    ],
+
+                    default => [
+                        'option' => $faker->randomElement(['A', 'B', 'C']),
+                    ]
+                };
+
+                /* ---------- Nom Variant lisible ---------- */
+                $baseName = $product->getName();
+
+                // Exemple : "Grand Boubou Ndadan Homme 456 – taille: L, couleur: Rouge"
+                $variantName =
+                    $baseName . ' – ' .
+                    implode(', ', array_map(
+                        fn($k, $v) => "$k: $v",
+                        array_keys($variantAttrs),
+                        $variantAttrs
+                    ));
+
+                $variant->setName($variantName);
+
+                /* ---------- Slug propre ---------- */
+                $variant->setSlug($this->slug($variantName));
+
 
                 // Prix via Money
                 $base = $faker->numberBetween(800, 15000);
@@ -246,20 +284,18 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                 $variant->setPriceAmount($amount)->setPriceCurrency('EUR');
 
                 // Attributs
-                $variant->setAttributes([
-                    'size'   => $faker->randomElement(['XS', 'S', 'M', 'L', 'XL']),
-                    'color'  => $faker->randomElement(['A', 'B', 'C']),
-                    'volume' => $faker->randomElement(['30ml', '50ml', '100ml']),
-                ]);
+                $variant->setAttributes($variantAttrs);
+
 
                 // Stock OneToOne
-                $variant->setStockQty($faker->numberBetween(5, 80));
-                // reserved NOT NULL -> 0 si besoin
+                $qty = $faker->numberBetween(5, 80);
+                $variant->setStockQty($qty);
+
+                // Reserved fix
                 $inv = $variant->getInventoryStock();
                 if ($inv && $inv->getReserved() === null) {
                     $inv->setReserved(0);
                 }
-
                 // ⬇️ Assigne un NOM DE FICHIER existant dans uploads/productVariant
                 $variant->setImageName($pickVariantImage());
 
@@ -270,9 +306,9 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
             }
         }
 
-        // 44 variantes en promotion = -20%
+        // 10 variantes en promotion = -20%
         shuffle($variants);
-        $promoCount = min(44, count($variants));
+        $promoCount = min(10, count($variants));
         for ($i = 0; $i < $promoCount; $i++) {
             $va = $variants[$i];
             $va->setPriceAmount((int) max(1, round($va->getPriceAmount() * 0.8)));

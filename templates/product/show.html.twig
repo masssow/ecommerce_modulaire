@@ -1,22 +1,29 @@
+{# templates/product/show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}
-  {{ (variant is defined and variant.product ? variant.product.name : (product.product is defined ? product.product.name : (product.name ?? 'Produit'))) }}
+  {% set titleProduct =
+    currentVariant is defined and currentVariant.product
+      ? currentVariant.product.name
+      : (product is defined and product.name ? product.name : 'Produit')
+  %}
+  {{ titleProduct }}
 {% endblock %}
 
 {% block body %}
 
 {# ---------------- Normalisation des variables ---------------- #}
-{% set currentVariant =
-  variant is defined ? variant :
-  (product is defined and product.priceAmount is defined ? product : null)
+{% set currentVariant = currentVariant is defined ? currentVariant : null %}
+{% set currentProduct =
+  (currentVariant and currentVariant.product)
+    ? currentVariant.product
+    : (product is defined ? product : null)
 %}
-{% set p =
-  (currentVariant and currentVariant.product is defined) ? currentVariant.product :
-  (product is defined and product.product is defined ? product.product :
-   (product is defined and product.name is defined ? product : null))
+{% set currency =
+  (currentVariant and currentVariant.priceCurrency is defined)
+    ? currentVariant.priceCurrency
+    : 'EUR'
 %}
-{% set currency = (currentVariant and currentVariant.priceCurrency is defined) ? currentVariant.priceCurrency : 'EUR' %}
 
 {# =================== Breadcrumb =================== #}
 <div class="container">
@@ -25,15 +32,28 @@
       Accueil <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
     </a>
 
-    {% if p and p.subCategory is defined and p.subCategory %}
-      <a href="#"
+    {% if currentProduct and currentProduct.subCategory %}
+      {% set sub = currentProduct.subCategory %}
+      {% set cat = sub.categorie is defined ? sub.categorie : null %}
+
+      {% if cat %}
+        <a href="{{ path('category_show', {'id': cat.id}) }}"
+           class="stext-109 cl8 hov-cl1 trans-04">
+          {{ cat.name }}
+        </a>
+        <span class="stext-109 cl4 m-l-6 m-r-6">/</span>
+      {% endif %}
+
+      <a href="{{ path('category_show', {'id': sub.id}) }}"
          class="stext-109 cl8 hov-cl1 trans-04">
-        {{ p.subCategory.name }}
-        <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        {{ sub.name }}
       </a>
+      <span class="stext-109 cl4 m-l-6 m-r-6">/</span>
     {% endif %}
 
-    <span class="stext-109 cl4">{{ p ? p.name : 'Produit' }}</span>
+    <span class="stext-109 cl4">
+      {{ currentProduct ? currentProduct.name : 'Produit' }}
+    </span>
   </div>
 </div>
 
@@ -50,36 +70,36 @@
             <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
 
             <div class="slick3 gallery-lb">
-              {# 1) tableau d’images du variant #}
+              {# 1) images attachées à la variante (tableau) #}
               {% if currentVariant and currentVariant.images is defined and currentVariant.images|length > 0 %}
                 {% for img in currentVariant.images %}
-                  {% set src = asset('uploads/productVariant/' ~ (img.imageName ?? img)) %}
+                  {% set src = asset('uploads/productVariant/' ~ (img.imageName is defined ? img.imageName : img)) %}
                   <div class="item-slick3" data-thumb="{{ src }}">
                     <div class="wrap-pic-w pos-relative">
-                      <img src="{{ src }}" alt="{{ p ? p.name : 'Image produit' }}">
+                      <img src="{{ src }}" alt="{{ currentProduct ? currentProduct.name : 'Image produit' }}">
                       <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ src }}">
                         <i class="fa fa-expand"></i>
                       </a>
                     </div>
                   </div>
                 {% endfor %}
-              {# 2) imageName du variant #}
-              {% elseif currentVariant and currentVariant.imageName is defined and currentVariant.imageName %}
+              {# 2) imageName seule sur la variante #}
+              {% elseif currentVariant and currentVariant.imageName %}
                 {% set src = asset('uploads/productVariant/' ~ currentVariant.imageName) %}
                 <div class="item-slick3" data-thumb="{{ src }}">
                   <div class="wrap-pic-w pos-relative">
-                    <img src="{{ src }}" alt="{{ p ? p.name : 'Image produit' }}">
+                    <img src="{{ src }}" alt="{{ currentProduct ? currentProduct.name : 'Image produit' }}">
                     <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{ src }}">
                       <i class="fa fa-expand"></i>
                     </a>
                   </div>
                 </div>
-              {# 3) Placeholder #}
+              {# 3) fallback placeholder #}
               {% else %}
                 {% set src = asset('images/placeholder-image.png') %}
                 <div class="item-slick3" data-thumb="{{ src }}">
                   <div class="wrap-pic-w pos-relative">
-                    <img src="{{ src }}" alt="{{ p ? p.name : 'Image produit' }}">
+                    <img src="{{ src }}" alt="{{ currentProduct ? currentProduct.name : 'Image produit' }}">
                   </div>
                 </div>
               {% endif %}
@@ -92,23 +112,26 @@
       <div class="col-md-6 col-lg-5 p-b-30">
         <div class="p-r-50 p-t-5 p-lr-0-lg">
           <h4 class="mtext-105 cl2 js-name-detail p-b-14">
-            {{ p ? p.name : 'Produit' }}
+            {{ currentProduct ? currentProduct.name : 'Produit' }}
           </h4>
 
           <span class="mtext-106 cl2">
             {{ ((currentVariant.priceAmount ?? 0) / 100) | number_format(2, ',', ' ') }} €
           </span>
 
-          {% if currentVariant.compareAtAmount is defined
+          {# compareAt (si présent) #}
+          {% if currentVariant
+                and currentVariant.compareAtAmount is defined
                 and currentVariant.compareAtAmount
-                and currentVariant.compareAtAmount > (currentVariant.priceAmount ?? 0) %}
+                and currentVariant.compareAtAmount > (currentVariant.priceAmount ?? 0)
+          %}
             <span class="stext-105 cl3 p-l-10">
               <s>{{ (currentVariant.compareAtAmount / 100) | number_format(2, ',', ' ') }} €</s>
             </span>
           {% endif %}
 
           <p class="stext-102 cl3 p-t-23">
-            {{ p and p.description ? p.description : '' }}
+            {{ currentProduct and currentProduct.description ? currentProduct.description : '' }}
           </p>
 
           {# -------- Options + quantité + bouton -------- #}
@@ -119,7 +142,12 @@
                   <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
                     <i class="fs-16 zmdi zmdi-minus"></i>
                   </div>
-                  <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" id="qty" value="1" min="1">
+                  <input class="mtext-104 cl3 txt-center num-product"
+                         type="number"
+                         name="num-product"
+                         id="qty"
+                         value="1"
+                         min="1">
                   <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
                     <i class="fs-16 zmdi zmdi-plus"></i>
                   </div>
@@ -141,7 +169,7 @@
     </div>
 
     {# -------- Description + infos + avis (sans onglets) -------- #}
-    {% set descriptionFull = p and p.description ? p.description : '—' %}
+    {% set descriptionFull = currentProduct and currentProduct.description ? currentProduct.description : '—' %}
     {% set descLimit = 220 %}
     {% set descriptionPreview = descriptionFull|length > descLimit
       ? descriptionFull|slice(0, descLimit) ~ '…'
@@ -152,12 +180,10 @@
       <div class="p-lr-15-md">
         <h5 class="mtext-108 cl2 p-b-12">Description</h5>
 
-        {# Aperçu #}
         <p class="stext-102 cl6 js-desc-preview">
           {{ descriptionPreview|nl2br }}
         </p>
 
-        {# Description complète masquée + bouton Voir plus / Voir moins #}
         {% if descriptionFull|length > descLimit %}
           <p class="stext-102 cl6 js-desc-full dis-none m-t-10">
             {{ descriptionFull|nl2br }}
@@ -184,9 +210,9 @@
         </button>
 
         <div id="mg-extra-info" class="mg-collapse dis-none p-t-15">
-          {% if product is defined and product.attributes is defined and product.attributes|length > 0 %}
+          {% if currentProduct is defined and currentProduct.attributes is defined and currentProduct.attributes|length > 0 %}
             <ul class="p-lr-15-sm">
-              {% for name, value in product.attributes %}
+              {% for name, value in currentProduct.attributes %}
                 <li class="p-b-10">
                   <p class="stext-102 cl3 m-b-2">{{ name|title }}</p>
                   <p class="stext-102 cl6">{{ value }}</p>
@@ -216,7 +242,6 @@
 
         <div id="mg-reviews" class="mg-collapse dis-none p-t-15">
           <div class="p-b-30">
-            {# Liste des avis #}
             {% if reviews is defined and reviews|length > 0 %}
               {% for r in reviews %}
                 <div class="flex-w flex-t p-b-30">
@@ -246,7 +271,6 @@
               <p class="stext-102 cl6">Aucun avis pour l’instant.</p>
             {% endif %}
 
-            {# Formulaire d’avis #}
             <form class="w-full" method="post" action="#">
               <h5 class="mtext-108 cl2 p-b-7">Ajouter un avis</h5>
               <p class="stext-102 cl6">Votre email ne sera pas publié. Champs requis *</p>
@@ -266,15 +290,23 @@
               <div class="p-b-25">
                 <div class="p-b-5">
                   <label class="stext-102 cl3" for="review">Votre avis</label>
-                  <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10" id="review" name="review"></textarea>
+                  <textarea class="size-110 bor8 stext-102 cl2 p-lr-20 p-tb-10"
+                            id="review"
+                            name="review"></textarea>
                 </div>
                 <div class="p-b-5">
                   <label class="stext-102 cl3" for="name">Nom *</label>
-                  <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="name" type="text" name="name">
+                  <input class="size-111 bor8 stext-102 cl2 p-lr-20"
+                         id="name"
+                         type="text"
+                         name="name">
                 </div>
                 <div class="p-b-5">
                   <label class="stext-102 cl3" for="email">Email *</label>
-                  <input class="size-111 bor8 stext-102 cl2 p-lr-20" id="email" type="email" name="email">
+                  <input class="size-111 bor8 stext-102 cl2 p-lr-20"
+                         id="email"
+                         type="email"
+                         name="email">
                 </div>
               </div>
 
@@ -288,7 +320,7 @@
       </div>
     </div>
 
-  </div> {# /container #}
+  </div>
 </section>
 
 {# =================== Produits liés -> "Vous aimeriez aussi" =================== #}
@@ -305,22 +337,29 @@
             <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
               <div class="block2">
                 <div class="block2-pic hov-img0">
-                  <img src="{{ rp.imageUrl is defined ? rp.imageUrl : asset('images/placeholder-image.png') }}" alt="{{ rp.name }}">
-                  <a href="{{ path('product_show', { id: rp.id }) }}"
+                  <img src="{{ rp.imageUrl is defined ? rp.imageUrl : asset('images/placeholder-image.png') }}"
+                       alt="{{ rp.name }}">
+
+                  <a href="{{ path('product_show', {
+                        productSlug: rp.productSlug,
+                        variantSlug: rp.variantSlug
+                      }) }}"
                      class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                     Voir
                   </a>
                 </div>
                 <div class="block2-txt flex-w flex-t p-t-14">
                   <div class="block2-txt-child1 flex-col-l">
-                    <a href="{{ path('product_show', { id: rp.id }) }}"
-                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">{{ rp.name }}</a>
+                    <a href="{{ path('product_show', {
+                          productSlug: rp.productSlug,
+                          variantSlug: rp.variantSlug
+                        }) }}"
+                       class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                      {{ rp.name }}
+                    </a>
                     <span class="stext-105 cl3">
                       {{ ((rp.priceAmount ?? 0) / 100) | number_format(2, ',', ' ') }} €
                     </span>
-                  </div>
-                  <div class="block2-txt-child2 flex-r p-t-3">
-                    {# Place pour favoris plus tard #}
                   </div>
                 </div>
               </div>
@@ -438,7 +477,6 @@
     var stickyUp = document.querySelector('.js-sticky-qty-up');
 
     if (mainQty && stickyQty) {
-      // init
       stickyQty.value = mainQty.value;
 
       mainQty.addEventListener('input', function () {
@@ -472,10 +510,8 @@
         mainQty.value = val;
       });
     }
-
-    // La classe .js-addcart-detail est déjà utilisée par ton JS global "add to cart"
-    // La version sticky réutilise cette même classe.
   })();
 </script>
 
 {% endblock %}
+

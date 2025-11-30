@@ -110,6 +110,17 @@ class ProductRepository extends ServiceEntityRepository
         return $qb->getQuery()->getArrayResult();
     }
 
+    public function findOneWithVariantsBySlug(string $slug): ?Product
+    {
+        return $this->createQueryBuilder('p')
+            ->leftJoin('p.productVariants', 'v')->addSelect('v')
+            ->leftJoin('p.subCategory', 's')->addSelect('s')
+            ->leftJoin('s.categorie', 'c')->addSelect('c')
+            ->andWhere('p.slug = :slug')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
 
     //    /**

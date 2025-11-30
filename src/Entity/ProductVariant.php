@@ -76,6 +76,17 @@ class ProductVariant
     )]
     private Collection $favorites;
 
+    #[ORM\Column(length: 255)]
+    private ?string $name = null;
+
+    public function __toString(): string
+    {
+        $p = $this->getProduct()?->getName() ?? 'Produit';
+        $v = $this->name ?? 'Variante';
+        return "$p – $v";
+    }
+
+
     public function __construct()
     {
         $this->price = new Money(0, 'EUR'); // valeur par défaut
@@ -317,6 +328,18 @@ class ProductVariant
                 $favorite->setProductVariant(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }

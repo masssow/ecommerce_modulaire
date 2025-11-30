@@ -162,6 +162,17 @@ class Order
         $this->supportMessages = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        // Si tu as un number propre, on l’utilise
+        if ($this->number) {
+            // Avec la date pour être encore plus lisible en back-office
+            $date = $this->createdAt?->format('d/m/Y H:i') ?? '';
+            return sprintf('Commande %s (%s)', $this->number, $date);
+        }
+        return 'Commande #' . ($this->id ?? 0);
+    }
+
     /* ==================== Getters / Setters ==================== */
 
     public function getId(): ?int

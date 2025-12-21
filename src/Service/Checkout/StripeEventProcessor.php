@@ -38,6 +38,7 @@ final class StripeEventProcessor
             case 'checkout.session.completed':
                 /** @var \Stripe\Checkout\Session $s */
                 $s = $event->data->object;
+
                 $this->logger?->info('[StripeEventProcessor] checkout.session.completed received', [
                     'session_id'        => $s->id ?? null,
                     'payment_status'    => $s->payment_status ?? null,
@@ -71,11 +72,12 @@ final class StripeEventProcessor
             case 'payment_intent.succeeded':
                 /** @var \Stripe\PaymentIntent $pi */
                 $pi = $event->data->object;
+
                 $this->logger?->info('[StripeEventProcessor] payment_intent.succeeded received', [
-                    'pi_id'     => $pi->id ?? null,
-                    'order_id'  => $pi->metadata['order_id'] ?? null,
-                    'amount'    => $pi->amount_received ?? $pi->amount ?? null,
-                    'currency'  => $pi->currency ?? null,
+                    'pi_id'    => $pi->id ?? null,
+                    'order_id' => $pi->metadata['order_id'] ?? null,
+                    'amount'   => $pi->amount_received ?? $pi->amount ?? null,
+                    'currency' => $pi->currency ?? null,
                 ]);
 
                 $order = $this->resolveOrderByMetadata(
@@ -102,6 +104,7 @@ final class StripeEventProcessor
             case 'payment_intent.payment_failed':
                 /** @var \Stripe\PaymentIntent $pi */
                 $pi = $event->data->object;
+
                 $this->logger?->info('[StripeEventProcessor] payment_intent.payment_failed received', [
                     'pi_id'    => $pi->id ?? null,
                     'order_id' => $pi->metadata['order_id'] ?? null,
@@ -132,6 +135,7 @@ final class StripeEventProcessor
         }
 
         $this->em->flush();
+
         $this->logger?->info('[StripeEventProcessor] Flush done for event', [
             'type' => $event->type ?? null,
         ]);
@@ -187,51 +191,51 @@ final class StripeEventProcessor
         $alreadyPaid = ($old === 'paid');
 
         if ($alreadyPaid) {
-            // 👀 On ne touche pas à la DB (status/payment) mais on log
-            $this->logger?->info('[StripeEventProcessor] Order already paid, skipping status/payment update but will still trigger mailer.', [
+            // 👀 Idempotence minimale : pas de mise à jour DB, pas d'email
+            $this->logger?->info('[StripeEventProcessor] Order already paid: skipping status/payment update AND email ✅', [
                 'orderId'   => $order->getId(),
                 'number'    => $order->getNumber(),
                 'oldStatus' => $old,
                 'amountCts' => $amountCts,
                 'currency'  => $currency,
             ]);
-        } else {
-            // 🟢 Première fois qu’on la voit payée : on met à jour Order + Payment
-            $this->logger?->info('[StripeEventProcessor] Marking order as paid', [
-                'orderId'   => $order->getId(),
-                'number'    => $order->getNumber(),
-                'oldStatus' => $old,
-                'amountCts' => $amountCts,
-                'currency'  => $currency,
-            ]);
-
-            $order->setStatus('paid');
-
-            // === Payment lié à la commande ===
-            $paymentRepo = $this->em->getRepository(\App\Entity\Payment::class);
-            $payment     = $paymentRepo->findOneBy(['orders' => $order]) ?? new \App\Entity\Payment();
-
-            $payment
-                ->setOrders($order)
-                ->setStatus('succeeded')
-                ->setPaidAt(new \DateTimeImmutable())
-                ->setAmount($amountCts)
-                ->setCurrency(strtoupper($currency))
-                ->setTransactionId($paymentIntentId);
-
-            $this->em->persist($payment);
+            return;
         }
+
+        // 🟢 Première fois qu’on la voit payée : on met à jour Order + Payment
+        $this->logger?->info('[StripeEventProcessor] Marking order as paid', [
+            'orderId'   => $order->getId(),
+            'number'    => $order->getNumber(),
+            'oldStatus' => $old,
+            'amountCts' => $amountCts,
+            'currency'  => $currency,
+        ]);
+
+        $order->setStatus('paid');
+
+        // === Payment lié à la commande ===
+        $paymentRepo = $this->em->getRepository(Payment::class);
+        $payment     = $paymentRepo->findOneBy(['orders' => $order]) ?? new Payment();
+
+        $payment
+            ->setOrders($order)
+            ->setStatus('succeeded')
+            ->setPaidAt(new \DateTimeImmutable())
+            ->setAmount($amountCts)                 // centimes
+            ->setCurrency(strtoupper($currency))    // "EUR"
+            ->setTransactionId($paymentIntentId);
+
+        $this->em->persist($payment);
 
         // Ancien service désactivé pour 'paid' (on évite le double envoi côté ancien pipeline)
         // $this->emails?->sendOnStatusChange($order, $old, 'paid');
 
-        // 👇 Nouveau mail de confirmation, même si la commande était déjà "paid"
+        // ✅ Email uniquement lors de la transition vers "paid" (1 seule fois)
         if ($this->simpleMailer) {
             try {
-                $this->logger?->info('[StripeEventProcessor] SimpleOrderMailer present, sending paid email...', [
+                $this->logger?->info('[StripeEventProcessor] Sending paid email (first transition) ...', [
                     'orderId' => $order->getId(),
                     'number'  => $order->getNumber(),
-                    'alreadyPaid' => $alreadyPaid,
                 ]);
 
                 $this->simpleMailer->sendStatusEmail($order, 'paid');
@@ -255,7 +259,6 @@ final class StripeEventProcessor
         }
     }
 
-
     private function markPaymentFailed(Order $order, string $reason): void
     {
         $old = $order->getStatus();
@@ -270,7 +273,7 @@ final class StripeEventProcessor
         $order->setStatus('cancelled');
 
         $paymentRepo = $this->em->getRepository(Payment::class);
-        $payment = $paymentRepo->findOneBy(['orders' => $order]) ?? new Payment();
+        $payment     = $paymentRepo->findOneBy(['orders' => $order]) ?? new Payment();
 
         $payment
             ->setOrders($order)

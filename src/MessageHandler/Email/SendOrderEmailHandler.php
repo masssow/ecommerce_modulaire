@@ -40,8 +40,8 @@ final class SendOrderEmailHandler
         $fromName  = $_ENV['APP_EMAIL_FROM_NAME'] ?? 'Lacrose Shop';
 
         $template = match ($msg->type) {
-            'paid'   => 'email/order_paid.html.twig',
-            'failed' => 'email/order_failed.html.twig',
+            'paid'   => 'emails/order_paid.html.twig',
+            'failed' => 'emails/order_failed.html.twig',
             default  => 'email/order_paid.html.twig',
         };
 

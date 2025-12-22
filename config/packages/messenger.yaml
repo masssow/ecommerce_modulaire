@@ -4,7 +4,6 @@ framework:
     enabled: true
     default_bus: messenger.bus.default
     failure_transport: failed
-
     transports:
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
@@ -13,12 +12,9 @@ framework:
       failed:
         dsn: 'doctrine://default?queue_name=failed'
         options: { table_name: messenger_messages }
-
     routing:
       # ✅ on route UNIQUEMENT notre message métier
       App\Message\Email\SendOrderEmail: async
-
       # Symfony\Component\Notifier\Message\ChatMessage: async
       # Symfony\Component\Notifier\Message\SmsMessage: async
-
     stop_worker_on_signals: []

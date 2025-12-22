@@ -1,20 +1,13 @@
-# config/packages/messenger.yaml
 framework:
   messenger:
-    enabled: true
-    default_bus: messenger.bus.default
-    failure_transport: failed
     transports:
+      sync: 'sync://'
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
         options: { table_name: messenger_messages }
-        retry_strategy: { max_retries: 3, delay: 1000, multiplier: 2, jitter: 0.1 }
       failed:
         dsn: 'doctrine://default?queue_name=failed'
         options: { table_name: messenger_messages }
+
     routing:
-      # ✅ on route UNIQUEMENT notre message métier
-      App\Message\Email\SendOrderEmail: async
-      # Symfony\Component\Notifier\Message\ChatMessage: async
-      # Symfony\Component\Notifier\Message\SmsMessage: async
-    stop_worker_on_signals: []
+      App\Message\Email\SendOrderEmail: sync

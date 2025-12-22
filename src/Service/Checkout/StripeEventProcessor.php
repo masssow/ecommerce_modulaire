@@ -192,7 +192,7 @@ final class StripeEventProcessor
 
         if ($alreadyPaid) {
             // 👀 Idempotence minimale : pas de mise à jour DB, pas d'email
-            $this->logger?->info('[StripeEventProcessor] Order already paid: skipping status/payment update AND email ✅', [
+            $this->logger?->info('[StripeEventProcessor] Order already paid: skipping status/payment update AND email ✅(envoi', [
                 'orderId'   => $order->getId(),
                 'number'    => $order->getNumber(),
                 'oldStatus' => $old,
@@ -231,32 +231,32 @@ final class StripeEventProcessor
         // $this->emails?->sendOnStatusChange($order, $old, 'paid');
 
         // ✅ Email uniquement lors de la transition vers "paid" (1 seule fois)
-        if ($this->simpleMailer) {
-            try {
-                $this->logger?->info('[StripeEventProcessor] Sending paid email (first transition) ...', [
-                    'orderId' => $order->getId(),
-                    'number'  => $order->getNumber(),
-                ]);
+        // if ($this->simpleMailer) {
+        //     try {
+        //         $this->logger?->info('[StripeEventProcessor] Sending paid email (first transition) ...', [
+        //             'orderId' => $order->getId(),
+        //             'number'  => $order->getNumber(),
+        //         ]);
 
-                $this->simpleMailer->sendStatusEmail($order, 'paid');
+        //         $this->simpleMailer->sendStatusEmail($order, 'paid');
 
-                $this->logger?->info('[StripeEventProcessor] Paid email sent via SimpleOrderMailer ✅', [
-                    'orderId' => $order->getId(),
-                    'number'  => $order->getNumber(),
-                ]);
-            } catch (\Throwable $e) {
-                $this->logger?->error('[StripeEventProcessor] Failed to send paid email', [
-                    'orderId' => $order->getId(),
-                    'number'  => $order->getNumber(),
-                    'error'   => $e->getMessage(),
-                ]);
-            }
-        } else {
-            $this->logger?->warning('[StripeEventProcessor] SimpleOrderMailer is NULL, no email sent.', [
-                'orderId' => $order->getId(),
-                'number'  => $order->getNumber(),
-            ]);
-        }
+        //         $this->logger?->info('[StripeEventProcessor] Paid email sent via SimpleOrderMailer ✅', [
+        //             'orderId' => $order->getId(),
+        //             'number'  => $order->getNumber(),
+        //         ]);
+        //     } catch (\Throwable $e) {
+        //         $this->logger?->error('[StripeEventProcessor] Failed to send paid email', [
+        //             'orderId' => $order->getId(),
+        //             'number'  => $order->getNumber(),
+        //             'error'   => $e->getMessage(),
+        //         ]);
+        //     }
+        // } else {
+        //     $this->logger?->warning('[StripeEventProcessor] SimpleOrderMailer is NULL, no email sent.', [
+        //         'orderId' => $order->getId(),
+        //         'number'  => $order->getNumber(),
+        //     ]);
+        // }
     }
 
     private function markPaymentFailed(Order $order, string $reason): void

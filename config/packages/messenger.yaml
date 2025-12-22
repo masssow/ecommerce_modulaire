@@ -30,12 +30,11 @@ framework:
 
     routing:
       # ⚠️ FORCER LES EMAILS EN SYNCHRONE
-      Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+     
       App\Message\Email\SendOrderEmail: sync
 
       # Le reste peut rester async si tu veux
       Symfony\Component\Notifier\Message\ChatMessage: async
       Symfony\Component\Notifier\Message\SmsMessage: async
-      App\Message\*: async
 
     stop_worker_on_signals: []

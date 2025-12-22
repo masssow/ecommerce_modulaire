@@ -1,0 +1,117 @@
+{# templates/emails/order_failed.html.twig #}
+{% set locale = app.request is defined ? app.request.locale : 'fr' %}
+{% set currency = 'EUR' %}
+{% set orderNumber = order.number ?? order.id %}
+{% set displayTotalCents =
+  (total is defined and total)
+    ? total
+    : (order.total is defined ? order.total : (order.grandTotal is defined ? order.grandTotal : null))
+%}
+{% set subject = subject ?? ('Paiement refusé — Commande #' ~ orderNumber) %}
+{% set status = status ?? 'failed' %}
+{% set reason = reason ?? 'Paiement non abouti' %}
+
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ subject }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; padding:0; background:#f3f4f6; }
+      .wrap { max-width: 620px; margin: 0 auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.05);}
+      .header { background:#0e7490; color:#fff; padding:20px 24px; }
+      .content { padding:24px; color:#111827; }
+      .muted { color:#6b7280; font-size:13px; }
+      .footer { color:#6b7280; font-size:12px; padding:16px 24px 24px; }
+      .table { width:100%; border-collapse:collapse; margin-top:16px; }
+      .table th, .table td { padding:8px 0; border-bottom:1px solid #e5e7eb; text-align:left; font-size:14px; }
+      .badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#fee2e2; color:#991b1b; font-size:12px; }
+      .warning { background:#fff7ed; color:#9a3412; padding:12px 14px; border-radius:12px; border:1px solid #fed7aa; margin-top:12px; }
+      .btn { display:inline-block; margin-top:14px; padding:10px 14px; background:#0e7490; color:#fff; text-decoration:none; border-radius:10px; font-size:14px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <h2 style="margin:0;">{{ subject }}</h2>
+      </div>
+
+      <div class="content">
+        <p>
+          Bonjour
+          {% if order.customer is defined and order.customer.user is defined and order.customer.user.firstname is not null %}
+            {{ order.customer.user.firstname }},
+          {% else %}
+            cher client,
+          {% endif %}
+        </p>
+
+        <p>
+          Le paiement de votre commande <strong>#{{ orderNumber }}</strong> n’a pas pu être finalisé.
+          <span class="badge">{{ status|trans }}</span>
+        </p>
+
+        {% if order.createdAt is defined %}
+          <p class="muted">
+            Commande passée le {{ order.createdAt|date('d/m/Y à H:i') }}.
+          </p>
+        {% endif %}
+
+        {% if displayTotalCents is not null %}
+          {% set total_eur = displayTotalCents / 100 %}
+          <p>
+            <strong>Total :</strong>
+            {{ total_eur|number_format(2, ',', ' ') }} {{ currency }}
+          </p>
+        {% endif %}
+
+        <div class="warning">
+          <strong>Raison :</strong> {{ reason }}
+          <div class="muted" style="margin-top:6px;">
+            Vous pouvez réessayer le paiement depuis votre espace client. Si le problème persiste, contactez-nous.
+          </div>
+        </div>
+
+        {% if order.items is defined and order.items|length > 0 %}
+          <h3 style="margin-top:18px;">Récapitulatif de la commande</h3>
+          <table class="table" role="presentation" aria-hidden="true">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Qté</th>
+                <th>Prix</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items %}
+                {% set unitCents =
+                  item.unitPrice is defined ? item.unitPrice
+                  : (item.price is defined ? item.price : 0)
+                %}
+                {% set unit = unitCents / 100 %}
+                <tr>
+                  <td>{{ item.productName ?? item.name }}</td>
+                  <td>{{ item.quantity ?? 1 }}</td>
+                  <td>{{ unit|number_format(2, ',', ' ') }} {{ currency }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+
+        {% if retryUrl is defined and retryUrl %}
+          <a class="btn" href="{{ retryUrl }}">Réessayer le paiement</a>
+        {% endif %}
+
+        <p class="muted" style="margin-top:16px;">
+          Si vous n’êtes pas à l’origine de cette commande, merci de nous contacter immédiatement.
+        </p>
+      </div>
+
+      <div class="footer">
+        Boutique Sandbox · sandbox.massgrafik.com
+      </div>
+    </div>
+  </body>
+</html>

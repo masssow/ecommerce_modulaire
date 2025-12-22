@@ -43,3 +43,7 @@ services:
 
   App\Services\UserProfileService:
     public: true
+     
+  App\Service\Checkout\StripeEventProcessor:
+    arguments:
+      $webhooksEnabled: '%env(bool:STRIPE_WEBHOOKS_ENABLED)%'

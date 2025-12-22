@@ -4,21 +4,26 @@ namespace App\Service\Checkout;
 
 use App\Entity\Order;
 use App\Entity\Payment;
-use App\Service\SimpleOrderMailer;
+use App\Message\Email\SendOrderEmail;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Traite les webhooks Stripe et met à jour la commande.
+ * Envoi email via Messenger (SendOrderEmail) uniquement à la 1ère transition vers "paid".
  */
 final class StripeEventProcessor
 {
+    private bool $shouldDispatchPaidEmail = false;
+    private ?int $paidEmailOrderId = null;
+
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ?\App\Service\OrderEmailService $emails = null, // ancien service (optionnel)
-        private readonly bool $webhooksEnabled = true,                   // feature flag
-        private readonly ?SimpleOrderMailer $simpleMailer = null,        // mailer synchrone
-        private readonly ?LoggerInterface $logger = null,                // logger canal "app"
+        private readonly ?\App\Service\OrderEmailService $emails = null, // legacy (optionnel)
+        private readonly bool $webhooksEnabled = true,
+        private readonly ?LoggerInterface $logger = null,
+        private readonly ?MessageBusInterface $bus = null, // ✅ interface + nullable safe
     ) {}
 
     public function handle(\Stripe\Event $event): void
@@ -29,6 +34,10 @@ final class StripeEventProcessor
             ]);
             return;
         }
+
+        // reset flags par event
+        $this->shouldDispatchPaidEmail = false;
+        $this->paidEmailOrderId = null;
 
         $this->logger?->info('[StripeEventProcessor] Handling event', [
             'type' => $event->type ?? null,
@@ -82,7 +91,7 @@ final class StripeEventProcessor
 
                 $order = $this->resolveOrderByMetadata(
                     $pi->metadata['order_id'] ?? null,
-                    $pi->client_secret ?? null
+                    $pi->client_secret ?? null // ⚠️ on gardera ça pour l’instant, à supprimer plus tard
                 );
 
                 if (!$order) {
@@ -124,7 +133,7 @@ final class StripeEventProcessor
                 }
 
                 $reason = $pi->last_payment_error->message ?? 'payment_failed';
-                $this->markPaymentFailed($order, $reason);
+                $this->markPaymentFailed($order, (string) $reason);
                 break;
 
             default:
@@ -134,7 +143,22 @@ final class StripeEventProcessor
                 return;
         }
 
+        // ✅ flush d’abord (DB cohérente)…
         $this->em->flush();
+
+        // …puis dispatch le mail (1 fois)
+        if ($this->shouldDispatchPaidEmail && $this->paidEmailOrderId) {
+            if ($this->bus) {
+                $this->logger?->info('[StripeEventProcessor] Dispatching SendOrderEmail(paid) via Messenger', [
+                    'orderId' => $this->paidEmailOrderId,
+                ]);
+                $this->bus->dispatch(new SendOrderEmail($this->paidEmailOrderId, 'paid'));
+            } else {
+                $this->logger?->warning('[StripeEventProcessor] MessageBus is NULL, cannot dispatch SendOrderEmail', [
+                    'orderId' => $this->paidEmailOrderId,
+                ]);
+            }
+        }
 
         $this->logger?->info('[StripeEventProcessor] Flush done for event', [
             'type' => $event->type ?? null,
@@ -187,12 +211,11 @@ final class StripeEventProcessor
 
     private function markPaid(Order $order, ?string $paymentIntentId, int $amountCts, string $currency): void
     {
-        $old         = $order->getStatus();
+        $old         = (string) $order->getStatus();
         $alreadyPaid = ($old === 'paid');
 
         if ($alreadyPaid) {
-            // 👀 Idempotence minimale : pas de mise à jour DB, pas d'email
-            $this->logger?->info('[StripeEventProcessor] Order already paid: skipping status/payment update AND email ✅(envoi', [
+            $this->logger?->info('[StripeEventProcessor] Order already paid: skipping status/payment update + email ✅', [
                 'orderId'   => $order->getId(),
                 'number'    => $order->getNumber(),
                 'oldStatus' => $old,
@@ -202,7 +225,6 @@ final class StripeEventProcessor
             return;
         }
 
-        // 🟢 Première fois qu’on la voit payée : on met à jour Order + Payment
         $this->logger?->info('[StripeEventProcessor] Marking order as paid', [
             'orderId'   => $order->getId(),
             'number'    => $order->getNumber(),
@@ -213,7 +235,6 @@ final class StripeEventProcessor
 
         $order->setStatus('paid');
 
-        // === Payment lié à la commande ===
         $paymentRepo = $this->em->getRepository(Payment::class);
         $payment     = $paymentRepo->findOneBy(['orders' => $order]) ?? new Payment();
 
@@ -221,47 +242,20 @@ final class StripeEventProcessor
             ->setOrders($order)
             ->setStatus('succeeded')
             ->setPaidAt(new \DateTimeImmutable())
-            ->setAmount($amountCts)                 // centimes
-            ->setCurrency(strtoupper($currency))    // "EUR"
+            ->setAmount($amountCts)              // centimes ✅
+            ->setCurrency(strtoupper($currency)) // "EUR"
             ->setTransactionId($paymentIntentId);
 
         $this->em->persist($payment);
 
-        // Ancien service désactivé pour 'paid' (on évite le double envoi côté ancien pipeline)
-        // $this->emails?->sendOnStatusChange($order, $old, 'paid');
-
-        // ✅ Email uniquement lors de la transition vers "paid" (1 seule fois)
-        // if ($this->simpleMailer) {
-        //     try {
-        //         $this->logger?->info('[StripeEventProcessor] Sending paid email (first transition) ...', [
-        //             'orderId' => $order->getId(),
-        //             'number'  => $order->getNumber(),
-        //         ]);
-
-        //         $this->simpleMailer->sendStatusEmail($order, 'paid');
-
-        //         $this->logger?->info('[StripeEventProcessor] Paid email sent via SimpleOrderMailer ✅', [
-        //             'orderId' => $order->getId(),
-        //             'number'  => $order->getNumber(),
-        //         ]);
-        //     } catch (\Throwable $e) {
-        //         $this->logger?->error('[StripeEventProcessor] Failed to send paid email', [
-        //             'orderId' => $order->getId(),
-        //             'number'  => $order->getNumber(),
-        //             'error'   => $e->getMessage(),
-        //         ]);
-        //     }
-        // } else {
-        //     $this->logger?->warning('[StripeEventProcessor] SimpleOrderMailer is NULL, no email sent.', [
-        //         'orderId' => $order->getId(),
-        //         'number'  => $order->getNumber(),
-        //     ]);
-        // }
+        // ✅ on marque l’intention d’envoyer l’email après flush
+        $this->shouldDispatchPaidEmail = true;
+        $this->paidEmailOrderId = (int) $order->getId();
     }
 
     private function markPaymentFailed(Order $order, string $reason): void
     {
-        $old = $order->getStatus();
+        $old = (string) $order->getStatus();
 
         $this->logger?->info('[StripeEventProcessor] Marking order as cancelled (payment failed)', [
             'orderId'   => $order->getId(),
@@ -282,7 +276,7 @@ final class StripeEventProcessor
 
         $this->em->persist($payment);
 
-        // Pour les échecs, on laisse l’ancien service si présent
+        // legacy pipeline (à remplacer plus tard par message "failed")
         $this->emails?->sendOnStatusChange($order, $old, 'cancelled');
     }
 }

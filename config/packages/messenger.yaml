@@ -6,7 +6,6 @@ framework:
     failure_transport: failed
 
     transports:
-      sync: 'sync://'
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
         options: { table_name: messenger_messages }
@@ -17,9 +16,9 @@ framework:
 
     routing:
       # ✅ on route UNIQUEMENT notre message métier
-      App\Message\Email\SendOrderEmail: sync
+      App\Message\Email\SendOrderEmail: async
 
-      Symfony\Component\Notifier\Message\ChatMessage: async
-      Symfony\Component\Notifier\Message\SmsMessage: async
+      # Symfony\Component\Notifier\Message\ChatMessage: async
+      # Symfony\Component\Notifier\Message\SmsMessage: async
 
     stop_worker_on_signals: []

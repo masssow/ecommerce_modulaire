@@ -42,7 +42,7 @@ final class SendOrderEmailHandler
         $template = match ($msg->type) {
             'paid'   => 'emails/order_paid.html.twig',
             'failed' => 'emails/order_failed.html.twig',
-            default  => 'email/order_paid.html.twig',
+            default  => 'emails/order_paid.html.twig',
         };
 
         $displayOrderId = $order?->getId() ?? $msg->orderId;

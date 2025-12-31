@@ -22,8 +22,8 @@
 
 
     <body class="animsition" data-is-auth="{{ app.user ? '1' : '0' }}"
-    data-login-url="{{ path('app_login') }}">
-    {% include 'partials/_mobile_bottom_nav.html.twig' %}
+    data-login-url="{{ path('app_login') }}" data-ga-id="{{ app.environment == 'prod' ? (ga_id|default('')) : '' }}">
+    {# {% include 'partials/_mobile_bottom_nav.html.twig' %} #}
 
         <!-- Header -->
         <header>
@@ -97,12 +97,21 @@
                             {# badge item cart data-notify="0" #}
                                 <i class="zmdi zmdi-shopping-cart"></i>
                             </div> 
-                           <a href="{{ app.user ? path('account_profile') : path('app_login') }}"
-                            class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
-                            title="{{ app.user ? 'Mon compte' : 'Se connecter' }}"
-                            aria-label="{{ app.user ? 'Mon compte' : 'Se connecter' }}">
-                            <i class="zmdi zmdi-account"></i>
-                            </a>
+                            {% if app.user %}
+                                <a href="{{ path('app_logout') }}"
+                                    class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
+                                    title="{{ app.user ? 'Mon compte' : 'Se deconnecter' }}"
+                                    aria-label="{{ app.user ? 'Mon compte' : 'Se deconnecter' }}">
+                                        <i class="zmdi zmdi-account"></i>
+                                </a>
+                                {% else %}
+                                <a href="{{ path('app_login') }}"
+                                    class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
+                                    title="{{ app.user ? 'Mon compte' : 'Se connecter' }}"
+                                    aria-label="{{ app.user ? 'Mon compte' : 'Se connecter' }}">
+                                    <i class="zmdi zmdi-sign-in"></i>
+                                </a>
+                            {% endif %}
                         </div>
                     </nav>
                 </div>	
@@ -128,12 +137,21 @@
                         <i class="zmdi zmdi-shopping-cart"></i>
                     </div>
 
-                    <a href="{{ app.user ? path('account_profile') : path('app_login') }}"
-                        class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
-                        title="{{ app.user ? 'Mon compte' : 'Se connecter' }}"
-                        aria-label="{{ app.user ? 'Mon compte' : 'Se connecter' }}">
-                        <i class="zmdi zmdi-account"></i>
-                    </a>
+                    {% if app.user %}
+                        <a href="{{ path('app_logout') }}"
+                            class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
+                            title="{{ app.user ? 'Mon compte' : 'Se deconnecter' }}"
+                            aria-label="{{ app.user ? 'Mon compte' : 'Se deconnecter' }}">
+                                <i class="zmdi zmdi-account"></i>
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}"
+                            class="dis-block icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11"
+                            title="{{ app.user ? 'Mon compte' : 'Se connecter' }}"
+                            aria-label="{{ app.user ? 'Mon compte' : 'Se connecter' }}">
+                               <i class="zmdi zmdi-sign-in"></i>
+                        </a>
+                            {% endif %}
                 </div>
 
                 <!-- Button show menu -->
@@ -369,6 +387,8 @@
                 </div>
             </div>
         </footer>
+        {% include 'partials/_cookie_banner.html.twig' %}
+
     </body>
     <script>
         (function() {

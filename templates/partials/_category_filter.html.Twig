@@ -20,7 +20,9 @@
 </button>
 
 {# Boucle sur toutes les sous-catégories #}
-{% for sub in subCategories %}
+{# SAFE : si subCategories n'existe pas, on boucle sur [] #}
+{% for sub in (subCategories|default([])) %}
+{# remplacé par SAFE {% for sub in subCategories %} #}
   <button
     class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
     data-filter=".cat-{{ sub.id }}"

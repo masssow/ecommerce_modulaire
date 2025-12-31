@@ -1,0 +1,43 @@
+{# Cookie banner MVP #}
+<div id="cookie-banner" class="cookie-banner dis-none" role="dialog" aria-live="polite" aria-label="Bannière cookies">
+  <div class="container">
+    <div class="p-t-15 p-b-15">
+      <div class="flex-w flex-sb-m">
+        <div class="p-r-30 p-t-5 p-b-5">
+          <p class="stext-102 cl6 m-b-5">
+            Nous utilisons des cookies pour améliorer votre expérience et mesurer l’audience.
+          </p>
+          <a class="stext-102 cl8 hov-cl1 trans-04" href="{{ path('app_cookies_policy') }}">
+            Politique de confidentialité & cookies
+          </a>
+        </div>
+
+        <div class="flex-w flex-m p-t-5 p-b-5">
+          <button type="button" id="cookie-accept-all"
+                  class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 m-r-8">
+            OK pour moi
+          </button>
+
+          <button type="button" id="cookie-accept-necessary"
+                  class="flex-c-m stext-101 cl2 size-101 bg0 bor1 hov-btn1 p-lr-15 trans-04">
+            Strictement nécessaires
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cookie-banner{
+    position:fixed;left:0;right:0;bottom:0;z-index:10000;
+    background:#222;color:#fff;box-shadow:0 -4px 10px rgba(0,0,0,.18);
+  }
+  .cookie-banner a{color:#fff;text-decoration:underline;}
+</style>
+
+{# Valeur utile côté JS: l’ID GA (vide en MVP), et éventuellement un flag #}
+<script>
+  window.APP_COOKIES = window.APP_COOKIES || {};
+  window.APP_COOKIES.gaMeasurementId = "{{ app.request.server.get('GA_MEASUREMENT_ID') ?? '' }}";
+</script>

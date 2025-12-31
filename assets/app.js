@@ -1,6 +1,8 @@
 // assets/app.js
 import './bootstrap.js';
 import './styles/app.scss';
+import './js/cookies.js';
+
 
 // ==============================
 // ✅ Dépendances JS principales

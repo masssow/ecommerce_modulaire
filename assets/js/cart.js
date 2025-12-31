@@ -127,12 +127,12 @@ async function addToCart(variantId, qty = 1) {
     console.error('variantId manquant pour addToCart');
     return;
   }
-  if (!IS_AUTH) {
-    const url = new URL(LOGIN_URL, window.location.origin);
-    url.searchParams.set('redirect', window.location.href);
-    window.location.assign(url.toString());
-    return;
-  }
+  // if (!IS_AUTH) {
+  //   const url = new URL(LOGIN_URL, window.location.origin);
+  //   url.searchParams.set('redirect', window.location.href);
+  //   window.location.assign(url.toString());
+  //   return;
+  // }
 
   try {
     const res = await fetch(ADD_URL, {
@@ -141,7 +141,13 @@ async function addToCart(variantId, qty = 1) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ variant: String(variantId), qty: Number(qty) })
     });
-
+    if (res.status === 401 || res.status === 403) {
+      const url = new URL(LOGIN_URL, window.location.origin);
+      url.searchParams.set('redirect', window.location.href);
+      window.location.assign(url.toString());
+      return;
+    }
+    
     if (!res.ok) {
       const txt = await res.text();
       console.error('Ajout panier KO:', txt);

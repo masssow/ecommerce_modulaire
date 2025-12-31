@@ -9,7 +9,9 @@
          ======================== #}
       <div class="flex-w flex-l-m filter-tope-group m-tb-10">
       
-        {% include 'partials/_category_filter.html.twig' %}
+        {% include 'partials/_category_filter.html.twig' with {
+          subCategories: subCategories|default([])
+        } %}
 
     
 

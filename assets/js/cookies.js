@@ -1,38 +1,34 @@
 // assets/js/cookies.js
+
 (function () {
-  const KEY = 'kp_cookie_consent'; // "all" | "necessary"
   const banner = document.getElementById('cookie-banner');
   if (!banner) return;
 
-  const btnAccept = document.getElementById('cookie-accept');
-  const btnNecessary = document.getElementById('cookie-necessary');
-
-  function getConsent() {
-    return localStorage.getItem(KEY);
+  
+  // Si déjà accepté → on cache
+  if (localStorage.getItem('cookie_consent')) {
+    banner.remove();
+    return;
   }
 
-  function setConsent(value) {
-    localStorage.setItem(KEY, value);
+  banner.querySelectorAll('[data-cookie-choice]').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const choice = this.dataset.cookieChoice;
 
-    // Event interne pour que d'autres scripts puissent réagir
-    window.dispatchEvent(new CustomEvent('cookie:consent', {
-      detail: { consent: value }
-    }));
-  }
+      localStorage.setItem('cookie_consent', choice);
+      localStorage.setItem('cookie_consent_date', new Date().toISOString());
 
-  function hide() { banner.style.display = 'none'; }
-  function show() { banner.style.display = 'block'; }
+      // Disparition clean
+      banner.style.transition = 'transform .3s ease, opacity .3s ease';
+      banner.style.transform = 'translateY(100%)';
+      banner.style.opacity = '0';
 
-  // Affiche si pas encore choisi
-  if (!getConsent()) show();
+      setTimeout(() => banner.remove(), 300);
 
-  btnAccept?.addEventListener('click', () => {
-    setConsent('all');
-    hide();
-  });
-
-  btnNecessary?.addEventListener('click', () => {
-    setConsent('necessary');
-    hide();
+      // Hook futur analytics
+      if (choice === 'all') {
+        window.dispatchEvent(new Event('cookies:accepted'));
+      }
+    });
   });
 })();

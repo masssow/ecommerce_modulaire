@@ -362,6 +362,81 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   background-color: #fff;
 }
 
+// Banner cookies
+/* Cookie banner — Keur Paris (compact + responsive) */
+.cookie-banner {
+  border-radius: 14px;
+  margin: 10px;
+}
+
+@media (min-width: 768px) {
+  .cookie-banner {
+    margin: 16px;
+  }
+}
+
+.cookie-title {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.cookie-text {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.cookie-link {
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .cookie-title {
+    font-size: 14px;
+  }
+
+  .cookie-text,
+  .cookie-link {
+    font-size: 13px;
+  }
+}
+
+.cookie-actions {
+  gap: 10px;
+}
+
+/* ✅ espace entre boutons */
+.cookie-btn {
+  border: 1px solid rgba(0, 0, 0, .15);
+  border-radius: 999px;
+  padding: 8px 12px;
+  /* ✅ boutons plus petits */
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cookie-btn-secondary {
+  background: #fff;
+  color: #222;
+}
+
+.cookie-btn-primary {
+  background: #222;
+  /* sobre premium */
+  color: #fff;
+  border-color: #222;
+}
+
+.cookie-btn-primary:hover {
+  opacity: .92;
+}
+
+.cookie-btn-secondary:hover {
+  background: rgba(0, 0, 0, .03);
+}
 // Mon-compte
     @media (max-width: 991.98px) {
       .hide-mobile {

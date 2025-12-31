@@ -12926,7 +12926,7 @@ iframe {
 }
 
 /*!
- * Bootstrap  v5.3.7 (https://getbootstrap.com/)
+ * Bootstrap  v5.3.8 (https://getbootstrap.com/)
  * Copyright 2011-2025 The Bootstrap Authors
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
@@ -13472,6 +13472,10 @@ legend + * {
 [type=search] {
   -webkit-appearance: textfield;
   outline-offset: -2px;
+}
+[type=search]::-webkit-search-cancel-button {
+  cursor: pointer;
+  filter: grayscale(1);
 }
 
 /* rtl:raw:
@@ -19111,6 +19115,7 @@ textarea.form-control-lg {
 .spinner-grow,
 .spinner-border {
   display: inline-block;
+  flex-shrink: 0;
   width: var(--bs-spinner-width);
   height: var(--bs-spinner-height);
   vertical-align: var(--bs-spinner-vertical-align);
@@ -32989,6 +32994,78 @@ textarea.form-control-lg {
 
 .header-v4 .wrap-menu-desktop {
   background-color: #fff;
+}
+
+/* Cookie banner — Keur Paris (compact + responsive) */
+.cookie-banner {
+  border-radius: 14px;
+  margin: 10px;
+}
+
+@media (min-width: 768px) {
+  .cookie-banner {
+    margin: 16px;
+  }
+}
+.cookie-title {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.cookie-text {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.cookie-link {
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .cookie-title {
+    font-size: 14px;
+  }
+  .cookie-text,
+  .cookie-link {
+    font-size: 13px;
+  }
+}
+.cookie-actions {
+  gap: 10px;
+}
+
+/* ✅ espace entre boutons */
+.cookie-btn {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  padding: 8px 12px;
+  /* ✅ boutons plus petits */
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cookie-btn-secondary {
+  background: #fff;
+  color: #222;
+}
+
+.cookie-btn-primary {
+  background: #222;
+  /* sobre premium */
+  color: #fff;
+  border-color: #222;
+}
+
+.cookie-btn-primary:hover {
+  opacity: 0.92;
+}
+
+.cookie-btn-secondary:hover {
+  background: rgba(0, 0, 0, 0.03);
 }
 
 @media (max-width: 991.98px) {

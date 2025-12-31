@@ -1,43 +1,57 @@
-{# Cookie banner MVP #}
-<div id="cookie-banner" class="cookie-banner dis-none" role="dialog" aria-live="polite" aria-label="Bannière cookies">
+{# templates/partials/_cookie_banner.html.twig #}
+<div
+  id="cookie-banner"
+  class="cookie-banner bg0 bor12"
+  style="
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    box-shadow: 0 -6px 24px rgba(0,0,0,.12);
+  "
+>
   <div class="container">
-    <div class="p-t-15 p-b-15">
-      <div class="flex-w flex-sb-m">
-        <div class="p-r-30 p-t-5 p-b-5">
-          <p class="stext-102 cl6 m-b-5">
-            Nous utilisons des cookies pour améliorer votre expérience et mesurer l’audience.
-          </p>
-          <a class="stext-102 cl8 hov-cl1 trans-04" href="{{ path('app_cookies_policy') }}">
-            Politique de confidentialité & cookies
+    <div class="row align-items-center p-t-12 p-b-12">
+
+      {# Texte #}
+      <div class="col-12 col-md-8 p-b-10 p-b-0-md">
+        <p class="stext-101 cl6 m-b-6 cookie-title">
+          Cookies & confidentialité
+        </p>
+
+        <p class="stext-102 cl6 m-b-0 cookie-text">
+          Nous utilisons des cookies strictement nécessaires et, avec votre accord,
+          des cookies de mesure d’audience pour améliorer la boutique.
+          <a href="{{ path('app_cookies_policy') }}" class="cl1 hov-cl1 cookie-link">
+            En savoir plus
           </a>
-        </div>
+        </p>
+      </div>
 
-        <div class="flex-w flex-m p-t-5 p-b-5">
-          <button type="button" id="cookie-accept-all"
-                  class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 m-r-8">
-            OK pour moi
+      {# Boutons #}
+      <div class="col-12 col-md-4">
+        <div class="cookie-actions d-flex flex-wrap justify-content-start justify-content-md-end">
+
+          <button
+            type="button"
+            class="cookie-btn cookie-btn-secondary"
+            data-cookie-choice="necessary"
+          >
+            Nécessaires
           </button>
 
-          <button type="button" id="cookie-accept-necessary"
-                  class="flex-c-m stext-101 cl2 size-101 bg0 bor1 hov-btn1 p-lr-15 trans-04">
-            Strictement nécessaires
+          <button
+            type="button"
+            class="cookie-btn cookie-btn-primary"
+            data-cookie-choice="all"
+          >
+            J’accepte
           </button>
+
         </div>
       </div>
+
     </div>
   </div>
 </div>
-
-<style>
-  .cookie-banner{
-    position:fixed;left:0;right:0;bottom:0;z-index:10000;
-    background:#222;color:#fff;box-shadow:0 -4px 10px rgba(0,0,0,.18);
-  }
-  .cookie-banner a{color:#fff;text-decoration:underline;}
-</style>
-
-{# Valeur utile côté JS: l’ID GA (vide en MVP), et éventuellement un flag #}
-<script>
-  window.APP_COOKIES = window.APP_COOKIES || {};
-  window.APP_COOKIES.gaMeasurementId = "{{ app.request.server.get('GA_MEASUREMENT_ID') ?? '' }}";
-</script>

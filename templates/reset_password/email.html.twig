@@ -1,0 +1,42 @@
+{# templates/reset_password/email.html.twig #}
+{% extends 'emails/_base.html.twig' %}
+
+{% set subject = 'Réinitialisation de votre mot de passe — Lacrose' %}
+{% set promo = promo|default('🎁 Profitez de nos nouveautés bien-être & mode africaine : livraison rapide, stocks limités.') %}
+
+{% block email_content %}
+  <h1 style="margin:0 0 10px;font-size:18px;line-height:1.3;color:#111827;">
+    Réinitialisation de mot de passe
+  </h1>
+
+  <p style="margin:0 0 12px;font-size:14px;line-height:1.55;color:#374151;">
+    Bonjour,
+    <br>
+    Nous avons reçu une demande de réinitialisation de votre mot de passe sur <strong>Lacrose</strong>.
+  </p>
+
+  <p style="margin:0 0 14px;font-size:14px;line-height:1.55;color:#374151;">
+    Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :
+  </p>
+
+  <p style="margin:0 0 16px;">
+    <a href="{{ url('app_reset_password', {token: resetToken.token}) }}"
+       style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:700;">
+      Réinitialiser mon mot de passe
+    </a>
+  </p>
+
+  <p style="margin:0 0 10px;font-size:12px;line-height:1.55;color:#6b7280;">
+    Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+  </p>
+
+  <div style="margin-top:16px;border-top:1px solid #eef2f7;padding-top:14px;">
+    <p style="margin:0;font-size:12px;line-height:1.55;color:#6b7280;">
+      Si le bouton ne fonctionne pas, copiez/collez ce lien :
+      <br>
+      <span style="word-break:break-all;color:#111827;">
+        {{ url('app_reset_password', {token: resetToken.token}) }}
+      </span>
+    </p>
+  </div>
+{% endblock %}

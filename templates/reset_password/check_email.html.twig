@@ -1,0 +1,20 @@
+{# templates/reset_password/check_email.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Email envoyé — Lacrose{% endblock %}
+
+{% block body %}
+<div class="container p-t-80 p-b-80">
+  <h2 class="ltext-103 cl5 p-b-20">Vérifiez votre boîte mail</h2>
+
+  <p class="stext-102 cl6">
+    Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.
+    Le lien expirera bientôt : {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+  </p>
+
+  <p class="stext-102 cl6 p-t-20">
+    Vous n’avez rien reçu ? Pensez à vérifier les spams, ou
+    <a class="hov-cl1" href="{{ path('app_forgot_password_request') }}">réessayez</a>.
+  </p>
+</div>
+{% endblock %}

@@ -1,17 +1,6 @@
-{# templates/partials/_category_filter.html.twig #}
+{# Boutons de filtre Isotope #}
 
-{# 
-   CE FICHIER GÈRE LES BOUTONS DE FILTRE ISOTOPE.
-   Chaque bouton applique un filtre CSS sur la grille :
-   - .cat-12
-   - .cat-25
-   - etc.
-
-   La grille produit doit contenir :
-   <div class="isotope-item cat-{{ product.subCategory.id }}">
-#}
-
-{# Bouton "Tous" #}
+{# Toujours afficher "Tous" #}
 <button
   class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1"
   data-filter="*"
@@ -19,10 +8,8 @@
   Tous
 </button>
 
-{# Boucle sur toutes les sous-catégories #}
-{# SAFE : si subCategories n'existe pas, on boucle sur [] #}
+{# Sous-catégories (si disponibles) #}
 {% for sub in (subCategories|default([])) %}
-{# remplacé par SAFE {% for sub in subCategories %} #}
   <button
     class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5"
     data-filter=".cat-{{ sub.id }}"

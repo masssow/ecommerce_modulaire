@@ -27,7 +27,8 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private ?\Psr\Log\LoggerInterface $logger = null
     ) {
     }
 
@@ -167,7 +168,17 @@ class ResetPasswordController extends AbstractController
         ;
 
         $mailer->send($email);
+        try {
+            $mailer->send($email);
+        } catch (\Throwable $e) {
+            $this->addFlash('reset_password_error', "Impossible d'envoyer l'email pour le moment. Réessayez plus tard.");
+            $this->logger?->error('[ResetPassword] Mailer send failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
+            return $this->redirectToRoute('app_check_email');
+        }
         // Store the token object in session for retrieval in check-email route.
         $this->setTokenObjectInSession($resetToken);
 

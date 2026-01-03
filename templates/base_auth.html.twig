@@ -1,0 +1,31 @@
+{# templates/base_auth.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Lacrose{% endblock %}</title>
+
+  {{ encore_entry_link_tags('app') }}
+</head>
+
+<body>
+  <main class="container p-t-80 p-b-80">
+    <div class="p-b-30" style="text-align:center;">
+      <a href="{{ path('app_home') }}">
+        <img
+          src="{{ absolute_url(asset('images/logo_pie_de_mail_transparent180x50.png')) }}"
+          alt="Lacrose"
+          width="180"
+          height="50"
+          style="max-width:180px;height:auto;"
+        >
+      </a>
+    </div>
+
+    {% block body %}{% endblock %}
+  </main>
+
+  {{ encore_entry_script_tags('app') }}
+</body>
+</html>

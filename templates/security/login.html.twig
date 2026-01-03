@@ -37,7 +37,12 @@
         autocomplete="current-password"
         required
     >
-
+ <div class="text-center mt-1">
+        <a href="{{ path('app_forgot_password_request') }}"
+        class="stext-102 cl6 hov-cl1 trans-04">
+        Mot de passe oublié ?
+        </a>
+    </div>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
     {# Important: garde la page d’origine même après POST d’erreur #}
     <input type="hidden" name="redirect" value="{{ app.request.get('redirect') }}">
@@ -57,12 +62,7 @@
         <a href="{{ path('app_register_index') }}" class="stext-111 cl2 hov-cl1 trans-04">Créer un compte</a>
     </div>
 
-    <div class="text-center mt-3">
-        <a href="{{ path('app_forgot_password_request') }}"
-        class="stext-102 cl6 hov-cl1 trans-04">
-        Mot de passe oublié ?
-        </a>
-    </div>
+   
 
 </form>
 {% endblock %}

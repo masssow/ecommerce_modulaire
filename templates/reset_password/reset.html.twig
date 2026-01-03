@@ -1,12 +1,35 @@
 {% extends 'base_auth.html.twig' %}
 
-{% block title %}Reset your password{% endblock %}
+{% block title %}Nouveau mot de passe — Lacrose{% endblock %}
 
 {% block body %}
-    <h1>Reset your password</h1>
+  <div class="container p-t-80 p-b-80" style="max-width:520px;">
+
+    <h1 class="ltext-103 cl5 p-b-20 txt-center">
+      Créer un nouveau mot de passe
+    </h1>
+
+    <p class="stext-102 cl6 p-b-30 txt-center">
+      Choisissez un mot de passe sûr pour sécuriser votre compte.
+    </p>
 
     {{ form_start(resetForm) }}
+
+      <div class="p-b-20">
         {{ form_row(resetForm.plainPassword) }}
-        <button class="btn btn-primary">Reset password</button>
+      </div>
+
+      <button class="btn btn-primary w-100">
+        Mettre à jour mon mot de passe
+      </button>
+
     {{ form_end(resetForm) }}
+
+    <div class="p-t-30 txt-center">
+      <a href="{{ path('app_login') }}" class="stext-102 cl6 hov-cl1">
+        ← Retour à la connexion
+      </a>
+    </div>
+
+  </div>
 {% endblock %}

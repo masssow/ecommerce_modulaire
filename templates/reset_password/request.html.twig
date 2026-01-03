@@ -1,22 +1,46 @@
 {% extends 'base_auth.html.twig' %}
 
-{% block title %}Reset your password{% endblock %}
+{% block title %}Mot de passe oublié — Lacrose{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('reset_password_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
-    <h1>Reset your password</h1>
+
+  {# ===== Messages d’erreur éventuels ===== #}
+  {% for flash_error in app.flashes('reset_password_error') %}
+    <div class="alert alert-danger" role="alert">
+      {{ flash_error }}
+    </div>
+  {% endfor %}
+
+  <div class="container p-t-80 p-b-80" style="max-width:520px;">
+
+    <h1 class="ltext-103 cl5 p-b-20 txt-center">
+      Mot de passe oublié
+    </h1>
+
+    <p class="stext-102 cl6 p-b-30 txt-center">
+      Renseignez votre adresse email.
+      <br>
+      Nous vous enverrons un lien pour créer un nouveau mot de passe.
+    </p>
 
     {{ form_start(requestForm) }}
-        {{ form_row(requestForm.email) }}
-        <div>
-            <small>
-                Enter your email address, and we will send you a
-                link to reset your password.
-            </small>
-        </div>
 
-        <button class="btn btn-primary">Send password reset email</button>
+      <div class="p-b-20">
+        {{ form_row(requestForm.email) }}
+      </div>
+
+      <button class="btn btn-primary w-100">
+        Envoyer le lien de réinitialisation
+      </button>
+
     {{ form_end(requestForm) }}
+
+    <div class="p-t-30 txt-center">
+      <a href="{{ path('app_login') }}" class="stext-102 cl6 hov-cl1">
+        ← Retour à la connexion
+      </a>
+    </div>
+
+  </div>
+
 {% endblock %}

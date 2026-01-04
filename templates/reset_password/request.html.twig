@@ -42,5 +42,16 @@
     </div>
 
   </div>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
+    const btn  = document.getElementById('btn-reset-send');
+    if (!form || !btn) return;
 
+    form.addEventListener('submit', () => {
+      btn.disabled = true;
+      btn.textContent = 'Envoi...';
+    });
+  });
+</script>
 {% endblock %}

@@ -1,0 +1,17 @@
+# translations/validators.fr.yaml
+
+This value should not be blank.: "Ce champ est obligatoire."
+
+This value is too short. It should have {{ limit }} character or more.:
+  "Ce champ doit contenir au moins {{ limit }} caractère."
+
+This value is too short. It should have {{ limit }} characters or more.:
+  "Ce champ doit contenir au moins {{ limit }} caractères."
+
+This value is too long. It should have {{ limit }} character or less.:
+  "Ce champ ne doit pas dépasser {{ limit }} caractère."
+
+This value is too long. It should have {{ limit }} characters or less.:
+  "Ce champ ne doit pas dépasser {{ limit }} caractères."
+
+The password fields must match.: "Les deux mots de passe doivent être identiques."

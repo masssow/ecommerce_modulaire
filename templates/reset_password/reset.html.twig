@@ -3,33 +3,41 @@
 {% block title %}Nouveau mot de passe — Lacrose{% endblock %}
 
 {% block body %}
-  <div class="container p-t-80 p-b-80" style="max-width:520px;">
+<div class="container p-t-80 p-b-80" style="max-width:560px;">
+  <h2 class="ltext-103 cl5 p-b-20">Nouveau mot de passe</h2>
 
-    <h1 class="ltext-103 cl5 p-b-20 txt-center">
-      Créer un nouveau mot de passe
-    </h1>
+  <p class="stext-102 cl6 p-b-20">
+    Choisissez un mot de passe solide (au moins 8 caractères).
+  </p>
 
-    <p class="stext-102 cl6 p-b-30 txt-center">
-      Choisissez un mot de passe sûr pour sécuriser votre compte.
-    </p>
-
-    {{ form_start(resetForm) }}
-
-      <div class="p-b-20">
-        {{ form_row(resetForm.plainPassword) }}
-      </div>
-
-      <button class="btn btn-primary w-100">
-        Mettre à jour mon mot de passe
-      </button>
-
-    {{ form_end(resetForm) }}
-
-    <div class="p-t-30 txt-center">
-      <a href="{{ path('app_login') }}" class="stext-102 cl6 hov-cl1">
-        ← Retour à la connexion
-      </a>
+  {{ form_start(resetForm, { attr: { class: 'p-b-20', id: 'reset-form' } }) }}
+    <div class="p-b-20">
+      {{ form_row(resetForm.plainPassword, {
+        label: 'Nouveau mot de passe',
+        attr: { class: 'bor8 stext-102 cl2 p-lr-20 p-tb-10 w-full' }
+      }) }}
     </div>
 
-  </div>
+    <button class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 w-full" id="btn-reset-save">
+      Mettre à jour mon mot de passe
+    </button>
+  {{ form_end(resetForm) }}
+
+  <p class="stext-102 cl6 p-t-20">
+    <a href="{{ path('app_login') }}" class="hov-cl1">Retour à la connexion</a>
+  </p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('reset-form');
+  const btn  = document.getElementById('btn-reset-save');
+  if (!form || !btn) return;
+
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+  });
+});
+</script>
 {% endblock %}

@@ -3,55 +3,45 @@
 {% block title %}Mot de passe oublié — Lacrose{% endblock %}
 
 {% block body %}
+<div class="container p-t-80 p-b-80" style="max-width:560px;">
+  <h2 class="ltext-103 cl5 p-b-20">Mot de passe oublié</h2>
 
-  {# ===== Messages d’erreur éventuels ===== #}
   {% for flash_error in app.flashes('reset_password_error') %}
-    <div class="alert alert-danger" role="alert">
-      {{ flash_error }}
-    </div>
+    <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
   {% endfor %}
 
-  <div class="container p-t-80 p-b-80" style="max-width:520px;">
+  <p class="stext-102 cl6 p-b-20">
+    Saisissez votre email. Nous vous enverrons un lien pour réinitialiser votre mot de passe.
+  </p>
 
-    <h1 class="ltext-103 cl5 p-b-20 txt-center">
-      Mot de passe oublié
-    </h1>
-
-    <p class="stext-102 cl6 p-b-30 txt-center">
-      Renseignez votre adresse email.
-      <br>
-      Nous vous enverrons un lien pour créer un nouveau mot de passe.
-    </p>
-
-    {{ form_start(requestForm) }}
-
-      <div class="p-b-20">
-        {{ form_row(requestForm.email) }}
-      </div>
-
-      <button class="btn btn-primary w-100">
-        Envoyer le lien de réinitialisation
-      </button>
-
-    {{ form_end(requestForm) }}
-
-    <div class="p-t-30 txt-center">
-      <a href="{{ path('app_login') }}" class="stext-102 cl6 hov-cl1">
-        ← Retour à la connexion
-      </a>
+  {{ form_start(requestForm, { attr: { class: 'p-b-20', id: 'reset-request-form' } }) }}
+    <div class="p-b-20">
+      {{ form_row(requestForm.email, {
+        label: 'Adresse email',
+        attr: { class: 'bor8 stext-102 cl2 p-lr-20 p-tb-10 w-full', placeholder: 'ex: vous@email.com' }
+      }) }}
     </div>
 
-  </div>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
-    const btn  = document.getElementById('btn-reset-send');
-    if (!form || !btn) return;
+    <button class="flex-c-m stext-101 cl0 size-112 bg7 bor11 hov-btn3 p-lr-15 trans-04 w-full" id="btn-reset-send">
+      Envoyer le lien
+    </button>
+  {{ form_end(requestForm) }}
 
-    form.addEventListener('submit', () => {
-      btn.disabled = true;
-      btn.textContent = 'Envoi...';
-    });
+  <p class="stext-102 cl6 p-t-20">
+    <a href="{{ path('app_login') }}" class="hov-cl1">Retour à la connexion</a>
+  </p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('reset-request-form');
+  const btn  = document.getElementById('btn-reset-send');
+  if (!form || !btn) return;
+
+  form.addEventListener('submit', () => {
+    btn.disabled = true;
+    btn.textContent = 'Envoi...';
   });
+});
 </script>
 {% endblock %}

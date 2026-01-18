@@ -47,7 +47,7 @@ final class ContactController extends AbstractController
     public function returnsInfo(): Response
     {
         // Page texte + bouton "Faire une demande de retour"
-        return $this->render('support/return.html.twig');
+        return $this->render('support/returns.html.twig');
     }
 
     #[Route('/formulaire-de-retour', name: 'app_returnForm', methods: ['GET', 'POST'])]

@@ -26,25 +26,34 @@ final class CategoryController extends AbstractController
     }
 
     #[Route('/category/{id}', name: 'category_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(Category $category, ProductVariantRepository $variantRepo, PaginatorInterface $paginator, Request $request): Response
+    public function show(Category $category): Response
     {
+        return $this->render('category/show.html.twig', [
+            'category' => $category,
+            'subCategories' => $category->getSubCategories(),
+        ]);
+    }
+
+    #[Route('/category/{id}/products', name: 'category_products', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function products(
+        Category $category,
+        ProductVariantRepository $variantRepo,
+        PaginatorInterface $paginator,
+        Request $request
+    ): Response {
         $page = $request->query->getInt('page', 1);
         $search = (string) $request->query->get('q', '');
+        $subId  = $request->query->getInt('sub', 0);
 
         $qb = $variantRepo->createByCategoryQb($category, $search);
 
-        $productVariantsPagination = $paginator->paginate(
-            $qb,
-            $page,
-            10
-        );
+        $productVariantsPagination = $paginator->paginate($qb, $page, 10);
 
-        return $this->render('category/show.html.twig', [
-            'category'       => $category,
+        return $this->render('category/products.html.twig', [
+            'category'        => $category,
             'productVariants' => $productVariantsPagination,
-            'current_q'     => $search,
-            // passation Favorites IDs hors MvP pour l’instant
-            // 'favoritesIds' => $favoriteRepo->findVariantIdsForUser($this->getUser()),
+            'current_q'       => $search,
+            'current_sub'     => $subId,
         ]);
     }
 }

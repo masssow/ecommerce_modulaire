@@ -1,68 +1,108 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connectez Vous{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block body %}
-<form method="post" action="{{ path('app_login') }}">
-    {% if error %}
-        <div class="alert alert-danger">
-            {{ error.messageKey|trans(error.messageData, 'security') }}
+
+<section class="bg0 p-t-80 p-b-80" style="min-height: calc(100vh - 160px);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6 col-xl-5">
+
+        <div class="bor10 p-lr-40 p-t-40 p-b-40 p-lr-15-sm">
+
+          <form method="post" action="{{ path('app_login') }}">
+
+            <h4 class="mtext-105 cl2 txt-center p-b-30">
+              Connectez-vous
+            </h4>
+
+            <p class="stext-102 cl6 txt-center p-b-25">
+              Connectez-vous pour poursuivre votre shopping.
+            </p>
+
+            {% if error %}
+              <div class="bor8 bg11 p-lr-15 p-tb-10 m-b-20">
+                <span class="stext-102 cl0">
+                  {{ error.messageKey|trans(error.messageData, 'security') }}
+                </span>
+              </div>
+            {% endif %}
+
+            {% if app.user %}
+              <div class="bor8 bg0 p-lr-15 p-tb-10 m-b-20">
+                <span class="stext-102 cl6">
+                  Bonjour {{ app.user.userIdentifier }},
+                  <a href="{{ path('app_logout') }}" class="cl2 hov-cl1 trans-04">Se déconnecter</a>
+                </span>
+              </div>
+            {% endif %}
+
+            {# Email #}
+            <div class="p-b-15">
+              <label for="inputEmail" class="stext-102 cl3 p-b-5">Email</label>
+              <div class="bor8 bg0">
+                <input
+                  id="inputEmail"
+                  type="email"
+                  name="email"
+                  value="{{ last_username }}"
+                  class="stext-111 cl2 plh3 size-116 p-l-20 p-r-20"
+                  autocomplete="email"
+                  required
+                  autofocus
+                >
+              </div>
+            </div>
+
+            {# Password #}
+            <div class="p-b-10">
+              <label for="inputPassword" class="stext-102 cl3 p-b-5">Mot de passe</label>
+              <div class="bor8 bg0">
+                <input
+                  id="inputPassword"
+                  type="password"
+                  name="password"
+                  class="stext-111 cl2 plh3 size-116 p-l-20 p-r-20"
+                  autocomplete="current-password"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="flex-w flex-sb-m p-t-10 p-b-25">
+              <a href="{{ path('app_forgot_password_request') }}"
+                 class="stext-102 cl6 hov-cl1 trans-04">
+                Mot de passe oublié ?
+              </a>
+
+              {# Option "remember me" si tu l'actives plus tard #}
+              {# <label class="stext-102 cl6">
+                <input type="checkbox" name="_remember_me"> Se souvenir de moi
+              </label> #}
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <input type="hidden" name="redirect" value="{{ app.request.get('redirect') }}">
+
+            <button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer w-full" type="submit">
+              Connexion
+            </button>
+
+            <div class="txt-center p-t-25">
+              <span class="stext-111 cl6">Pas encore de compte ?</span>
+              <a href="{{ path('app_register_index') }}" class="stext-111 cl2 hov-cl1 trans-04">
+                Créer un compte
+              </a>
+            </div>
+
+          </form>
+
         </div>
-    {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            Bonjour {{ app.user.userIdentifier }},
-            <a href="{{ path('app_logout') }}">Se déconnecter</a>
-        </div>
-    {% endif %}
-
-    <h1 class="h3 mb-3 font-weight-normal">Connectez vous pour poursuivre votre Shopping</h1>
-
-    <label for="inputEmail">Email</label>
-    <input
-        type="email"
-        value="{{ last_username }}"
-        name="email" id="inputEmail"
-        class="form-control"
-        autocomplete="email"
-        required autofocus
-    >
-
-    <label for="inputPassword">Password</label>
-    <input
-        type="password"
-        name="password" id="inputPassword"
-        class="form-control"
-        autocomplete="current-password"
-        required
-    >
- <div class="text-center mt-1">
-        <a href="{{ path('app_forgot_password_request') }}"
-        class="stext-102 cl6 hov-cl1 trans-04">
-        Mot de passe oublié ?
-        </a>
+      </div>
     </div>
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-    {# Important: garde la page d’origine même après POST d’erreur #}
-    <input type="hidden" name="redirect" value="{{ app.request.get('redirect') }}">
+  </div>
+</section>
 
-    {# <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Se souvenir de moi
-        </label>
-    </div> #}
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Connexion
-    </button>
-
-    <div class="txt-center p-t-40">
-        <span class="stext-111 cl6">Pas encore de compte&nbsp;?</span>
-        <a href="{{ path('app_register_index') }}" class="stext-111 cl2 hov-cl1 trans-04">Créer un compte</a>
-    </div>
-
-   
-
-</form>
 {% endblock %}

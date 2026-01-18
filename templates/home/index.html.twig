@@ -3,148 +3,148 @@
 {% block title %}Accueil - Boutique en ligne{% endblock %}
 
 {% block body %}
-{# =========================
-   Slider (dynamique si "slides" fourni)
-   ========================= #}
-<section class="section-slide">
-  <div class="wrap-slick1">
-    <div class="slick1">
+  {# =========================
+    Slider (dynamique si "slides" fourni)
+    ========================= #}
+  <section class="section-slide">
+    <div class="wrap-slick1">
+      <div class="slick1">
 
-      {% if slides is defined and slides|length > 0 %}
-        {% for slide in slides %}
-          <div class="item-slick1" style="background-image: url({{ slide.imageUrl }});">
+        {% if slides is defined and slides|length > 0 %}
+          {% for slide in slides %}
+            <div class="item-slick1" style="background-image: url({{ slide.imageUrl }});">
+              <div class="container h-full">
+                <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+                  <div class="layer-slick1 animated visible-false"
+                      data-appear="{{ slide.appearSmall|default('fadeInDown') }}"
+                      data-delay="{{ slide.delaySmall|default(0) }}">
+                    <span class="ltext-101 cl2 respon2">{{ slide.titleSmall }}</span>
+                  </div>
+                  <div class="layer-slick1 animated visible-false"
+                      data-appear="{{ slide.appearBig|default('fadeInUp') }}"
+                      data-delay="{{ slide.delayBig|default(800) }}">
+                    <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">{{ slide.titleBig }}</h2>
+                  </div>
+                  <div class="layer-slick1 animated visible-false"
+                      data-appear="{{ slide.appearCta|default('zoomIn') }}"
+                      data-delay="{{ slide.delayCta|default(1600) }}">
+                    <a href="{{ slide.ctaHref|default('#') }}"
+                      class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
+                      {{ slide.ctaLabel|default('Shop Now') }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+              {# Slides carousel home :
+            - Largeur : 1920 px
+            - Hauteur : 930 px #}
+          {# 3 slides fallback #}
+          <div class="item-slick1" style="background-image: url({{ asset('images/hammam.jpg') }});">
             <div class="container h-full">
               <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-                <div class="layer-slick1 animated visible-false"
-                     data-appear="{{ slide.appearSmall|default('fadeInDown') }}"
-                     data-delay="{{ slide.delaySmall|default(0) }}">
-                  <span class="ltext-101 cl2 respon2">{{ slide.titleSmall }}</span>
+                <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+                  <span class="ltext-101 cl2 respon2">Prenez soin de vous</span>
                 </div>
-                <div class="layer-slick1 animated visible-false"
-                     data-appear="{{ slide.appearBig|default('fadeInUp') }}"
-                     data-delay="{{ slide.delayBig|default(800) }}">
-                  <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">{{ slide.titleBig }}</h2>
+                <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+                  <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Bien-être</h2>
                 </div>
-                <div class="layer-slick1 animated visible-false"
-                     data-appear="{{ slide.appearCta|default('zoomIn') }}"
-                     data-delay="{{ slide.delayCta|default(1600) }}">
-                  <a href="{{ slide.ctaHref|default('#') }}"
-                     class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
-                    {{ slide.ctaLabel|default('Shop Now') }}
-                  </a>
+                <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+                  <a href="{{ path('category_show', { id: 25 }) }}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Explorer le bien-être</a>
                 </div>
               </div>
             </div>
           </div>
-        {% endfor %}
-      {% else %}
-            {# Slides carousel home :
-          - Largeur : 1920 px
-          - Hauteur : 930 px #}
-        {# 3 slides fallback #}
-        <div class="item-slick1" style="background-image: url({{ asset('images/hammam.jpg') }});">
-          <div class="container h-full">
-            <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-              <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
-                <span class="ltext-101 cl2 respon2">Prenez soin de vous</span>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
-                <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Bien-être</h2>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
-                <a href="{{ path('category_show', { id: 25 }) }}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Explorer le bien-être</a>
+
+          <div class="item-slick1" style="background-image: url({{ asset('images/makeup2.jpg') }});">
+            <div class="container h-full">
+              <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+                <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+                  <span class="ltext-101 cl2 respon2">Votre beauté, avec amour</span>
+                </div>
+                <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+                  <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Beauté naturelle</h2>
+                </div>
+                <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+                  <a href="{{ path('category_show', { id: 25 }) }}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Collection beauté</a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="item-slick1" style="background-image: url({{ asset('images/makeup2.jpg') }});">
-          <div class="container h-full">
-            <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-              <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
-                <span class="ltext-101 cl2 respon2">Votre beauté, avec amour</span>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
-                <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Beauté naturelle</h2>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
-                <a href="{{ path('category_show', { id: 25 }) }}" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Collection beauté</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="item-slick1" style="background-image: url({{ asset('images/slideparfum.jpg') }});">
-          <div class="container h-full">
-            <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-              <div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft" data-delay="0">
-                <span class="ltext-101 cl2 respon2">Parfums</span>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight" data-delay="800">
-                <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Élégante & premium</h2>
-              </div>
-              <div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
-                <a href="#" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Collection parfums</a>
+          <div class="item-slick1" style="background-image: url({{ asset('images/slideparfum.jpg') }});">
+            <div class="container h-full">
+              <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+                <div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft" data-delay="0">
+                  <span class="ltext-101 cl2 respon2">Parfums</span>
+                </div>
+                <div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight" data-delay="800">
+                  <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">Élégante & premium</h2>
+                </div>
+                <div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
+                  <a href="#" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Collection parfums</a>
+                </div>
               </div>
             </div>
           </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </section>
+
+    {# =========================
+      Bannières catégories (dynamique)
+      ========================= #}
+      <div class="sec-banner bg0 p-t-80 p-b-50">
+        <div class="container">
+          <div class="row">
+                {# 2.Taille des images Bannière catégorie :
+              - Largeur : 1200 px
+              - Hauteur : 809 px #}
+            {% for category in categories %}
+              {% set catImg = category.imageName ? asset('uploads/category/' ~ category.imageName) : asset('images/placeholder-image.png') %}
+              <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
+                <div class="block1 wrap-pic-w">
+                    <img src="{{ catImg }}" alt="{{ category.name }}" loading="lazy">-
+
+                    <a href="{{ path('category_show', { id: category.id }) }}"
+                  class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+                        <div class="block1-txt-child1 flex-col-l">
+                          <span class="block1-name ltext-102 trans-04 p-b-8">{{ category.name }}</span>
+                          <span class="block1-info stext-102 trans-04">Découvrez nos produits</span>
+                        </div>
+                        <div class="block1-txt-child2 p-b-4 trans-05">
+                          <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
+                        </div>
+                    </a>
+                </div>
+              </div>
+            {% endfor %}
+
+          </div>
         </div>
-      {% endif %}
+      </div>
 
+    {# =========================
+      Produits + Filtres/Search
+      ========================= #}
+  <section class="bg0 p-t-23 p-b-140">
+    <div class="container">
+      <div class="p-b-10">
+          <h3 class="ltext-103 cl5">
+            Faites-vous plaisir
+          </h3>
+      </div>
+        {% include 'product/partials/_section_catalogue.html.twig' with {
+          productVariants: productVariants,
+          subCategories: subCategories|default([]),
+          favoritesIds: favoritesIds|default([]),
+          current_q: current_q|default('')
+        } %}
+    
     </div>
-  </div>
-</section>
-
-{# =========================
-   Bannières catégories (dynamique)
-   ========================= #}
-<div class="sec-banner bg0 p-t-80 p-b-50">
-  <div class="container">
-    <div class="row">
-    {# 2.Taille des images Bannière catégorie :
-   - Largeur : 1200 px
-   - Hauteur : 809 px #}
-    {% for category in categories %}
-    {% set catImg = category.imageName ? asset('uploads/category/' ~ category.imageName) : asset('images/placeholder-image.png') %}
-      <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
-    <div class="block1 wrap-pic-w">
-      <img src="{{ catImg }}" alt="{{ category.name }}" loading="lazy">
-
-      <a href="{{ path('category_show', { id: category.id }) }}"
-         class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-        <div class="block1-txt-child1 flex-col-l">
-          <span class="block1-name ltext-102 trans-04 p-b-8">{{ category.name }}</span>
-          <span class="block1-info stext-102 trans-04">Découvrez nos produits</span>
-        </div>
-        <div class="block1-txt-child2 p-b-4 trans-05">
-          <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
-        </div>
-      </a>
-    </div>
-  </div>
-{% endfor %}
-
-    </div>
-  </div>
-</div>
-
-{# =========================
-   Produits + Filtres/Search
-   ========================= #}
-   <section class="bg0 p-t-23 p-b-140">
-  <div class="container">
-   <div class="p-b-10">
-      <h3 class="ltext-103 cl5">
-        Faites-vous plaisir
-      </h3>
-    </div>
-  {% include 'product/partials/_section_catalogue.html.twig' with {
-    productVariants: productVariants,
-    subCategories: subCategories|default([]),
-    favoritesIds: favoritesIds|default([]),
-    current_q: current_q|default('')
-  } %}
-  
-  </div>
-</section>
+  </section>
 {% endblock %}

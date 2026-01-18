@@ -89,7 +89,7 @@ class ProductVariantRepository extends ServiceEntityRepository
     /**
      * Catalogue filtré par Categorie (parent de SousCategorie).
      */
-    public function createByCategoryQb(Category $category, ?string $searchTerm = null): QueryBuilder
+    public function createByCategoryQb(Category $category, ?string $searchTerm = null, ?int $subCategoryId = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('v')
             ->join('v.product', 'p')->addSelect('p')
@@ -104,6 +104,11 @@ class ProductVariantRepository extends ServiceEntityRepository
             $qb
                 ->andWhere('LOWER(p.name) LIKE LOWER(:term) OR LOWER(p.description) LIKE LOWER(:term)')
                 ->setParameter('term', '%' . $searchTerm . '%');
+        }
+        if ($subCategoryId) {
+            $qb
+                ->andWhere('sc.id = :subId')
+                ->setParameter('subId', $subCategoryId);
         }
 
         return $qb;

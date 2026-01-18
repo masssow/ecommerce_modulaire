@@ -34512,6 +34512,44 @@ button.mfp-close {
 }
 /*//////////////////////////////////////////////////////////////////
 [ Num Product ]*/
+/* Mini tuiles sous-catégories */
+.subcat-tile {
+  padding-bottom: 18px;
+}
+
+.subcat-tile .wrap-pic-w {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.subcat-tile img {
+  height: 150px;
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  display: block;
+  -o-object-position: center top;
+     object-position: center top;
+}
+
+.subcat-tile .block1-txt {
+  padding: 16px 14px !important;
+}
+
+.subcat-tile .block1-name {
+  font-size: 16px !important;
+  line-height: 1.15;
+}
+
+.subcat-tile .block1-info {
+  font-size: 12px !important;
+  opacity: 0.9;
+}
+
+.subcat-tile .block1-link {
+  font-size: 12px !important;
+}
+
 .wrap-num-product {
   width: 140px;
   height: 45px;

@@ -122,6 +122,28 @@ class ProductRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findBySubCategory(\App\Entity\SubCategory $subCategory): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.subCategory = :subCategory')
+            ->setParameter('subCategory', $subCategory)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByParentCategory(\App\Entity\Category $category): array
+    {
+        return $this->createQueryBuilder('p')
+            ->innerJoin('p.subCategory', 'sc')
+            ->andWhere('sc.categorie = :category')
+            ->setParameter('category', $category)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+
 
     //    /**
     //     * @return Product[] Returns an array of Product objects

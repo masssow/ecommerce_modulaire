@@ -47,8 +47,12 @@ class Category
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-   
-   
+    public function __toString(): string
+    {
+        return $this->name ?? 'Catégorie';
+    }
+
+
 
     public function __construct()
     {

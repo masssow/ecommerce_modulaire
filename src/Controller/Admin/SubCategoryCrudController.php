@@ -21,8 +21,11 @@ class SubCategoryCrudController extends AbstractCrudController
     
     public function configureFields(string $pageName): iterable
     {
+        yield AssociationField::new('categorie', 'Catégorie')
+            ->setRequired(true);
         return [
             yield TextField::new('name', 'Nom de la sous-catégorie'),
+            
             yield TextEditorField::new('description'),
                 AssociationField::new('Product', 'Produits'),
             yield TextField::new('slug', 'Slug'),

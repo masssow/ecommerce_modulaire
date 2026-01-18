@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use App\Entity\SubCategory;
 use App\Entity\ProductVariant;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -113,5 +114,38 @@ class ProductVariantRepository extends ServiceEntityRepository
 
         return $qb;
     }
+    
+    public function createBySubCategoryQb(SubCategory $subCategory, string $search = ''): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('v')
+            ->innerJoin('v.product', 'p')->addSelect('p')
+            ->andWhere('p.subCategory = :subCategory')
+            ->setParameter('subCategory', $subCategory)
+            ->orderBy('v.id', 'DESC');
+
+        if ($search !== '') {
+            $qb->andWhere('p.name LIKE :q OR p.description LIKE :q')
+                ->setParameter('q', '%' . $search . '%');
+        }
+
+        return $qb;
+    }
+
+    public function createByCategoryQbFromEntity(Category $category, string $search = ''): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('v')
+            ->innerJoin('v.product', 'p')->addSelect('p')
+            ->innerJoin('p.subCategory', 'sc')->addSelect('sc')
+            ->andWhere('sc.categorie = :category')
+            ->setParameter('category', $category)
+            ->orderBy('v.id', 'DESC');
+
+        if ($search !== '') {
+            $qb->andWhere('p.name LIKE :q OR p.description LIKE :q')
+                ->setParameter('q', '%' . $search . '%');
+        }
+        return $qb;
+    }
+
 
 }

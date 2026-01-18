@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+use ApiPlatform\Metadata\GraphQl\Query;
 use App\Entity\Product;
 use App\Entity\Category;
-use Doctrine\Persistence\ManagerRegistry;
+use 
+Doctrine\Persistence\ManagerRegistry;
+use App\Entity\SubCategory;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
@@ -122,25 +126,23 @@ class ProductRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findBySubCategory(\App\Entity\SubCategory $subCategory): array
+    public function qbBySubCategory(SubCategory $subCategory): QueryBuilder
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.subCategory = :subCategory')
             ->setParameter('subCategory', $subCategory)
-            ->orderBy('p.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('p.id', 'DESC');
+           
     }
 
-    public function findByParentCategory(\App\Entity\Category $category): array
+    public function findByParentCategory(Category $category): QueryBuilder
     {
         return $this->createQueryBuilder('p')
             ->innerJoin('p.subCategory', 'sc')
             ->andWhere('sc.categorie = :category')
             ->setParameter('category', $category)
-            ->orderBy('p.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('p.id', 'DESC');
+          
     }
 
 

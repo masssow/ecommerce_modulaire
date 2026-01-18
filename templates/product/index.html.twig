@@ -27,13 +27,12 @@
         current_q: current_q|default('')
         } %}
 
-        {% if fallbackToCategory %}
-        <div class="alert alert-info">
-            Aucun produit disponible dans “{{ subCategory.name }}”.
-            Affichage des produits de la catégorie “{{ category.name }}”.
-        </div>
-        {% endif %}
-
+            {% if fallbackToCategory %}
+                <div class="alert alert-info">
+                    Aucun produit disponible dans “{{ subCategory.name }}”.
+                    Affichage des produits de la catégorie “{{ category.name }}”.
+                </div>
+            {% endif %}
     
         {# <div class="mg-shop-filters mb-3">
             <form method="get" action="{{ path('product_index') }}" class="row g-2 align-items-end">
@@ -75,6 +74,7 @@
         <div class="flex-c-m flex-w w-full">
             {{ knp_pagination_render(productVariants, 'pagination/_pagination.html.twig') }}
         </div>
+         
     </section>
 </div>
 {% endblock %}

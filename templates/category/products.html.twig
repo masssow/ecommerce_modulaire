@@ -22,7 +22,12 @@
     <h3 class="ltext-103 cl5 p-b-20">
       Produits dans : {{ category.name }}
     </h3>
-
+    {% if fallbackToCategory is defined and fallbackToCategory %}
+      <div class="alert alert-info">
+        Aucun produit disponible dans “{{ subCategory.name }}”.
+        Affichage des produits de la catégorie “{{ category.name }}”.
+      </div>
+    {% endif %}
     {# Recherche dans cette catégorie #}{# Grille produits #}
   
  {% include 'product/partials/_section_catalogue.html.twig' with {
